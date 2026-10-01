@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Returns & Cancellations | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-brand">
+        <a href="../index.html" class="logo">
+          <div class="logo-icon">N</div>
+          NUTRA<span>TEIN</span>
+        </a>
+        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-top: 4px;">ADMIN CONSOLE</div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-item"><span>📊</span> Dashboard</a>
+        <a href="products.html" class="admin-nav-item"><span>📦</span> Products</a>
+        <a href="orders.html" class="admin-nav-item"><span>🛒</span> Orders</a>
+        <a href="customers.html" class="admin-nav-item"><span>👥</span> Customers</a>
+        <a href="reviews.html" class="admin-nav-item"><span>⭐</span> Reviews</a>
+        <a href="coupons.html" class="admin-nav-item"><span>🏷️</span> Coupons</a>
+        <a href="flash-sales.html" class="admin-nav-item"><span>⚡</span> Flash Sales</a>
+        <a href="returns.html" class="admin-nav-item active"><span>🔄</span> Returns</a>
+        <a href="banners.html" class="admin-nav-item"><span>🖼️</span> Banners</a>
+        <a href="videos.html" class="admin-nav-item"><span>🎥</span> Videos</a>
+        <a href="analytics.html" class="admin-nav-item"><span>📈</span> Analytics</a>
+        <a href="invoices.html" class="admin-nav-item"><span>🧾</span> Invoices</a>
+        <a href="shipping.html" class="admin-nav-item"><span>🚚</span> Shipping</a>
+        <a href="email.html" class="admin-nav-item"><span>📧</span> Email</a>
+        <a href="cms.html" class="admin-nav-item"><span>📝</span> CMS Pages</a>
+        <a href="media.html" class="admin-nav-item"><span>🖼️</span> Media</a>
+        <a href="roles.html" class="admin-nav-item"><span>🛡️</span> Roles & Staff</a>
+        <a href="backup.html" class="admin-nav-item"><span>💾</span> Backup</a>
+        <a href="settings.html" class="admin-nav-item"><span>⚙️</span> Settings</a>
+        <a href="activity-log.html" class="admin-nav-item"><span>📋</span> Activity Log</a>
+        <a href="../index.html" class="admin-nav-item" style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px;"><span>🌐</span> View Store</a>
+        <button onclick="logout()" class="admin-nav-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: #DC2626;"><span>🚪</span> Logout</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <div style="font-weight: 700; font-size: 1.1rem;">🔄 Returns & Cancellations</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <select id="filter-type" onchange="applyFilters()" class="form-control" style="width:auto;padding:6px 12px;font-size:0.85rem;">
+            <option value="">All Types</option>
+            <option value="RETURN">Returns Only</option>
+            <option value="CANCELLATION">Cancellations Only</option>
+          </select>
+          <select id="filter-status" onchange="applyFilters()" class="form-control" style="width:auto;padding:6px 12px;font-size:0.85rem;">
+            <option value="">All Statuses</option>
+            <option value="REQUESTED">Requested</option>
+            <option value="UNDER_REVIEW">Under Review</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="REFUNDED">Refunded</option>
+            <option value="COMPLETED">Completed</option>
+          </select>
+          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+          <div style="font-size: 0.875rem; font-weight: 600;" id="admin-user-display">Admin</div>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <div class="flex-between" style="margin-bottom: 24px;">
+          <div>
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Returns & Cancellations Management</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">Review return and cancellation requests, verify items, approve refunds, and communicate notes</p>
+          </div>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="loadReturnsPage()">Refresh Requests</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="stat-label">Total Requests</div>
+            <div class="stat-val" id="stat-total">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pending Review</div>
+            <div class="stat-val" id="stat-pending" style="color:#D97706;">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Approved</div>
+            <div class="stat-val" id="stat-approved" style="color:#059669;">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Returns</div>
+            <div class="stat-val" id="stat-returns" style="color:var(--brand);">—</div>
+          </div>
+        </div>
+
+        <div id="returns-table-container">
+          <div style="text-align:center;padding:40px;"><div class="loading-spinner"></div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Update Status Modal -->
+  <div class="search-overlay" id="update-status-modal" onclick="if(event.target===this) document.getElementById('update-status-modal').classList.remove('open')">
+    <div class="search-box" style="max-width:440px;padding:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="font-size:1.1rem;font-weight:800;">Update Request Status</h3>
+        <button onclick="document.getElementById('update-status-modal').classList.remove('open')" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">×</button>
+      </div>
+      <input type="hidden" id="update-request-id">
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:0.85rem;">New Status</label>
+        <select id="update-status" class="form-control" style="width:100%;padding:8px 12px;">
+          <option value="REQUESTED">Requested</option>
+          <option value="UNDER_REVIEW">Under Review</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="PICKUP_PENDING">Pickup Pending</option>
+          <option value="RECEIVED">Item Received</option>
+          <option value="REFUND_PROCESSING">Refund Processing</option>
+          <option value="REFUNDED">Refunded</option>
+          <option value="COMPLETED">Completed</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:0.85rem;">Admin Note</label>
+        <textarea id="update-admin-note" class="form-control" rows="3" style="width:100%;padding:8px 12px;box-sizing:border-box;" placeholder="Optional note to document this update..."></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+        <button class="btn btn-secondary" onclick="document.getElementById('update-status-modal').classList.remove('open')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitStatusUpdate()">Update Status</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allReturns = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      await ensureAdminAuth();
+      loadReturnsPage();
+    });
+
+    async function loadReturnsPage() {
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/returns`, { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        allReturns = data.returns || [];
+        updateStats(allReturns);
+        renderReturnsTable(allReturns);
+      } catch (err) {
+        document.getElementById('returns-table-container').innerHTML = '<div class="alert alert-error">Failed to load: ' + err.message + '</div>';
+      }
+    }
+
+    function updateStats(data) {
+      document.getElementById('stat-total').textContent = data.length;
+      document.getElementById('stat-pending').textContent = data.filter(r => ['REQUESTED','UNDER_REVIEW'].includes(r.status)).length;
+      document.getElementById('stat-approved').textContent = data.filter(r => r.status === 'APPROVED').length;
+      document.getElementById('stat-returns').textContent = data.filter(r => r.type === 'RETURN').length;
+    }
+
+    function applyFilters() {
+      const type = document.getElementById('filter-type').value;
+      const status = document.getElementById('filter-status').value;
+      let filtered = [...allReturns];
+      if (type) filtered = filtered.filter(r => r.type === type);
+      if (status) filtered = filtered.filter(r => r.status === status);
+      renderReturnsTable(filtered);
+    }
+
+    function renderReturnsTable(data) {
+      const container = document.getElementById('returns-table-container');
+      if (!data.length) {
+        container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted);background:var(--card-bg);border:1px solid var(--border);border-radius:12px;">No return/cancellation requests found.</div>';
+        return;
+      }
+      const statusColors = {
+        REQUESTED:'requested', UNDER_REVIEW:'under_review', APPROVED:'approved', REJECTED:'rejected', REFUNDED:'refunded', COMPLETED:'approved', PICKUP_PENDING:'under_review', RECEIVED:'under_review', REFUND_PROCESSING:'under_review'
+      };
+      container.innerHTML = `
+        <div class="table-wrap admin-table-wrap">
+          <table class="data-table admin-table">
+            <thead><tr>
+              <th>Request ID</th><th>Customer</th><th>Order</th><th>Type</th><th>Reason</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+              ${data.map(r => `
+                <tr>
+                  <td style="font-family:monospace;font-size:0.78rem;">${r._id.slice(-8)}</td>
+                  <td><strong>${r.userName}</strong><div style="font-size:0.75rem;color:var(--text-muted);">${r.userEmail || ''}</div></td>
+                  <td style="font-family:monospace;font-size:0.85rem;">#${r.orderNumber}</td>
+                  <td><span class="return-type-pill ${r.type.toLowerCase()}">${r.type}</span></td>
+                  <td style="font-size:0.82rem;max-width:140px;">${r.reason}<div style="font-size:0.73rem;color:var(--text-muted);">${r.description ? r.description.slice(0,60) + (r.description.length > 60 ? '...' : '') : ''}</div></td>
+                  <td><strong style="color:var(--brand);">₹${r.orderTotal ? r.orderTotal.toLocaleString('en-IN') : 'N/A'}</strong></td>
+                  <td><span class="request-status-pill ${statusColors[r.status] || ''}">${r.status.replace(/_/g,' ')}</span></td>
+                  <td style="font-size:0.78rem;">${new Date(r.createdAt).toLocaleDateString('en-IN')}</td>
+                  <td>
+                    <button class="btn btn-sm btn-secondary" onclick="openUpdateModal('${r._id}','${r.status}','${r.adminNote || ''}')">Update</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function openUpdateModal(id, currentStatus, currentNote) {
+      document.getElementById('update-request-id').value = id;
+      document.getElementById('update-status').value = currentStatus;
+      document.getElementById('update-admin-note').value = currentNote || '';
+      document.getElementById('update-status-modal').classList.add('open');
+    }
+
+    async function submitStatusUpdate() {
+      const id = document.getElementById('update-request-id').value;
+      const status = document.getElementById('update-status').value;
+      const adminNote = document.getElementById('update-admin-note').value;
+      try {
+        const res = await fetch(`${API_BASE}/returns/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+          body: JSON.stringify({ status, adminNote })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('update-status-modal').classList.remove('open');
+          showToast('Status updated to ' + status.replace(/_/g,' '), 'success');
+          loadReturnsPage();
+        } else showToast(data.message || 'Error', 'error');
+      } catch { showToast('Network error.', 'error'); }
+    }
+  </script>
+</body>
+</html>

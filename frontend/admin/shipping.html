@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipping & Delivery Management | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-brand">
+        <a href="../index.html" class="logo">
+          <div class="logo-icon">N</div>
+          NUTRA<span>TEIN</span>
+        </a>
+        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-top: 4px;">ADMIN CONSOLE</div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-item"><span>📊</span> Dashboard</a>
+        <a href="products.html" class="admin-nav-item"><span>📦</span> Products</a>
+        <a href="orders.html" class="admin-nav-item"><span>🛒</span> Orders</a>
+        <a href="customers.html" class="admin-nav-item"><span>👥</span> Customers</a>
+        <a href="reviews.html" class="admin-nav-item"><span>⭐</span> Reviews</a>
+        <a href="coupons.html" class="admin-nav-item"><span>🏷️</span> Coupons</a>
+        <a href="flash-sales.html" class="admin-nav-item"><span>⚡</span> Flash Sales</a>
+        <a href="returns.html" class="admin-nav-item"><span>🔄</span> Returns</a>
+        <a href="banners.html" class="admin-nav-item"><span>🖼️</span> Banners</a>
+        <a href="videos.html" class="admin-nav-item"><span>🎥</span> Videos</a>
+        <a href="analytics.html" class="admin-nav-item"><span>📈</span> Analytics</a>
+        <a href="invoices.html" class="admin-nav-item"><span>🧾</span> Invoices</a>
+        <a href="shipping.html" class="admin-nav-item active"><span>🚚</span> Shipping</a>
+        <a href="email.html" class="admin-nav-item"><span>📧</span> Email</a>
+        <a href="cms.html" class="admin-nav-item"><span>📝</span> CMS Pages</a>
+        <a href="media.html" class="admin-nav-item"><span>🖼️</span> Media</a>
+        <a href="roles.html" class="admin-nav-item"><span>🛡️</span> Roles & Staff</a>
+        <a href="backup.html" class="admin-nav-item"><span>💾</span> Backup</a>
+        <a href="settings.html" class="admin-nav-item"><span>⚙️</span> Settings</a>
+        <a href="activity-log.html" class="admin-nav-item"><span>📋</span> Activity Log</a>
+        <a href="../index.html" class="admin-nav-item" style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px;"><span>🌐</span> View Store</a>
+        <button onclick="logout()" class="admin-nav-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: #DC2626;"><span>🚪</span> Logout</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div style="font-weight: 700; font-size: 1.1rem;">Logistics, Carriers & Delivery Scheduling</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+          <div style="font-size: 0.875rem; font-weight: 600;" id="admin-user-display">Admin</div>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <div class="flex-between" style="margin-bottom: 24px;">
+          <div>
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Shipping & Delivery Dispatch</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">Manage courier assignments, tracking codes, delivery time windows, and delayed order alarms</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="loadAdminShipping()">Refresh Logistics</button>
+        </div>
+
+        <!-- Delayed Delivery Alert Banner -->
+        <div id="shipping-delayed-banner" class="delayed-alert-box hidden"></div>
+
+        <!-- Metrics Row -->
+        <div class="stats-grid" id="shipping-stats-row">
+          <div class="stat-card"><div class="loading-spinner"></div></div>
+        </div>
+
+        <!-- Filter Bar & Clear All -->
+        <div class="filter-bar">
+          <input type="text" id="shipping-search" class="search-input" placeholder="Search by tracking number, order #, courier, or customer..." oninput="loadAdminShipping()">
+          <select id="shipping-status-filter" onchange="loadAdminShipping()">
+            <option value="all">All Delivery Statuses</option>
+            <option value="CONFIRMED">CONFIRMED</option>
+            <option value="PROCESSING">PROCESSING</option>
+            <option value="PACKED">PACKED</option>
+            <option value="SHIPPED">SHIPPED</option>
+            <option value="OUT_FOR_DELIVERY">OUT FOR DELIVERY</option>
+            <option value="DELIVERED">DELIVERED</option>
+          </select>
+          <label style="display:flex; align-items:center; gap:6px; font-size:0.825rem; font-weight:700; color:#E11D48; cursor:pointer;">
+            <input type="checkbox" id="shipping-delayed-only" onchange="loadAdminShipping()">
+            ⚠️ Delayed Shipments Only
+          </label>
+          <button class="btn-clear-all" onclick="clearAllFilters('shipping')" title="Reset shipping filters">
+            <span>🔄</span> Clear Filters
+          </button>
+        </div>
+
+        <!-- Shipping Management Table -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Destination Customer</th>
+                <th>Carrier & Tracking #</th>
+                <th>Expected Delivery & Window</th>
+                <th>Actual Delivery</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-shipping-tbody">
+              <tr><td colspan="7" style="text-align:center; padding:30px;"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Set Shipping Dates Modal -->
+  <div class="modal-overlay" id="shipping-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="ship-modal-order-title">Shipping Management</h3>
+        <button class="modal-close" onclick="document.getElementById('shipping-modal').classList.remove('active')">&times;</button>
+      </div>
+      <form onsubmit="saveShippingModal(event)">
+        <input type="hidden" id="ship-modal-order-id">
+        <input type="hidden" id="ship-modal-created-at">
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
+          <div class="grid-2" style="gap:14px;">
+            <div class="form-group">
+              <label class="form-label">Shipping Carrier *</label>
+              <select id="ship-modal-carrier" class="form-control">
+                <option value="BlueDart Express">BlueDart Express</option>
+                <option value="Delhivery Surface">Delhivery Surface</option>
+                <option value="DTDC Express">DTDC Express</option>
+                <option value="FedEx India">FedEx India</option>
+                <option value="India Post Speed Post">India Post Speed Post</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tracking Number *</label>
+              <input type="text" id="ship-modal-tracking" class="form-control" placeholder="TRK-98765432" required>
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap:14px;">
+            <div class="form-group">
+              <label class="form-label">Expected Shipping Date</label>
+              <input type="date" id="ship-modal-exp-ship" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expected Delivery Date *</label>
+              <input type="date" id="ship-modal-exp-del" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap:14px;">
+            <div class="form-group">
+              <label class="form-label">Actual Delivery Date (if completed)</label>
+              <input type="date" id="ship-modal-act-del" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Delivery Time Window</label>
+              <select id="ship-modal-window" class="form-control">
+                <option value="10:00 AM - 02:00 PM">Morning (10:00 AM - 02:00 PM)</option>
+                <option value="02:00 PM - 06:00 PM">Afternoon (02:00 PM - 06:00 PM)</option>
+                <option value="06:00 PM - 09:00 PM">Evening (06:00 PM - 09:00 PM)</option>
+                <option value="Anytime (09:00 AM - 08:00 PM)">Anytime (09:00 AM - 08:00 PM)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Delivery Notes / Instructions</label>
+            <input type="text" id="ship-modal-notes" class="form-control" placeholder="e.g. Fragile health supplements, call customer prior to dispatch">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('shipping-modal').classList.remove('active')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Shipping Details</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminShipping();
+    });
+  </script>
+</body>
+</html>
+

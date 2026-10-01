@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMS Pages | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    .cms-tab-nav { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:24px; overflow-x:auto; }
+    .cms-tab-btn { padding:10px 18px; border:none; background:none; cursor:pointer; font-size:0.88rem; font-weight:600; color:var(--text-muted); border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:all 0.2s; }
+    .cms-tab-btn.active { color:var(--brand); border-bottom-color:var(--brand); }
+    .cms-panel { display:none; }
+    .cms-panel.active { display:block; }
+    textarea.cms-body { min-height:280px; font-family:inherit; line-height:1.6; }
+    .faq-item { border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:10px; position:relative; }
+    .faq-delete { position:absolute; top:8px; right:8px; background:none; border:none; color:#dc2626; cursor:pointer; font-size:1.1rem; }
+  </style>
+</head>
+<body class="admin-layout">
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar-header">
+      <a href="../index.html" class="logo" style="font-size:1.1rem;"><div class="logo-icon" style="width:28px;height:28px;font-size:0.75rem;">X</div>NUTRA<span>TEIN</span></a>
+      <span style="font-size:0.65rem;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:700;">ADMIN</span>
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html" class="admin-nav-link"><span>📊</span> Dashboard</a>
+      <a href="products.html" class="admin-nav-link"><span>📦</span> Products</a>
+      <a href="orders.html" class="admin-nav-link"><span>🛒</span> Orders</a>
+      <a href="customers.html" class="admin-nav-link"><span>👥</span> Customers</a>
+      <a href="reviews.html" class="admin-nav-link"><span>⭐</span> Reviews</a>
+      <a href="coupons.html" class="admin-nav-link"><span>🏷️</span> Coupons</a>
+      <a href="flash-sales.html" class="admin-nav-link"><span>⚡</span> Flash Sales</a>
+      <a href="returns.html" class="admin-nav-link"><span>🔄</span> Returns</a>
+      <a href="banners.html" class="admin-nav-link"><span>🖼️</span> Banners</a>
+      <a href="videos.html" class="admin-nav-link"><span>🎥</span> Videos</a>
+      <a href="analytics.html" class="admin-nav-link"><span>📈</span> Analytics</a>
+      <a href="invoices.html" class="admin-nav-link"><span>🧾</span> Invoices</a>
+      <a href="shipping.html" class="admin-nav-link"><span>🚚</span> Shipping</a>
+      <a href="email.html" class="admin-nav-link"><span>📧</span> Email</a>
+      <a href="cms.html" class="admin-nav-link active"><span>📝</span> CMS Pages</a>
+      <a href="media.html" class="admin-nav-link"><span>🖼️</span> Media</a>
+      <a href="roles.html" class="admin-nav-link"><span>🛡️</span> Roles & Staff</a>
+      <a href="backup.html" class="admin-nav-link"><span>💾</span> Backup</a>
+      <a href="settings.html" class="admin-nav-link"><span>⚙️</span> Settings</a>
+      <a href="activity-log.html" class="admin-nav-link"><span>📋</span> Activity Log</a>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <a href="../index.html" style="display:block;text-align:center;font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">← View Store</a>
+      <button class="btn btn-secondary btn-sm w-full" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <h1 class="admin-page-title">📝 CMS Pages</h1>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+        <div style="font-size:0.875rem;font-weight:600;" id="admin-user-display">Admin</div>
+      </div>
+    </header>
+
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:20px;">Edit your public pages. Changes are reflected live on the storefront.</p>
+
+    <div class="cms-tab-nav">
+      <button class="cms-tab-btn active" onclick="switchCmsTab('about', event)">🏢 About</button>
+      <button class="cms-tab-btn" onclick="switchCmsTab('faq', event)">❓ FAQ</button>
+      <button class="cms-tab-btn" onclick="switchCmsTab('contact', event)">📞 Contact</button>
+      <button class="cms-tab-btn" onclick="switchCmsTab('privacyPolicy', event)">🔒 Privacy</button>
+      <button class="cms-tab-btn" onclick="switchCmsTab('termsOfService', event)">📋 Terms</button>
+      <button class="cms-tab-btn" onclick="switchCmsTab('refundPolicy', event)">↩️ Refund</button>
+    </div>
+
+    <!-- About -->
+    <div class="cms-panel active" id="cms-about">
+      <div class="admin-card" style="max-width:800px;">
+        <h3 style="margin-bottom:20px;font-size:1.05rem;font-weight:800;">About Us Page</h3>
+        <div class="form-group">
+          <label class="form-label">Page Title</label>
+          <input type="text" id="about-title" class="form-control" placeholder="About PROTEINX">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subtitle</label>
+          <input type="text" id="about-subtitle" class="form-control" placeholder="India's Premium Fitness Supplement Brand">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Our Mission</label>
+          <textarea id="about-mission" class="form-control" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Our Vision</label>
+          <textarea id="about-vision" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Team Section Heading</label>
+          <input type="text" id="about-team-heading" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Team Section Description</label>
+          <textarea id="about-team-desc" class="form-control" rows="3"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="saveCmsPage('about')">💾 Save About Page</button>
+        <a href="../about.html" target="_blank" class="btn btn-secondary" style="margin-left:8px;">👁 Preview Live Page</a>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="cms-panel" id="cms-faq">
+      <div class="admin-card" style="max-width:800px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <h3 style="font-size:1.05rem;font-weight:800;">FAQ Page</h3>
+          <button class="btn btn-secondary btn-sm" onclick="addFaqItem()">+ Add Question</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Page Title</label>
+          <input type="text" id="faq-title" class="form-control" placeholder="Frequently Asked Questions">
+        </div>
+        <div id="faq-items-container" style="margin-top:16px;"></div>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="saveCmsPage('faq')">💾 Save FAQ Page</button>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="cms-panel" id="cms-contact">
+      <div class="admin-card" style="max-width:700px;">
+        <h3 style="margin-bottom:20px;font-size:1.05rem;font-weight:800;">Contact Page Details</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Support Email</label>
+            <input type="email" id="contact-email" class="form-control" placeholder="kaziadnan275@gmail.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="text" id="contact-phone" class="form-control" placeholder="+91 98765 43210">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Business Hours</label>
+            <input type="text" id="contact-hours" class="form-control" placeholder="Mon–Sat, 9 AM – 6 PM IST">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Google Maps Embed URL</label>
+            <input type="text" id="contact-map" class="form-control" placeholder="https://www.google.com/maps/embed?...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Office Address</label>
+          <textarea id="contact-address" class="form-control" rows="3"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="saveCmsPage('contact')">💾 Save Contact Page</button>
+        <a href="../contact.html" target="_blank" class="btn btn-secondary" style="margin-left:8px;">👁 Preview Live Page</a>
+      </div>
+    </div>
+
+    <!-- Privacy Policy -->
+    <div class="cms-panel" id="cms-privacyPolicy">
+      <div class="admin-card" style="max-width:800px;">
+        <h3 style="margin-bottom:20px;font-size:1.05rem;font-weight:800;">Privacy Policy</h3>
+        <div class="form-group"><label class="form-label">Title</label><input type="text" id="privacy-title" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Last Updated</label><input type="date" id="privacy-updated" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Content</label><textarea id="privacy-content" class="form-control cms-body" rows="12"></textarea></div>
+        <button class="btn btn-primary" onclick="saveCmsPage('privacyPolicy')">💾 Save Privacy Policy</button>
+      </div>
+    </div>
+
+    <!-- Terms -->
+    <div class="cms-panel" id="cms-termsOfService">
+      <div class="admin-card" style="max-width:800px;">
+        <h3 style="margin-bottom:20px;font-size:1.05rem;font-weight:800;">Terms of Service</h3>
+        <div class="form-group"><label class="form-label">Title</label><input type="text" id="terms-title" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Last Updated</label><input type="date" id="terms-updated" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Content</label><textarea id="terms-content" class="form-control cms-body" rows="12"></textarea></div>
+        <button class="btn btn-primary" onclick="saveCmsPage('termsOfService')">💾 Save Terms of Service</button>
+      </div>
+    </div>
+
+    <!-- Refund Policy -->
+    <div class="cms-panel" id="cms-refundPolicy">
+      <div class="admin-card" style="max-width:800px;">
+        <h3 style="margin-bottom:20px;font-size:1.05rem;font-weight:800;">Refund & Return Policy</h3>
+        <div class="form-group"><label class="form-label">Title</label><input type="text" id="refund-title" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Last Updated</label><input type="date" id="refund-updated" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Content</label><textarea id="refund-content" class="form-control cms-body" rows="12"></textarea></div>
+        <button class="btn btn-primary" onclick="saveCmsPage('refundPolicy')">💾 Save Refund Policy</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let cmsData = {};
+    let currentTab = 'about';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      await ensureAdminAuth();
+      loadAllCmsPages();
+    });
+
+    function switchCmsTab(page, event) {
+      document.querySelectorAll('.cms-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.cms-panel').forEach(p => p.classList.remove('active'));
+      if (event) event.target.classList.add('active');
+      document.getElementById('cms-' + page).classList.add('active');
+      currentTab = page;
+      if (cmsData[page]) populatePage(page, cmsData[page]);
+    }
+
+    async function loadAllCmsPages() {
+      const pages = ['about', 'faq', 'contact', 'privacyPolicy', 'termsOfService', 'refundPolicy'];
+      for (const page of pages) {
+        try {
+          const res = await fetch(`${API_BASE}/cms/${page}`);
+          const data = await res.json();
+          if (data.success) {
+            cmsData[page] = data.page;
+            if (page === 'about') populatePage('about', data.page);
+          }
+        } catch (e) {}
+      }
+    }
+
+    function populatePage(page, data) {
+      if (page === 'about') {
+        document.getElementById('about-title').value = data.title || '';
+        document.getElementById('about-subtitle').value = data.subtitle || '';
+        document.getElementById('about-mission').value = data.mission || '';
+        document.getElementById('about-vision').value = data.vision || '';
+        document.getElementById('about-team-heading').value = data.teamHeading || '';
+        document.getElementById('about-team-desc').value = data.teamDesc || '';
+      } else if (page === 'faq') {
+        document.getElementById('faq-title').value = data.title || '';
+        renderFaqItems(data.items || []);
+      } else if (page === 'contact') {
+        document.getElementById('contact-email').value = data.email || '';
+        document.getElementById('contact-phone').value = data.phone || '';
+        document.getElementById('contact-hours').value = data.hours || '';
+        document.getElementById('contact-address').value = data.address || '';
+        document.getElementById('contact-map').value = data.mapUrl || '';
+      } else if (page === 'privacyPolicy') {
+        document.getElementById('privacy-title').value = data.title || '';
+        document.getElementById('privacy-updated').value = data.lastUpdated || '';
+        document.getElementById('privacy-content').value = data.content || '';
+      } else if (page === 'termsOfService') {
+        document.getElementById('terms-title').value = data.title || '';
+        document.getElementById('terms-updated').value = data.lastUpdated || '';
+        document.getElementById('terms-content').value = data.content || '';
+      } else if (page === 'refundPolicy') {
+        document.getElementById('refund-title').value = data.title || '';
+        document.getElementById('refund-updated').value = data.lastUpdated || '';
+        document.getElementById('refund-content').value = data.content || '';
+      }
+    }
+
+    function renderFaqItems(items) {
+      const container = document.getElementById('faq-items-container');
+      container.innerHTML = items.map((item, i) => `
+        <div class="faq-item" id="faq-item-${i}">
+          <button class="faq-delete" onclick="removeFaqItem(${i})">✕</button>
+          <div class="form-group"><label class="form-label">Question</label>
+            <input type="text" id="faq-q-${i}" class="form-control" value="${(item.q || '').replace(/"/g, '&quot;')}"></div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Answer</label>
+            <textarea id="faq-a-${i}" class="form-control" rows="3">${item.a || ''}</textarea></div>
+        </div>
+      `).join('');
+    }
+
+    function addFaqItem() {
+      const page = cmsData.faq || { items: [] };
+      page.items.push({ q: '', a: '' });
+      cmsData.faq = page;
+      renderFaqItems(page.items);
+    }
+
+    function removeFaqItem(index) {
+      if (!cmsData.faq) return;
+      cmsData.faq.items.splice(index, 1);
+      renderFaqItems(cmsData.faq.items);
+    }
+
+    function collectFaqItems() {
+      const items = [];
+      let i = 0;
+      while (document.getElementById('faq-q-' + i)) {
+        items.push({ q: document.getElementById('faq-q-' + i).value, a: document.getElementById('faq-a-' + i).value });
+        i++;
+      }
+      return items;
+    }
+
+    async function saveCmsPage(page) {
+      const token = getToken();
+      let body = {};
+      if (page === 'about') {
+        body = { title: document.getElementById('about-title').value, subtitle: document.getElementById('about-subtitle').value, mission: document.getElementById('about-mission').value, vision: document.getElementById('about-vision').value, teamHeading: document.getElementById('about-team-heading').value, teamDesc: document.getElementById('about-team-desc').value };
+      } else if (page === 'faq') {
+        body = { title: document.getElementById('faq-title').value, items: collectFaqItems() };
+      } else if (page === 'contact') {
+        body = { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, hours: document.getElementById('contact-hours').value, address: document.getElementById('contact-address').value, mapUrl: document.getElementById('contact-map').value };
+      } else if (page === 'privacyPolicy') {
+        body = { title: document.getElementById('privacy-title').value, lastUpdated: document.getElementById('privacy-updated').value, content: document.getElementById('privacy-content').value };
+      } else if (page === 'termsOfService') {
+        body = { title: document.getElementById('terms-title').value, lastUpdated: document.getElementById('terms-updated').value, content: document.getElementById('terms-content').value };
+      } else if (page === 'refundPolicy') {
+        body = { title: document.getElementById('refund-title').value, lastUpdated: document.getElementById('refund-updated').value, content: document.getElementById('refund-content').value };
+      }
+
+      const res = await fetch(`${API_BASE}/cms/${page}`, {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      showToast(data.success ? 'Page saved successfully!' : data.message, data.success ? 'success' : 'error');
+      if (data.success) cmsData[page] = data.page;
+    }
+
+    function logout() {
+      localStorage.removeItem('proteinx_token'); localStorage.removeItem('proteinx_user');
+      localStorage.removeItem('token'); localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

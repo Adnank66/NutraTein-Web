@@ -1,0 +1,68 @@
+{
+  "activeBannerId": "ban-creatine",
+  "fitMode": "contain",
+  "bannerWidth": "full",
+  "bannerHeight": "xl",
+  "banners": [
+    {
+      "id": "ban-whey",
+      "title": "NITROTEIN PERFORMANCE WHEY",
+      "subtitle": "30g Pure Protein • Rapid Muscle Recovery • Swiss Chocolate",
+      "badgeText": "FLAGSHIP PERFORMANCE",
+      "ctaText": "Shop NitroTein Whey",
+      "ctaLink": "/shop/nitro-tein-whey-isolate",
+      "imageUrl": "/assets/banners/whey-red-banner.png",
+      "objectFit": "cover",
+      "isActive": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "ban-shred",
+      "title": "SHREDTEIN LEAN PROTEIN MATRIX",
+      "subtitle": "Advanced Thermogenic Formula • Fortified with CLA & Green Tea",
+      "badgeText": "LEAN MUSCLE GAINS",
+      "ctaText": "Explore ShredTein",
+      "ctaLink": "/shop/shred-tein-whey",
+      "imageUrl": "/assets/banners/SHRED -TEIN wheyyellow banner new.png",
+      "objectFit": "cover",
+      "isActive": true,
+      "sortOrder": 2
+    },
+    {
+      "id": "ban-creatine",
+      "title": "CREACORE CREATINE MONOHYDRATE",
+      "subtitle": "99.9% Pure Creapure® Grade • Instant Cellular ATP Surge",
+      "badgeText": "CLINICAL PURITY",
+      "ctaText": "Shop CreaCore",
+      "ctaLink": "/shop/creatine-monohydrate",
+      "imageUrl": "/assets/banners/createin banner.png",
+      "objectFit": "cover",
+      "isActive": true,
+      "sortOrder": 3
+    },
+    {
+      "id": "ban-preworkout",
+      "title": "TITAN LOADED PRE-WORKOUT",
+      "subtitle": "High-Stim Beta-Alanine & Citrulline Malate Explosive Focus",
+      "badgeText": "UNSTOPPABLE PUMP",
+      "ctaText": "Explore Pre-Workouts",
+      "ctaLink": "/shop/ignition-pre-workout",
+      "imageUrl": "/assets/banners/PreWorkout banner new.png",
+      "objectFit": "cover",
+      "isActive": true,
+      "sortOrder": 4
+    },
+    {
+      "id": "ban-carnitine",
+      "title": "L-CARNITINE 3300MG TRIPLE STRENGTH",
+      "subtitle": "Liquid Thermogenic Energy • Rapid Fat Oxidation & Endurance",
+      "badgeText": "TRIPLE STRENGTH",
+      "ctaText": "Shop L-Carnitine",
+      "ctaLink": "/shop/l-carnitine-3000-liquid",
+      "imageUrl": "/assets/banners/l-carnitine-widescreen-banner.png",
+      "objectFit": "contain",
+      "isActive": false,
+      "sortOrder": 5
+    }
+  ]
+}

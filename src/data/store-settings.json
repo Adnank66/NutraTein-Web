@@ -1,0 +1,58 @@
+{
+  "ribbons": [
+    {
+      "id": "ribbon-free-shipping-first10",
+      "text": "FREE EXPRESS SHIPPING ON ORDERS OVER ₹999 | Use code FIRST10 for 10% off",
+      "badge": "FREE SHIPPING",
+      "link": "/shop",
+      "bgColor": "bg-red-600",
+      "textColor": "text-white",
+      "enabled": false
+    },
+    {
+      "id": "ribbon-2",
+      "text": "🛡️ 100% AUTHENTIC INDIAN BATCH LAB CERTIFIED | NO AMINO SPIKING | HASSLE-FREE 7-DAY REPLACEMENTS",
+      "badge": "LAB CERTIFIED",
+      "link": "/about",
+      "bgColor": "bg-zinc-950",
+      "textColor": "text-white",
+      "enabled": false
+    }
+  ],
+  "announcement": {
+    "id": "ribbon-free-shipping-first10",
+    "text": "FREE EXPRESS SHIPPING ON ORDERS OVER ₹999 | Use code FIRST10 for 10% off",
+    "badge": "FREE SHIPPING",
+    "link": "/shop",
+    "bgColor": "bg-red-600",
+    "textColor": "text-white",
+    "enabled": false
+  },
+  "announcementPrimary": {
+    "id": "ribbon-free-shipping-first10",
+    "text": "FREE EXPRESS SHIPPING ON ORDERS OVER ₹999 | Use code FIRST10 for 10% off",
+    "badge": "FREE SHIPPING",
+    "link": "/shop",
+    "bgColor": "bg-red-600",
+    "textColor": "text-white",
+    "enabled": false
+  },
+  "announcementSecondary": {
+    "id": "ribbon-2",
+    "text": "🛡️ 100% AUTHENTIC INDIAN BATCH LAB CERTIFIED | NO AMINO SPIKING | HASSLE-FREE 7-DAY REPLACEMENTS",
+    "badge": "LAB CERTIFIED",
+    "link": "/about",
+    "bgColor": "bg-zinc-950",
+    "textColor": "text-white",
+    "enabled": false
+  },
+  "supportPhone": "+91 9321598094",
+  "supportEmail": "adnankazi275@gmail.com",
+  "freeShippingThreshold": 999,
+  "socialLinks": {
+    "instagram": "https://www.instagram.com/nutratein?stkn=MXd0ODBqMWs0ZmRvMA==",
+    "youtube": "https://www.youtube.com/@nutratein",
+    "facebook": "https://www.facebook.com/nutratein"
+  },
+  "updatedAt": "2026-10-01T07:46:28.017Z"
+}

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "protein",
+    "label": "Step 1: Choose Core Protein",
+    "options": [
+      {
+        "id": "prod-whey-isolate",
+        "slug": "nitro-tein-whey-isolate",
+        "name": "Nitrotein Performance Whey Protein",
+        "price": 4499,
+        "mrp": 5499,
+        "size": "1 KG (22 Servings)",
+        "image": "/assets/images/SHRED -TEIN wheyred.png"
+      },
+      {
+        "id": "prod-shred-whey",
+        "slug": "shred-tein-whey",
+        "name": "Shredtein Advanced Lean Protein Matrix",
+        "price": 4499,
+        "mrp": 5499,
+        "size": "1 KG (20 Servings)",
+        "image": "/assets/images/SHRED -TEIN wheyyellow.png"
+      },
+      {
+        "id": "prod-mass-gainer",
+        "slug": "mass-tein-gainer",
+        "name": "Masstein Anabolic Mass Gainer",
+        "price": 3999,
+        "mrp": 4999,
+        "size": "3 KG (30 Servings)",
+        "image": "/assets/images/MASS Tein gainer.jpeg"
+      }
+    ]
+  },
+  {
+    "id": "performance",
+    "label": "Step 2: Add Power & Performance",
+    "options": [
+      {
+        "id": "prod-creatine-mono-100",
+        "slug": "creatine-monohydrate",
+        "name": "CreaCore Creatine Monohydrate 100g",
+        "price": 699,
+        "mrp": 899,
+        "size": "100g (32 Servings)",
+        "image": "/assets/images/Createin Monohydrate.jpeg"
+      },
+      {
+        "id": "prod-creatine-mono-250",
+        "slug": "creatine-monohydrate",
+        "name": "CreaCore Creatine Monohydrate 250g",
+        "price": 1499,
+        "mrp": 1899,
+        "size": "250g (80 Servings)",
+        "image": "/assets/images/Createin Monohydrate.jpeg"
+      },
+      {
+        "id": "prod-pre-workout",
+        "slug": "ignition-pre-workout",
+        "name": "Titan Loaded Pre-Workout (Pump & Focus)",
+        "price": 2999,
+        "mrp": 3699,
+        "size": "450g (30 Servings)",
+        "image": "/assets/images/PreWorkout.jpeg"
+      }
+    ]
+  },
+  {
+    "id": "health",
+    "label": "Step 3: Energy & Performance (Optional)",
+    "options": [
+      {
+        "id": "prod-carnitine",
+        "slug": "l-carnitine-3000-liquid",
+        "name": "Pure L-Carnitine 3300mg Triple Strength",
+        "price": 2499,
+        "mrp": 2999,
+        "size": "475 ml (31 Servings)",
+        "image": "/assets/images/L-canitne.jpeg"
+      },
+      {
+        "id": "prod-shaker-pro",
+        "slug": "nutratein-shaker-pro",
+        "name": "NUTRATEIN Pro Shaker Bottle",
+        "price": 299,
+        "mrp": 599,
+        "size": "700ml Bottle",
+        "image": "/assets/images/shaker.png"
+      }
+    ]
+  }
+]

@@ -1,0 +1,1118 @@
+/**
+ * PROTEINX — Premium Modern Animations & Video System
+ * Scroll Reveals, Micro-Interactions, Cinematic Video Players, Card Lifts, Shimmers
+ * Respects prefers-reduced-motion for complete accessibility
+ */
+
+/* ==========================================================================
+   1. ROOT VARIABLES & EASING PRESETS
+   ========================================================================== */
+:root {
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 0.2s;
+  --duration-normal: 0.35s;
+  --duration-slow: 0.65s;
+  --duration-reveal: 0.8s;
+  --hero-glow: rgba(217, 101, 30, 0.18);
+}
+
+[data-theme="dark"] {
+  --hero-glow: rgba(217, 101, 30, 0.28);
+}
+
+/* ==========================================================================
+   2. CINEMATIC HERO VIDEO BACKGROUND & CONTROLS
+   ========================================================================== */
+.hero-slider {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-slide {
+  position: relative;
+}
+
+.hero-video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  filter: contrast(1.05) saturate(1.1);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+[data-theme="dark"] .hero-video-bg {
+  opacity: 0.35;
+}
+
+/* Fallback poster when video is loading */
+.hero-video-bg[poster] {
+  background-size: cover;
+  background-position: center;
+}
+
+/* Subtle cinematic vignette overlay */
+.hero-slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 50%, rgba(18, 19, 22, 0.35) 0%, rgba(18, 19, 22, 0.88) 100%),
+              linear-gradient(180deg, rgba(18, 19, 22, 0.6) 0%, rgba(18, 19, 22, 0.85) 100%);
+  z-index: 1;
+}
+
+/* Hero Media Interactive Controls (Mute / Unmute / Play / Pause) */
+.hero-video-controls {
+  position: absolute;
+  bottom: 24px;
+  right: 28px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 12px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.hero-video-controls:hover {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.hero-control-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+  transition: background var(--duration-fast);
+}
+
+.hero-control-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--brand-light, #ff8c42);
+}
+
+.hero-control-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 640px) {
+  .hero-video-controls {
+    bottom: 16px;
+    right: 16px;
+    padding: 4px 8px;
+  }
+  .hero-control-btn span {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   3. "SCIENCE IN MOTION" FITNESS SHOWCASE VIDEO SECTION
+   ========================================================================== */
+.fitness-showcase-section {
+  padding: 80px 0;
+  position: relative;
+  background: var(--bg-1);
+}
+
+.fitness-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 36px;
+}
+
+@media (max-width: 1024px) {
+  .fitness-showcase-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .fitness-showcase-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* Video Card Structure */
+.fitness-video-card-premium {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-spring), border-color 0.3s;
+  position: relative;
+}
+
+.fitness-video-card-premium:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 36px -10px rgba(0, 0, 0, 0.12), 0 0 24px -4px var(--hero-glow);
+  border-color: var(--brand);
+}
+
+/* Video Player Box with 16:9 Aspect Ratio */
+.fitness-video-player-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0d0f12;
+  overflow: hidden;
+}
+
+.fitness-video-player-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s var(--ease-spring);
+}
+
+.fitness-video-card-premium:hover .fitness-video-player-wrap video {
+  transform: scale(1.05);
+}
+
+/* Play Button Overlay with Pulse Ring */
+.fitness-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  transition: background 0.3s ease;
+  cursor: pointer;
+}
+
+.fitness-video-card-premium:hover .fitness-play-overlay {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.fitness-play-btn-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(217, 101, 30, 0.92);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(217, 101, 30, 0.4);
+  transition: transform 0.3s var(--ease-bounce), background 0.2s;
+  position: relative;
+}
+
+.fitness-play-btn-circle::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(217, 101, 30, 0.6);
+  animation: pulseRing 2.4s infinite;
+}
+
+@keyframes pulseRing {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.25); opacity: 0; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+.fitness-video-card-premium:hover .fitness-play-btn-circle {
+  transform: scale(1.12);
+  background: var(--brand);
+}
+
+.fitness-duration-pill {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  z-index: 2;
+}
+
+/* Video Card Content */
+.fitness-video-card-body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.fitness-tag-chip {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand);
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+.fitness-video-card-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 8px;
+  color: var(--text);
+  transition: color var(--duration-fast);
+}
+
+.fitness-video-card-premium:hover .fitness-video-card-title {
+  color: var(--brand);
+}
+
+.fitness-video-card-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 18px;
+  flex: 1;
+}
+
+.fitness-video-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--brand);
+  text-decoration: none;
+  transition: transform 0.2s var(--ease-spring), color 0.2s;
+  width: max-content;
+}
+
+.fitness-video-card-cta:hover {
+  transform: translateX(4px);
+  color: var(--brand-dark, #b85012);
+}
+
+/* ==========================================================================
+   4. SCROLL-TRIGGERED REVEAL SYSTEM
+   ========================================================================== */
+/* Base hidden initial state */
+.reveal-init {
+  opacity: 0;
+  will-change: opacity, transform;
+  transition: opacity var(--duration-reveal) var(--ease-spring),
+              transform var(--duration-reveal) var(--ease-spring);
+  transition-delay: var(--delay, 0ms);
+}
+
+/* Revealing Animations */
+.reveal-fade.reveal-init {
+  transform: translateY(0);
+}
+
+.reveal-slide-up.reveal-init {
+  transform: translateY(36px);
+}
+
+.reveal-slide-down.reveal-init {
+  transform: translateY(-36px);
+}
+
+.reveal-slide-left.reveal-init {
+  transform: translateX(-36px);
+}
+
+.reveal-slide-right.reveal-init {
+  transform: translateX(36px);
+}
+
+.reveal-zoom-in.reveal-init {
+  transform: scale(0.92);
+}
+
+/* Active Visible State */
+.reveal-init.reveal-visible {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+}
+
+/* Automatic staggered delays for items */
+.stagger-1 { --delay: 80ms; }
+.stagger-2 { --delay: 160ms; }
+.stagger-3 { --delay: 240ms; }
+.stagger-4 { --delay: 320ms; }
+.stagger-5 { --delay: 400ms; }
+.stagger-6 { --delay: 480ms; }
+
+/* ==========================================================================
+   5. PREMIUM HOVER ANIMATIONS (Cards, Images, Buttons)
+   ========================================================================== */
+/* Card Hover 3D Lift */
+.card-hover-lift {
+  transition: transform 0.35s var(--ease-spring),
+              box-shadow 0.35s var(--ease-spring),
+              border-color 0.25s var(--ease-smooth);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.12),
+              0 6px 16px -4px rgba(217, 101, 30, 0.08);
+}
+
+/* Product Card Image Zoom */
+.product-card {
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-spring), border-color 0.25s;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.09);
+}
+
+.product-card .product-card-image {
+  transition: transform 0.45s var(--ease-spring);
+}
+
+.product-card:hover .product-card-image {
+  transform: scale(1.06);
+}
+
+/* Button Shimmer & Glow */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s var(--ease-spring), box-shadow 0.3s var(--ease-smooth);
+}
+
+.btn-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(217, 101, 30, 0.45);
+}
+
+.btn-glow:active {
+  transform: scale(0.97);
+}
+
+/* Shimmer Light Sweep on Primary CTAs */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 100%
+  );
+  transform: skewX(-22deg);
+  transition: none;
+}
+
+.btn-shimmer:hover::before {
+  animation: shimmerSweep 0.85s var(--ease-smooth);
+}
+
+@keyframes shimmerSweep {
+  0% { left: -120%; }
+  100% { left: 180%; }
+}
+
+/* Action button spring pop on hover */
+.product-action-btn {
+  transition: transform 0.25s var(--ease-bounce), background 0.2s;
+}
+
+.product-action-btn:hover {
+  transform: scale(1.15);
+}
+
+.product-action-btn:active {
+  transform: scale(0.9);
+}
+
+/* ==========================================================================
+   6. MICRO-INTERACTIONS (Cart Bounce, Wishlist Pop, Counter Pulse)
+   ========================================================================== */
+/* Celebratory Cart Badge Bounce */
+.cart-badge-celebrate {
+  animation: cartBadgeBounce 0.65s var(--ease-bounce) !important;
+}
+
+@keyframes cartBadgeBounce {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.55); background-color: #22c55e; }
+  65% { transform: scale(0.9); }
+  85% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Wishlist Heart Pop */
+.heart-pop-active {
+  animation: heartPop 0.5s var(--ease-bounce);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.4) rotate(-10deg); color: #ef4444; }
+  70% { transform: scale(0.92) rotate(4deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* Pulse Glow for Notification Badges */
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(217, 101, 30, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(217, 101, 30, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(217, 101, 30, 0); }
+}
+
+/* ==========================================================================
+   7. ANIMATED STATISTICS / COUNTER STRIP
+   ========================================================================== */
+.stats-counter-strip {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 44px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-counter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .stats-counter-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+}
+
+@media (max-width: 500px) {
+  .stats-counter-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    text-align: center;
+  }
+}
+
+.stat-counter-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+}
+
+@media (max-width: 500px) {
+  .stat-counter-item {
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.stat-counter-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: rgba(217, 101, 30, 0.1);
+  color: var(--brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  transition: transform 0.3s var(--ease-bounce), background 0.3s;
+}
+
+.stat-counter-item:hover .stat-counter-icon {
+  transform: scale(1.1) rotate(4deg);
+  background: rgba(217, 101, 30, 0.18);
+}
+
+.stat-counter-number {
+  font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+}
+
+.stat-counter-number span.suffix {
+  color: var(--brand);
+  margin-left: 2px;
+}
+
+.stat-counter-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   8. SKELETON LOADING SHIMMER ANIMATION
+   ========================================================================== */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-2);
+}
+
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmerWave 1.6s infinite;
+}
+
+[data-theme="dark"] .skeleton-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+@keyframes shimmerWave {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ==========================================================================
+   8B. 3D SPINNING PROTEIN TUB SHOWCASE WIDGET (HERO & STOREFRONT)
+   ========================================================================== */
+.hero-showcase-split {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 48px;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 1024px) {
+  .hero-showcase-split {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+}
+
+@media (max-width: 860px) {
+  .hero-showcase-split {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    text-align: center;
+  }
+  .hero-text-side {
+    order: 1;
+  }
+  .hero-showcase-side {
+    order: 2;
+    margin-top: 10px;
+  }
+  .hero-actions {
+    justify-content: center;
+  }
+  .hero-spec-pills {
+    justify-content: center;
+  }
+  .hero-trust-subtext {
+    justify-content: center;
+  }
+}
+
+/* Nutritional Highlights Strip */
+.hero-spec-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.hero-spec-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.25s, transform 0.25s;
+}
+
+.hero-spec-pill:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+}
+
+.hero-spec-pill strong {
+  color: var(--brand-light, #ff8c42);
+  font-weight: 800;
+}
+
+.pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand, #d9651e);
+  box-shadow: 0 0 8px var(--brand, #d9651e);
+}
+
+.hero-trust-subtext {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 22px;
+  font-weight: 500;
+}
+
+.star-rating {
+  color: #f59e0b;
+  letter-spacing: 2px;
+  font-size: 0.95rem;
+}
+
+.hero-trust-subtext .divider {
+  opacity: 0.4;
+}
+
+/* 3D Tub Showcase Main Container */
+.hero-showcase-side {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.tub-showcase-card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: floatTubShowcase 5.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes floatTubShowcase {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Ambient Radial Glow Orbs */
+.tub-glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tub-glow-orb-primary {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(217, 101, 30, 0.42) 0%, rgba(217, 101, 30, 0.05) 60%, transparent 75%);
+  filter: blur(36px);
+  animation: auraPulse 4s ease-in-out infinite alternate;
+}
+
+.tub-glow-orb-secondary {
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(255, 140, 66, 0.32) 0%, transparent 70%);
+  filter: blur(28px);
+  top: -10px;
+  right: -10px;
+  animation: auraPulse 4s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes auraPulse {
+  0% { opacity: 0.7; transform: scale(0.94); }
+  100% { opacity: 1; transform: scale(1.06); }
+}
+
+/* Video Frame with Seamless Gradient Mask & High-End Glassmorphism */
+.tub-video-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 420px;
+  max-height: 420px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, rgba(35, 25, 20, 0.45) 0%, rgba(15, 17, 23, 0.65) 55%, rgba(10, 12, 16, 0.88) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45),
+              0 0 35px rgba(217, 101, 30, 0.22),
+              inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.tub-showcase-card:hover .tub-video-frame {
+  border-color: rgba(217, 101, 30, 0.5);
+  box-shadow: 0 28px 65px rgba(0, 0, 0, 0.5),
+              0 0 45px rgba(217, 101, 30, 0.35),
+              inset 0 1px 1px rgba(255, 255, 255, 0.35);
+}
+
+/* The Spinning Tub Video */
+.tub-spinning-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  border-radius: 26px;
+  transform: translateZ(0);
+  will-change: transform;
+  transition: opacity 0.5s ease;
+  pointer-events: auto;
+}
+
+/* Fallback Image */
+.tub-fallback-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  border-radius: 26px;
+}
+
+/* Floating Spec Badges */
+.tub-floating-badge {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 30px;
+  background: rgba(18, 21, 28, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  transition: transform 0.3s var(--ease-spring), border-color 0.25s, box-shadow 0.25s;
+  pointer-events: auto;
+}
+
+.tub-floating-badge:hover {
+  transform: scale(1.06) translateY(-2px);
+  border-color: var(--brand, #d9651e);
+  box-shadow: 0 12px 32px rgba(217, 101, 30, 0.3);
+}
+
+.tub-floating-badge .badge-icon {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(217, 101, 30, 0.22);
+}
+
+.spin-icon {
+  display: inline-block;
+  animation: spinSlow 8s linear infinite;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.tub-floating-badge .badge-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.tub-floating-badge .badge-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.tub-floating-badge .badge-desc {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.1;
+}
+
+/* Badge Positioning */
+.badge-top-left {
+  top: 14px;
+  left: -18px;
+}
+
+.badge-top-right {
+  top: 40px;
+  right: -20px;
+}
+
+.badge-bottom-right {
+  bottom: 50px;
+  right: -16px;
+}
+
+/* Interactive Pause/Resume Micro-Button */
+.tub-interaction-btn {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 24px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.25s var(--ease-smooth);
+}
+
+.tub-interaction-btn:hover {
+  background: var(--brand, #d9651e);
+  border-color: var(--brand, #d9651e);
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(217, 101, 30, 0.4);
+}
+
+.tub-interaction-btn .control-icon {
+  font-size: 0.8rem;
+}
+
+/* Pedestal Platform & Floor Shadow */
+.tub-pedestal-platform {
+  width: 78%;
+  height: 24px;
+  position: relative;
+  margin-top: -14px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pedestal-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(217, 101, 30, 0.45);
+  background: radial-gradient(ellipse at center, rgba(217, 101, 30, 0.28) 0%, transparent 75%);
+  box-shadow: 0 0 24px rgba(217, 101, 30, 0.35);
+}
+
+.pedestal-shadow {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  width: 80%;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  filter: blur(10px);
+}
+
+/* Light Mode Overrides */
+[data-theme="light"] .tub-video-frame {
+  background: radial-gradient(circle at 50% 45%, rgba(255, 237, 224, 0.6) 0%, rgba(245, 240, 235, 0.85) 60%, rgba(230, 225, 220, 0.95) 100%);
+  border-color: rgba(217, 101, 30, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12),
+              0 0 35px rgba(217, 101, 30, 0.18);
+}
+
+[data-theme="light"] .tub-floating-badge {
+  background: rgba(255, 255, 255, 0.94);
+  color: #111827;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .tub-floating-badge .badge-title {
+  color: #111827;
+}
+
+[data-theme="light"] .tub-floating-badge .badge-desc {
+  color: #6b7280;
+}
+
+[data-theme="light"] .tub-interaction-btn {
+  background: rgba(18, 20, 26, 0.8);
+  color: #ffffff;
+}
+
+/* Mobile & Tablet Fine-tuning */
+@media (max-width: 640px) {
+  .tub-showcase-card {
+    max-width: min(340px, 90vw);
+  }
+  .tub-video-frame {
+    max-width: min(320px, 86vw);
+    max-height: min(320px, 86vw);
+    border-radius: 22px;
+  }
+  .tub-spinning-video,
+  .tub-fallback-poster {
+    border-radius: 20px;
+  }
+  .badge-top-left {
+    top: 8px;
+    left: -8px;
+    padding: 6px 10px;
+  }
+  .badge-top-right {
+    top: 20px;
+    right: -8px;
+    padding: 6px 10px;
+  }
+  .badge-bottom-right {
+    bottom: 40px;
+    right: -8px;
+    padding: 6px 10px;
+  }
+  .tub-floating-badge .badge-title {
+    font-size: 0.65rem;
+  }
+  .tub-floating-badge .badge-desc {
+    font-size: 0.58rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .badge-top-right {
+    display: none;
+  }
+  .tub-video-frame {
+    max-width: 270px;
+    max-height: 270px;
+  }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .tub-showcase-card {
+    animation: none !important;
+  }
+  .spin-icon {
+    animation: none !important;
+  }
+  .tub-glow-orb-primary,
+  .tub-glow-orb-secondary {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   9. ACCESSIBILITY & REDUCED MOTION OVERRIDES
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-init {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .hero-video-bg {
+    display: none !important;
+  }
+
+  .card-hover-lift:hover {
+    transform: none !important;
+  }
+
+  .btn-shimmer::before,
+  .fitness-play-btn-circle::after,
+  .pulse-glow {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Coupons & Discounts | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-brand">
+        <a href="../index.html" class="logo">
+          <div class="logo-icon">N</div>
+          NUTRA<span>TEIN</span>
+        </a>
+        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-top: 4px;">ADMIN CONSOLE</div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-item"><span>📊</span> Dashboard</a>
+        <a href="products.html" class="admin-nav-item"><span>📦</span> Products</a>
+        <a href="orders.html" class="admin-nav-item"><span>🛒</span> Orders</a>
+        <a href="customers.html" class="admin-nav-item"><span>👥</span> Customers</a>
+        <a href="reviews.html" class="admin-nav-item"><span>⭐</span> Reviews</a>
+        <a href="coupons.html" class="admin-nav-item active"><span>🏷️</span> Coupons</a>
+        <a href="flash-sales.html" class="admin-nav-item"><span>⚡</span> Flash Sales</a>
+        <a href="returns.html" class="admin-nav-item"><span>🔄</span> Returns</a>
+        <a href="banners.html" class="admin-nav-item"><span>🖼️</span> Banners</a>
+        <a href="videos.html" class="admin-nav-item"><span>🎥</span> Videos</a>
+        <a href="analytics.html" class="admin-nav-item"><span>📈</span> Analytics</a>
+        <a href="invoices.html" class="admin-nav-item"><span>🧾</span> Invoices</a>
+        <a href="shipping.html" class="admin-nav-item"><span>🚚</span> Shipping</a>
+        <a href="email.html" class="admin-nav-item"><span>📧</span> Email</a>
+        <a href="cms.html" class="admin-nav-item"><span>📝</span> CMS Pages</a>
+        <a href="media.html" class="admin-nav-item"><span>🖼️</span> Media</a>
+        <a href="roles.html" class="admin-nav-item"><span>🛡️</span> Roles & Staff</a>
+        <a href="backup.html" class="admin-nav-item"><span>💾</span> Backup</a>
+        <a href="settings.html" class="admin-nav-item"><span>⚙️</span> Settings</a>
+        <a href="activity-log.html" class="admin-nav-item"><span>📋</span> Activity Log</a>
+        <a href="../index.html" class="admin-nav-item" style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px;"><span>🌐</span> View Store</a>
+        <button onclick="logout()" class="admin-nav-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: #DC2626;"><span>🚪</span> Logout</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div style="font-weight: 700; font-size: 1.1rem;">Coupon & Discount Manager</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+          <div style="font-size: 0.875rem; font-weight: 600;" id="admin-user-display">Admin</div>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <div class="flex-between" style="margin-bottom: 24px;">
+          <div>
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Coupons & Promotions</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">Manage discount codes, percentage / flat savings, customer limits and validity</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openCreateCouponModal()">+ Create Coupon</button>
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="stats-grid" id="coupons-stats-row">
+          <div class="stat-card"><div class="loading-spinner"></div></div>
+        </div>
+
+        <!-- Filter Bar & Clear All -->
+        <div class="filter-bar">
+          <input type="text" id="coupons-search" class="search-input" placeholder="Search by coupon code or description..." oninput="loadAdminCoupons()">
+          <select id="coupons-status-filter" onchange="loadAdminCoupons()">
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="expired">Expired</option>
+          </select>
+          <button class="btn-clear-all" onclick="clearAllFilters('coupons')" title="Reset filters only">
+            <span>🔄</span> Clear Filters
+          </button>
+          <button class="btn-clear-data" onclick="openClearDataModal('coupons')" title="Permanently clear coupons from database" style="background:#ef444418;color:#ef4444;border:1px solid #ef444460;border-radius:6px;padding:6px 12px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            <span>🗑️</span> Clear Data
+          </button>
+        </div>
+
+        <!-- Coupons Table -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Coupon Code & Info</th>
+                <th>Discount</th>
+                <th>Min Order</th>
+                <th>Usage & Savings</th>
+                <th>Validity Window</th>
+                <th>Status</th>
+                <th>Quick Toggle</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-coupons-tbody">
+              <tr><td colspan="8" style="text-align:center; padding:30px;"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Create / Edit Coupon Modal -->
+  <div class="modal-overlay" id="coupon-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="coupon-modal-title">Create New Coupon</h3>
+        <button class="modal-close" onclick="document.getElementById('coupon-modal').classList.remove('active')">&times;</button>
+      </div>
+      <form id="coupon-form" onsubmit="saveCouponForm(event)">
+        <input type="hidden" id="coupon-edit-id">
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+          <div class="grid-2" style="gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Coupon Code *</label>
+              <input type="text" id="coupon-code" class="form-control" placeholder="POWER20" required style="text-transform:uppercase; font-weight:700;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount Type *</label>
+              <select id="coupon-type" class="form-control">
+                <option value="PERCENT">Percentage (%)</option>
+                <option value="FIXED">Flat Discount (₹)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-3" style="gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Discount Value *</label>
+              <input type="number" id="coupon-value" class="form-control" placeholder="20" required min="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Min Order Value (₹)</label>
+              <input type="number" id="coupon-min-order" class="form-control" placeholder="999" value="0" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max Discount (₹)</label>
+              <input type="number" id="coupon-max-disc" class="form-control" placeholder="500 (optional)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description / Campaign Purpose</label>
+            <input type="text" id="coupon-desc" class="form-control" placeholder="e.g. 20% off on all Whey Protein for Summer Fitness Campaign">
+          </div>
+
+          <div class="grid-2" style="gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Overall Usage Limit</label>
+              <input type="number" id="coupon-usage-limit" class="form-control" placeholder="Leave empty for unlimited">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Per-Customer Limit</label>
+              <input type="number" id="coupon-cust-limit" class="form-control" value="1" min="1">
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Start Date</label>
+              <input type="date" id="coupon-start-date" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expiry Date</label>
+              <input type="date" id="coupon-expiry-date" class="form-control">
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+            <input type="checkbox" id="coupon-is-active" checked style="width:18px; height:18px;">
+            <label for="coupon-is-active" style="font-weight:600; font-size:0.875rem; cursor:pointer;">Coupon is Active & Can Be Applied Immediately</label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('coupon-modal').classList.remove('active')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Coupon</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminCoupons();
+    });
+  </script>
+</body>
+</html>
+

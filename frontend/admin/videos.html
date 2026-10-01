@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Management | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    .video-preview-box {
+      position: relative;
+      width: 100%;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 16 / 9;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .video-preview-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .video-preview-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 16px;
+      color: #fff;
+    }
+    .fitness-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .fitness-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .fitness-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+    .fitness-card-body {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .fitness-card-actions {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 12px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      background: rgba(217, 101, 30, 0.06);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Modal */
+    .video-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .video-modal-overlay.open { display: flex; }
+    .video-modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+    .video-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .video-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+  </style>
+</head>
+<body class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar-header">
+      <a href="../index.html" class="logo" style="font-size:1.1rem;"><div class="logo-icon" style="width:28px;height:28px;font-size:0.75rem;">X</div>NUTRA<span>TEIN</span></a>
+      <span style="font-size:0.65rem;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:700;">ADMIN</span>
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html" class="admin-nav-link"><span>📊</span> Dashboard</a>
+      <a href="products.html" class="admin-nav-link"><span>📦</span> Products</a>
+      <a href="orders.html" class="admin-nav-link"><span>🛒</span> Orders</a>
+      <a href="customers.html" class="admin-nav-link"><span>👥</span> Customers</a>
+      <a href="reviews.html" class="admin-nav-link"><span>⭐</span> Reviews</a>
+      <a href="coupons.html" class="admin-nav-link"><span>🏷️</span> Coupons</a>
+      <a href="flash-sales.html" class="admin-nav-link"><span>⚡</span> Flash Sales</a>
+      <a href="returns.html" class="admin-nav-link"><span>🔄</span> Returns</a>
+      <a href="banners.html" class="admin-nav-link"><span>🖼️</span> Banners</a>
+      <a href="videos.html" class="admin-nav-link active"><span>🎥</span> Videos</a>
+      <a href="analytics.html" class="admin-nav-link"><span>📈</span> Analytics</a>
+      <a href="invoices.html" class="admin-nav-link"><span>🧾</span> Invoices</a>
+      <a href="shipping.html" class="admin-nav-link"><span>🚚</span> Shipping</a>
+      <a href="email.html" class="admin-nav-link"><span>📧</span> Email</a>
+      <a href="cms.html" class="admin-nav-link"><span>📝</span> CMS Pages</a>
+      <a href="media.html" class="admin-nav-link"><span>🖼️</span> Media</a>
+      <a href="roles.html" class="admin-nav-link"><span>🛡️</span> Roles & Staff</a>
+      <a href="backup.html" class="admin-nav-link"><span>💾</span> Backup</a>
+      <a href="settings.html" class="admin-nav-link"><span>⚙️</span> Settings</a>
+      <a href="activity-log.html" class="admin-nav-link"><span>📋</span> Activity Log</a>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <a href="../index.html" style="display:block;text-align:center;font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">← View Store</a>
+      <button class="btn btn-secondary btn-sm w-full" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+    <header class="admin-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div>
+          <h1 class="admin-page-title" style="margin-bottom:2px;">🎥 Video Showcase & Hero Media</h1>
+          <p style="font-size:0.82rem;color:var(--text-muted);">Manage cinematic hero background videos, athletic motion clips, and video cards.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+        <div style="font-size:0.875rem;font-weight:700;" id="admin-user-display">Admin</div>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tab-nav">
+      <button class="tab-btn active" id="tab-btn-hero" onclick="switchVideoTab('hero')">🎬 Cinematic Hero Video</button>
+      <button class="tab-btn" id="tab-btn-showcase" onclick="switchVideoTab('showcase')">⭐ 3D Spinning Tub Showcase</button>
+      <button class="tab-btn" id="tab-btn-fitness" onclick="switchVideoTab('fitness')">⚡ Fitness & Supplement Showcase Cards (<span id="fitness-count-badge">0</span>)</button>
+    </div>
+
+    <!-- TAB 1: HERO VIDEO -->
+    <div class="tab-panel active" id="tab-hero">
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:start;">
+        <!-- Left: Form Controls -->
+        <div class="admin-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+            <div>
+              <h3 style="font-size:1.1rem;font-weight:800;">Hero Video Background Settings</h3>
+              <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Displays as an immersive cinematic background on Slide 0 of the homepage.</p>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;font-weight:700;cursor:pointer;">
+              <span>Active</span>
+              <input type="checkbox" id="hero-active" style="width:18px;height:18px;accent-color:var(--brand);">
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Video Stream URL (.mp4 / .webm)</label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="hero-video-url" class="form-control" placeholder="https://..." onchange="updateHeroPreview()">
+              <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer;display:flex;align-items:center;white-space:nowrap;">
+                📁 Upload
+                <input type="file" accept="video/mp4,video/webm" style="display:none;" onchange="uploadVideoAsset(this, 'hero-video-url')">
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Poster Fallback Image URL</label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="hero-poster-url" class="form-control" placeholder="https://..." onchange="updateHeroPreview()">
+              <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer;display:flex;align-items:center;white-space:nowrap;">
+                📁 Upload
+                <input type="file" accept="image/*" style="display:none;" onchange="uploadVideoAsset(this, 'hero-poster-url')">
+              </label>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label class="form-label">Badge Tagline</label>
+              <input type="text" id="hero-badge" class="form-control" placeholder="🔥 PREMIUM WHEY COLLECTION">
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label class="form-label">Headline Title</label>
+              <input type="text" id="hero-title" class="form-control" placeholder="PURE POWER. ZERO COMPROMISE.">
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label class="form-label">Subtitle Description</label>
+              <textarea id="hero-subtitle" class="form-control" rows="2" placeholder="Ultra-filtered Whey Isolate packing 27g pure protein..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Primary Button Text</label>
+              <input type="text" id="hero-cta-pri-text" class="form-control" placeholder="SHOP WHEY ISOLATE">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Primary Button Link</label>
+              <input type="text" id="hero-cta-pri-link" class="form-control" placeholder="shop.html?category=whey-protein">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Secondary Button Text</label>
+              <input type="text" id="hero-cta-sec-text" class="form-control" placeholder="EXPLORE ALL PRODUCTS">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Secondary Button Link</label>
+              <input type="text" id="hero-cta-sec-link" class="form-control" placeholder="shop.html">
+            </div>
+          </div>
+
+          <div style="margin-top:16px;padding:12px;background:var(--bg-2);border-radius:var(--radius-sm);display:flex;gap:20px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+              <input type="checkbox" id="hero-autoplay" checked style="accent-color:var(--brand);"> Autoplay
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+              <input type="checkbox" id="hero-loop" checked style="accent-color:var(--brand);"> Loop
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+              <input type="checkbox" id="hero-muted" checked style="accent-color:var(--brand);"> Muted by default
+            </label>
+          </div>
+
+          <div style="margin-top:20px;display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="saveHeroVideoSettings()" id="save-hero-btn">💾 Save Hero Video</button>
+            <button class="btn btn-secondary" onclick="loadVideoSettings()">↻ Discard</button>
+          </div>
+        </div>
+
+        <!-- Right: Real-time Live Preview -->
+        <div>
+          <div class="admin-card">
+            <h4 style="font-size:0.95rem;font-weight:800;margin-bottom:12px;">Live Hero Video Preview</h4>
+            <div class="video-preview-box" id="hero-preview-box">
+              <video id="hero-preview-video" autoplay muted loop playsinline poster="">
+                <source src="" type="video/mp4">
+              </video>
+              <div class="video-preview-overlay">
+                <span style="font-size:0.75rem;font-weight:800;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;width:max-content;margin-bottom:6px;" id="prev-badge">🔥 PREMIUM WHEY</span>
+                <h3 style="font-size:1.15rem;font-weight:900;margin-bottom:4px;" id="prev-title">PURE POWER.</h3>
+                <p style="font-size:0.78rem;opacity:0.85;max-width:320px;line-height:1.3;margin-bottom:10px;" id="prev-subtitle">Ultra-filtered whey isolate...</p>
+                <div style="display:flex;gap:8px;">
+                  <span class="btn btn-primary btn-sm" id="prev-cta-pri" style="pointer-events:none;">Shop Now</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="togglePreviewPlay()">⏯ Toggle Play/Pause</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="togglePreviewMute()">🔊 Toggle Mute</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <!-- TAB 3: 3D SPINNING PRODUCT SHOWCASE (PROTEIN TUB) -->
+    <div class="tab-panel" id="tab-showcase">
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:start;">
+        <!-- Left: Form Controls -->
+        <div class="admin-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+            <div>
+              <h3 style="font-size:1.1rem;font-weight:800;">3D Spinning Product Showcase (Hero Slide 0)</h3>
+              <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">Controls the 360-degree rotating protein tub animation widget displayed prominently on the homepage.</p>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;font-weight:700;cursor:pointer;">
+              <span>Active</span>
+              <input type="checkbox" id="showcase-active" checked style="width:18px;height:18px;accent-color:var(--brand);">
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Protein Tub Video File / Stream URL (.mp4)</label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="showcase-video-url" class="form-control" value="/assets/videos/Protein_tub_spinning_video.mp4" onchange="updateShowcasePreview()">
+              <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer;display:flex;align-items:center;white-space:nowrap;">
+                📁 Upload / Replace
+                <input type="file" accept="video/mp4,video/webm" style="display:none;" onchange="uploadVideoAsset(this, 'showcase-video-url')">
+              </label>
+            </div>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Default local asset: <code>/assets/videos/Protein_tub_spinning_video.mp4</code></p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">High-Res Poster Fallback Image</label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="showcase-poster-url" class="form-control" value="/assets/videos/protein_tub_poster.jpg" onchange="updateShowcasePreview()">
+              <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer;display:flex;align-items:center;white-space:nowrap;">
+                📁 Upload
+                <input type="file" accept="image/*" style="display:none;" onchange="uploadVideoAsset(this, 'showcase-poster-url')">
+              </label>
+            </div>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Default local asset: <code>/assets/videos/protein_tub_poster.jpg</code></p>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label class="form-label">Rotating Badge Text</label>
+              <input type="text" id="showcase-badge" class="form-control" value="360° 3D VIEW" placeholder="360° 3D VIEW" oninput="updateShowcasePreview()">
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label class="form-label">Showcase Product Title</label>
+              <input type="text" id="showcase-title" class="form-control" value="PROTEINX 100% Whey Isolate (2.2kg / 5lbs)" placeholder="Product title..." oninput="updateShowcasePreview()">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Protein / Scoop (Pill 1)</label>
+              <input type="text" id="showcase-protein" class="form-control" value="27g" placeholder="27g">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">BCAAs / Scoop (Pill 2)</label>
+              <input type="text" id="showcase-bcaa" class="form-control" value="6.2g" placeholder="6.2g">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Added Sugar (Pill 3)</label>
+              <input type="text" id="showcase-sugar" class="form-control" value="0g" placeholder="0g">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Lab Purity (Pill 4)</label>
+              <input type="text" id="showcase-purity" class="form-control" value="99.4%" placeholder="99.4%">
+            </div>
+          </div>
+
+          <div style="margin-top:16px;padding:12px;background:var(--bg-2);border-radius:var(--radius-sm);display:flex;gap:20px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+              <input type="checkbox" id="showcase-autoplay" checked style="accent-color:var(--brand);"> Autoplay
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+              <input type="checkbox" id="showcase-loop" checked style="accent-color:var(--brand);"> Loop
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+              <input type="checkbox" id="showcase-muted" checked style="accent-color:var(--brand);"> Muted by default
+            </label>
+          </div>
+
+          <div style="margin-top:20px;display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="saveShowcaseVideoSettings()" id="save-showcase-btn">💾 Save 3D Showcase Settings</button>
+            <button class="btn btn-secondary" onclick="loadVideoSettings()">↻ Discard</button>
+          </div>
+        </div>
+
+        <!-- Right: Real-time Live Preview -->
+        <div>
+          <div class="admin-card">
+            <h4 style="font-size:0.95rem;font-weight:800;margin-bottom:12px;">Live 3D Rotating Tub Preview</h4>
+            <div style="background: radial-gradient(circle at 50% 50%, rgba(35, 25, 20, 0.45) 0%, rgba(15, 17, 23, 0.9) 100%); border-radius: 20px; padding: 24px; text-align: center; position: relative; border: 1px solid var(--border); overflow: hidden;">
+              <!-- Aura glow -->
+              <div style="position:absolute; inset: 20px; border-radius: 50%; background: radial-gradient(circle, rgba(217, 101, 30, 0.35) 0%, transparent 70%); filter: blur(30px); pointer-events: none;"></div>
+              
+              <!-- Floating badge in preview -->
+              <div style="position:absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; gap: 6px; z-index: 3;">
+                <span>🔄</span> <span id="prev-showcase-badge">360° 3D VIEW</span>
+              </div>
+
+              <div style="width: 240px; height: 240px; margin: 0 auto; position: relative; z-index: 2;">
+                <video id="showcase-preview-video" autoplay muted loop playsinline poster="/assets/videos/protein_tub_poster.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;">
+                  <source src="/assets/videos/Protein_tub_spinning_video.mp4" type="video/mp4">
+                </video>
+              </div>
+
+              <div style="margin-top: 14px; position: relative; z-index: 2;">
+                <h4 id="prev-showcase-title" style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 4px;">PROTEINX 100% Whey Isolate (2.2kg / 5lbs)</h4>
+                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.75);">Ultra-filtered Cold Microfiltration • 27g Protein • 0g Sugar</p>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="toggleShowcasePreviewPlay()">⏯ Toggle Play/Pause</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="toggleShowcasePreviewMute()">🔊 Toggle Mute</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: FITNESS SHOWCASE CARDS -->
+    <div class="tab-panel" id="tab-fitness">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <div>
+          <h3 style="font-size:1.1rem;font-weight:800;">Fitness Video Showcase Cards</h3>
+          <p style="font-size:0.82rem;color:var(--text-muted);">Displayed in the "Science in Motion & Athlete Spotlight" section on the storefront.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openFitnessModal()">+ Add New Video Card</button>
+      </div>
+
+      <div class="fitness-grid" id="fitness-cards-container">
+        <div style="text-align:center;padding:40px;grid-column:1/-1;"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ADD / EDIT FITNESS VIDEO MODAL -->
+  <div class="video-modal-overlay" id="fitness-modal" onclick="if(event.target === this) closeFitnessModal()">
+    <div class="video-modal-card">
+      <div class="video-modal-header">
+        <h3 style="font-weight:800;font-size:1.05rem;" id="modal-title">Add Fitness Showcase Video</h3>
+        <button onclick="closeFitnessModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-muted);">&times;</button>
+      </div>
+      <div class="video-modal-body">
+        <input type="hidden" id="edit-video-id">
+
+        <div class="form-group">
+          <label class="form-label">Video Card Title</label>
+          <input type="text" id="m-title" class="form-control" placeholder="e.g. EXPLOSIVE STRENGTH & RAW POWER" required>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Badge Tag</label>
+            <input type="text" id="m-tag" class="form-control" placeholder="e.g. PRE-WORKOUT & CREATINE">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Related Category</label>
+            <select id="m-category" class="form-control">
+              <option value="whey-protein">Whey Protein</option>
+              <option value="creatine">Creatine</option>
+              <option value="pre-workout">Pre-Workout</option>
+              <option value="bcaa-eaa">BCAA / EAA</option>
+              <option value="mass-gainers">Mass Gainers</option>
+              <option value="vitamins">Vitamins</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Video Stream URL (.mp4 / .webm)</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="m-video-url" class="form-control" placeholder="https://..." required>
+            <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer;display:flex;align-items:center;white-space:nowrap;">
+              📁 Upload
+              <input type="file" accept="video/mp4,video/webm" style="display:none;" onchange="uploadVideoAsset(this, 'm-video-url')">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Poster Image URL</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="m-poster-url" class="form-control" placeholder="https://...">
+            <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer;display:flex;align-items:center;white-space:nowrap;">
+              📁 Upload
+              <input type="file" accept="image/*" style="display:none;" onchange="uploadVideoAsset(this, 'm-poster-url')">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="m-desc" class="form-control" rows="2" placeholder="Describe the physical performance or formulation benefit..."></textarea>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Duration Label</label>
+            <input type="text" id="m-duration" class="form-control" placeholder="0:35">
+          </div>
+          <div class="form-group">
+            <label class="form-label">CTA Text</label>
+            <input type="text" id="m-cta-text" class="form-control" placeholder="SHOP NOW →">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sort Order</label>
+            <input type="number" id="m-sort" class="form-control" value="1">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">CTA Destination Link</label>
+          <input type="text" id="m-cta-link" class="form-control" placeholder="shop.html?category=creatine">
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+          <input type="checkbox" id="m-active" checked style="width:18px;height:18px;accent-color:var(--brand);">
+          <label for="m-active" style="font-weight:700;font-size:0.85rem;cursor:pointer;">Active on Storefront</label>
+        </div>
+      </div>
+      <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;">
+        <button class="btn btn-secondary" onclick="closeFitnessModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveFitnessModal()">💾 Save Video Card</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let rawVideosData = { heroVideo: null, fitnessVideos: [] };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      await ensureAdminAuth();
+      loadVideoSettings();
+    });
+
+    function switchVideoTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+      document.getElementById('tab-btn-' + tab).classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    async function loadVideoSettings() {
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/videos/admin`, { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        if (!data.success) return;
+
+        rawVideosData = data;
+        const h = data.heroVideo || {};
+
+        document.getElementById('hero-active').checked = h.active !== false;
+        document.getElementById('hero-video-url').value = h.videoUrl || '';
+        document.getElementById('hero-poster-url').value = h.posterUrl || '';
+        document.getElementById('hero-badge').value = h.badge || '';
+        document.getElementById('hero-title').value = h.title || '';
+        document.getElementById('hero-subtitle').value = h.subtitle || '';
+        document.getElementById('hero-cta-pri-text').value = h.ctaPrimaryText || 'SHOP WHEY ISOLATE';
+        document.getElementById('hero-cta-pri-link').value = h.ctaPrimaryLink || 'shop.html?category=whey-protein';
+        document.getElementById('hero-cta-sec-text').value = h.ctaSecondaryText || 'EXPLORE ALL PRODUCTS';
+        document.getElementById('hero-cta-sec-link').value = h.ctaSecondaryLink || 'shop.html';
+        document.getElementById('hero-autoplay').checked = h.autoplay !== false;
+        document.getElementById('hero-loop').checked = h.loop !== false;
+        document.getElementById('hero-muted').checked = h.muted !== false;
+
+        updateHeroPreview();
+
+        const s = data.productShowcaseVideo || {};
+        document.getElementById('showcase-active').checked = s.active !== false;
+        document.getElementById('showcase-video-url').value = s.videoUrl || '/assets/videos/Protein_tub_spinning_video.mp4';
+        document.getElementById('showcase-poster-url').value = s.posterUrl || '/assets/videos/protein_tub_poster.jpg';
+        document.getElementById('showcase-badge').value = s.badgeText || '360° 3D VIEW';
+        document.getElementById('showcase-title').value = s.title || 'PROTEINX 100% Whey Isolate (2.2kg / 5lbs)';
+        document.getElementById('showcase-protein').value = s.proteinGrams || '27g';
+        document.getElementById('showcase-bcaa').value = s.bcaaGrams || '6.2g';
+        document.getElementById('showcase-sugar').value = s.sugarGrams || '0g';
+        document.getElementById('showcase-purity').value = s.purityPercent || '99.4%';
+        document.getElementById('showcase-autoplay').checked = s.autoplay !== false;
+        document.getElementById('showcase-loop').checked = s.loop !== false;
+        document.getElementById('showcase-muted').checked = s.muted !== false;
+        updateShowcasePreview();
+
+        renderFitnessCards(data.fitnessVideos || []);
+      } catch (err) {
+        console.warn('Failed to load video settings', err);
+      }
+    }
+
+    function updateShowcasePreview() {
+      const url = document.getElementById('showcase-video-url').value;
+      const poster = document.getElementById('showcase-poster-url').value;
+      const v = document.getElementById('showcase-preview-video');
+      if (v) {
+        if (url && v.src !== url) v.src = url;
+        if (poster) v.poster = poster;
+      }
+      document.getElementById('prev-showcase-badge').textContent = document.getElementById('showcase-badge').value || '360° 3D VIEW';
+      document.getElementById('prev-showcase-title').textContent = document.getElementById('showcase-title').value || 'PROTEINX 100% Whey Isolate';
+    }
+
+    function toggleShowcasePreviewPlay() {
+      const v = document.getElementById('showcase-preview-video');
+      if (v.paused) v.play();
+      else v.pause();
+    }
+
+    function toggleShowcasePreviewMute() {
+      const v = document.getElementById('showcase-preview-video');
+      v.muted = !v.muted;
+      showToast(v.muted ? 'Showcase preview muted' : 'Showcase preview unmuted', 'info');
+    }
+
+    async function saveShowcaseVideoSettings() {
+      const token = getToken();
+      const btn = document.getElementById('save-showcase-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const body = {
+        videoUrl: document.getElementById('showcase-video-url').value.trim(),
+        posterUrl: document.getElementById('showcase-poster-url').value.trim(),
+        badgeText: document.getElementById('showcase-badge').value.trim(),
+        title: document.getElementById('showcase-title').value.trim(),
+        proteinGrams: document.getElementById('showcase-protein').value.trim(),
+        bcaaGrams: document.getElementById('showcase-bcaa').value.trim(),
+        sugarGrams: document.getElementById('showcase-sugar').value.trim(),
+        purityPercent: document.getElementById('showcase-purity').value.trim(),
+        active: document.getElementById('showcase-active').checked,
+        autoplay: document.getElementById('showcase-autoplay').checked,
+        loop: document.getElementById('showcase-loop').checked,
+        muted: document.getElementById('showcase-muted').checked
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/videos/product-showcase`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        showToast(data.success ? '3D Showcase settings saved!' : data.message, data.success ? 'success' : 'error');
+        if (data.success) loadVideoSettings();
+      } catch (err) {
+        showToast('Error saving showcase settings', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save 3D Showcase Settings';
+      }
+    }
+
+    function updateHeroPreview() {
+      const url = document.getElementById('hero-video-url').value;
+      const poster = document.getElementById('hero-poster-url').value;
+      const v = document.getElementById('hero-preview-video');
+
+      if (v) {
+        v.src = url;
+        v.poster = poster;
+      }
+      document.getElementById('prev-badge').textContent = document.getElementById('hero-badge').value || '🔥 PREMIUM WHEY';
+      document.getElementById('prev-title').textContent = document.getElementById('hero-title').value || 'PURE POWER.';
+      document.getElementById('prev-subtitle').textContent = document.getElementById('hero-subtitle').value || '';
+      document.getElementById('prev-cta-pri').textContent = document.getElementById('hero-cta-pri-text').value || 'Shop Now';
+    }
+
+    function togglePreviewPlay() {
+      const v = document.getElementById('hero-preview-video');
+      if (v.paused) v.play();
+      else v.pause();
+    }
+
+    function togglePreviewMute() {
+      const v = document.getElementById('hero-preview-video');
+      v.muted = !v.muted;
+      showToast(v.muted ? 'Preview muted' : 'Preview unmuted', 'info');
+    }
+
+    async function saveHeroVideoSettings() {
+      const token = getToken();
+      const btn = document.getElementById('save-hero-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const body = {
+        videoUrl: document.getElementById('hero-video-url').value.trim(),
+        posterUrl: document.getElementById('hero-poster-url').value.trim(),
+        badge: document.getElementById('hero-badge').value.trim(),
+        title: document.getElementById('hero-title').value.trim(),
+        subtitle: document.getElementById('hero-subtitle').value.trim(),
+        ctaPrimaryText: document.getElementById('hero-cta-pri-text').value.trim(),
+        ctaPrimaryLink: document.getElementById('hero-cta-pri-link').value.trim(),
+        ctaSecondaryText: document.getElementById('hero-cta-sec-text').value.trim(),
+        ctaSecondaryLink: document.getElementById('hero-cta-sec-link').value.trim(),
+        active: document.getElementById('hero-active').checked,
+        autoplay: document.getElementById('hero-autoplay').checked,
+        loop: document.getElementById('hero-loop').checked,
+        muted: document.getElementById('hero-muted').checked
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/videos/hero`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        showToast(data.success ? 'Hero video updated!' : data.message, data.success ? 'success' : 'error');
+        if (data.success) loadVideoSettings();
+      } catch (err) {
+        showToast('Error updating hero video', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Hero Video';
+      }
+    }
+
+    function renderFitnessCards(cards) {
+      document.getElementById('fitness-count-badge').textContent = cards.length;
+      const container = document.getElementById('fitness-cards-container');
+
+      if (!cards.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);grid-column:1/-1;">No fitness showcase videos configured. Click "Add New Video Card" to create one.</div>';
+        return;
+      }
+
+      container.innerHTML = cards.map(c => `
+        <div class="fitness-card">
+          <div class="video-preview-box" style="aspect-ratio:16/9;">
+            <video src="${c.videoUrl}" poster="${c.posterUrl || ''}" muted loop playsinline onmouseenter="this.play()" onmouseleave="this.pause()"></video>
+            <div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.7);padding:2px 8px;border-radius:12px;font-size:0.72rem;color:#fff;font-weight:700;">
+              ${c.duration || '0:30'}
+            </div>
+            <div style="position:absolute;top:10px;right:10px;">
+              <span class="badge ${c.active ? 'badge-green' : 'badge-dark'}">${c.active ? 'Active' : 'Disabled'}</span>
+            </div>
+          </div>
+          <div class="fitness-card-body">
+            <span style="font-size:0.75rem;font-weight:800;color:var(--brand);">${c.tag || 'PERFORMANCE'}</span>
+            <h4 style="font-size:0.95rem;font-weight:800;margin:4px 0 6px;">${c.title}</h4>
+            <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.4;margin-bottom:12px;flex:1;">${c.description || ''}</p>
+            <div style="font-size:0.75rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+              <span>🔗 Link:</span> <code style="font-size:0.75rem;">${c.ctaLink || '#'}</code>
+            </div>
+          </div>
+          <div class="fitness-card-actions">
+            <button class="btn btn-secondary btn-sm" onclick="toggleFitnessActive('${c.id}', ${!c.active})">
+              ${c.active ? 'Disable' : 'Enable'}
+            </button>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-secondary btn-sm" onclick="editFitnessCard('${c.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteFitnessCard('${c.id}')">🗑️</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openFitnessModal(video = null) {
+      document.getElementById('modal-title').textContent = video ? 'Edit Fitness Showcase Video' : 'Add Fitness Showcase Video';
+      document.getElementById('edit-video-id').value = video ? video.id : '';
+      document.getElementById('m-title').value = video ? video.title : '';
+      document.getElementById('m-tag').value = video ? video.tag : '';
+      document.getElementById('m-category').value = video ? (video.category || 'whey-protein') : 'whey-protein';
+      document.getElementById('m-video-url').value = video ? video.videoUrl : '';
+      document.getElementById('m-poster-url').value = video ? (video.posterUrl || '') : '';
+      document.getElementById('m-desc').value = video ? (video.description || '') : '';
+      document.getElementById('m-duration').value = video ? (video.duration || '0:30') : '0:30';
+      document.getElementById('m-cta-text').value = video ? (video.ctaText || 'SHOP NOW →') : 'SHOP NOW →';
+      document.getElementById('m-cta-link').value = video ? (video.ctaLink || 'shop.html') : 'shop.html';
+      document.getElementById('m-sort').value = video ? (video.sortOrder || 1) : (rawVideosData.fitnessVideos.length + 1);
+      document.getElementById('m-active').checked = video ? video.active !== false : true;
+
+      document.getElementById('fitness-modal').classList.add('open');
+    }
+
+    function closeFitnessModal() {
+      document.getElementById('fitness-modal').classList.remove('open');
+    }
+
+    function editFitnessCard(id) {
+      const v = rawVideosData.fitnessVideos.find(item => item.id === id);
+      if (v) openFitnessModal(v);
+    }
+
+    async function saveFitnessModal() {
+      const token = getToken();
+      const id = document.getElementById('edit-video-id').value;
+      const isEdit = Boolean(id);
+
+      const body = {
+        title: document.getElementById('m-title').value.trim(),
+        tag: document.getElementById('m-tag').value.trim(),
+        category: document.getElementById('m-category').value,
+        videoUrl: document.getElementById('m-video-url').value.trim(),
+        posterUrl: document.getElementById('m-poster-url').value.trim(),
+        description: document.getElementById('m-desc').value.trim(),
+        duration: document.getElementById('m-duration').value.trim(),
+        ctaText: document.getElementById('m-cta-text').value.trim(),
+        ctaLink: document.getElementById('m-cta-link').value.trim(),
+        sortOrder: Number(document.getElementById('m-sort').value),
+        active: document.getElementById('m-active').checked
+      };
+
+      if (!body.title || !body.videoUrl) {
+        showToast('Title and Video URL are required', 'error');
+        return;
+      }
+
+      const url = isEdit ? `${API_BASE}/videos/fitness/${id}` : `${API_BASE}/videos/fitness`;
+      const method = isEdit ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        showToast(data.success ? 'Fitness video saved!' : data.message, data.success ? 'success' : 'error');
+        if (data.success) {
+          closeFitnessModal();
+          loadVideoSettings();
+        }
+      } catch (err) {
+        showToast('Error saving video card', 'error');
+      }
+    }
+
+    async function toggleFitnessActive(id, newState) {
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/videos/fitness/${id}`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: newState })
+        });
+        const data = await res.json();
+        showToast(data.success ? 'Status updated' : data.message, data.success ? 'success' : 'error');
+        if (data.success) loadVideoSettings();
+      } catch (err) {
+        showToast('Error toggling status', 'error');
+      }
+    }
+
+    async function deleteFitnessCard(id) {
+      if (!confirm('Are you sure you want to delete this fitness showcase video?')) return;
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/videos/fitness/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        showToast(data.success ? 'Video deleted' : data.message, data.success ? 'success' : 'error');
+        if (data.success) loadVideoSettings();
+      } catch (err) {
+        showToast('Error deleting video', 'error');
+      }
+    }
+
+    // Media upload handler
+    async function uploadVideoAsset(fileInput, targetInputId) {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const token = getToken();
+      const formData = new FormData();
+      formData.append('file', file);
+
+      showToast('Uploading asset...', 'info');
+
+      try {
+        const res = await fetch(`${API_BASE}/videos/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById(targetInputId).value = data.fileUrl;
+          showToast('Uploaded successfully!', 'success');
+          if (targetInputId.includes('hero')) updateHeroPreview();
+          else if (targetInputId.includes('showcase')) updateShowcasePreview();
+        } else {
+          showToast('Upload error: ' + (data.message || 'Unknown'), 'error');
+        }
+      } catch (err) {
+        showToast('Upload failed: ' + err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

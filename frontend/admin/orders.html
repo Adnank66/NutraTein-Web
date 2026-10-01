@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders Management | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-brand">
+        <a href="../index.html" class="logo">
+          <div class="logo-icon">N</div>
+          NUTRA<span>TEIN</span>
+        </a>
+        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-top: 4px;">ADMIN CONSOLE</div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-item"><span>📊</span> Dashboard</a>
+        <a href="products.html" class="admin-nav-item"><span>📦</span> Products</a>
+        <a href="orders.html" class="admin-nav-item active"><span>🛒</span> Orders</a>
+        <a href="customers.html" class="admin-nav-item"><span>👥</span> Customers</a>
+        <a href="reviews.html" class="admin-nav-item"><span>⭐</span> Reviews</a>
+        <a href="coupons.html" class="admin-nav-item"><span>🏷️</span> Coupons</a>
+        <a href="flash-sales.html" class="admin-nav-item"><span>⚡</span> Flash Sales</a>
+        <a href="returns.html" class="admin-nav-item"><span>🔄</span> Returns</a>
+        <a href="banners.html" class="admin-nav-item"><span>🖼️</span> Banners</a>
+        <a href="videos.html" class="admin-nav-item"><span>🎥</span> Videos</a>
+        <a href="analytics.html" class="admin-nav-item"><span>📈</span> Analytics</a>
+        <a href="invoices.html" class="admin-nav-item"><span>🧾</span> Invoices</a>
+        <a href="shipping.html" class="admin-nav-item"><span>🚚</span> Shipping</a>
+        <a href="email.html" class="admin-nav-item"><span>📧</span> Email</a>
+        <a href="cms.html" class="admin-nav-item"><span>📝</span> CMS Pages</a>
+        <a href="media.html" class="admin-nav-item"><span>🖼️</span> Media</a>
+        <a href="roles.html" class="admin-nav-item"><span>🛡️</span> Roles & Staff</a>
+        <a href="backup.html" class="admin-nav-item"><span>💾</span> Backup</a>
+        <a href="settings.html" class="admin-nav-item"><span>⚙️</span> Settings</a>
+        <a href="activity-log.html" class="admin-nav-item"><span>📋</span> Activity Log</a>
+        <a href="../index.html" class="admin-nav-item" style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px;"><span>🌐</span> View Store</a>
+        <button onclick="logout()" class="admin-nav-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: #DC2626;"><span>🚪</span> Logout</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div style="font-weight: 700; font-size: 1.1rem;">Customer Orders & Fulfillment</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+          <div style="font-size: 0.875rem; font-weight: 600;" id="admin-user-display">Admin</div>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <div class="flex-between" style="margin-bottom: 24px;">
+          <div>
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Order Management</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">10-status fulfillment pipeline, invoice generation, refunds, and live history audit</p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="exportOrdersCsv()">📥 Export CSV</button>
+            <button class="btn btn-primary btn-sm" onclick="loadAdminOrders()">Refresh Orders</button>
+          </div>
+        </div>
+
+        <!-- Orders Stats Row -->
+        <div class="stats-grid" id="orders-stats-row">
+          <div class="stat-card"><div class="loading-spinner"></div></div>
+        </div>
+
+        <!-- Filter Bar & Clear All -->
+        <div class="filter-bar">
+          <input type="text" id="orders-search" class="search-input" placeholder="Search by Order #, Invoice #, Customer, or City..." oninput="loadAdminOrders()">
+          <select id="orders-status-filter" onchange="loadAdminOrders()">
+            <option value="all">All 10 Statuses</option>
+            <option value="PENDING">PENDING</option>
+            <option value="CONFIRMED">CONFIRMED</option>
+            <option value="PROCESSING">PROCESSING</option>
+            <option value="PACKED">PACKED</option>
+            <option value="SHIPPED">SHIPPED</option>
+            <option value="OUT_FOR_DELIVERY">OUT FOR DELIVERY</option>
+            <option value="DELIVERED">DELIVERED</option>
+            <option value="CANCELLED">CANCELLED</option>
+            <option value="RETURNED">RETURNED</option>
+            <option value="REFUNDED">REFUNDED</option>
+          </select>
+          <select id="orders-date-filter" onchange="loadAdminOrders()">
+            <option value="all">All Dates</option>
+            <option value="today">Today Only</option>
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+          </select>
+          <label style="display:flex; align-items:center; gap:6px; font-size:0.825rem; font-weight:700; color:#E11D48; cursor:pointer;">
+            <input type="checkbox" id="orders-delayed-filter" onchange="loadAdminOrders()">
+            ⚠️ Delayed Deliveries Only
+          </label>
+          <button class="btn-clear-all" onclick="clearAllFilters('orders')" title="Reset filters only">
+            <span>🔄</span> Clear Filters
+          </button>
+          <button class="btn-clear-data" onclick="openClearDataModal('orders')" title="Permanently clear orders from database" style="background:#ef444418;color:#ef4444;border:1px solid #ef444460;border-radius:6px;padding:6px 12px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            <span>🗑️</span> Clear Data
+          </button>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Invoice #</th>
+                <th>Customer & Location</th>
+                <th>Date Placed</th>
+                <th>Total Value</th>
+                <th>Current Status</th>
+                <th>Quick Status Update</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-page-tbody">
+              <tr><td colspan="8" style="text-align:center; padding:30px;"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Order Details Comprehensive Modal -->
+  <div class="modal-overlay" id="order-details-modal">
+    <div class="modal-card" style="max-width: 800px;">
+      <div class="modal-header">
+        <div>
+          <h3 style="display:inline-block;">Order: <span id="od-modal-order-number" style="color:var(--brand);"></span></h3>
+          <span id="od-modal-status-badge" style="margin-left:8px;"></span>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('order-details-modal').classList.remove('active')">&times;</button>
+      </div>
+
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:20px;">
+        <div class="grid-2" style="gap:16px;">
+          <!-- Customer & Shipping Address -->
+          <div style="background:var(--bg-2); padding:14px; border-radius:8px; border:1px solid var(--border); font-size:0.85rem;">
+            <div style="font-weight:800; text-transform:uppercase; color:var(--text-muted); font-size:0.75rem; margin-bottom:6px;">👤 Customer & Delivery Address</div>
+            <div><strong>Name:</strong> <span id="od-modal-customer-name"></span></div>
+            <div><strong>Email:</strong> <span id="od-modal-customer-email"></span></div>
+            <div><strong>Phone:</strong> <span id="od-modal-customer-phone"></span></div>
+            <div style="margin-top:4px;"><strong>Address:</strong> <span id="od-modal-customer-address"></span></div>
+          </div>
+
+          <!-- Logistics & Delivery Status -->
+          <div style="background:var(--bg-2); padding:14px; border-radius:8px; border:1px solid var(--border); font-size:0.85rem;">
+            <div style="font-weight:800; text-transform:uppercase; color:var(--text-muted); font-size:0.75rem; margin-bottom:6px;">🚚 Logistics & Tracking</div>
+            <div><strong>Carrier:</strong> <span id="od-modal-carrier"></span></div>
+            <div><strong>Tracking Number:</strong> <span id="od-modal-tracking" style="font-family:monospace; color:var(--brand);"></span></div>
+            <div><strong>Expected Delivery:</strong> <span id="od-modal-exp-delivery" style="font-weight:700;"></span></div>
+            <div><strong>Delivery Window:</strong> <span id="od-modal-window"></span></div>
+            <div style="margin-top:4px;"><strong>Invoice:</strong> <span id="od-modal-invoice-number" style="font-family:monospace;"></span></div>
+          </div>
+        </div>
+
+        <!-- Refund Alert (if applicable) -->
+        <div id="od-modal-refund-info" style="display:none;"></div>
+
+        <!-- Line Items Table -->
+        <div>
+          <h4 style="font-size:0.95rem; font-weight:800; margin-bottom:8px;">Ordered Items</h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="od-modal-items-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Pricing Summary -->
+        <div style="background:var(--bg-2); padding:16px; border-radius:8px; border:1px solid var(--border); width:320px; margin-left:auto; font-size:0.85rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Subtotal:</span><strong id="od-modal-subtotal"></strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:#16A34A;"><span>Discount:</span><strong id="od-modal-discount"></strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>GST (5% Included):</span><strong id="od-modal-tax"></strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Shipping:</span><strong id="od-modal-shipping"></strong></div>
+          <div style="display:flex; justify-content:space-between; border-top:2px solid var(--text-primary); padding-top:6px; margin-top:6px; font-size:1.05rem; font-weight:800;">
+            <span>Grand Total:</span><span id="od-modal-total" style="color:var(--brand);"></span>
+          </div>
+        </div>
+
+        <!-- Order Timeline / Audit Trail -->
+        <div>
+          <h4 style="font-size:0.95rem; font-weight:800; margin-bottom:8px;">Order Timeline & Audit History</h4>
+          <div class="timeline-list" id="od-modal-timeline"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" id="od-btn-refund" style="color:#DC2626; border-color:#FECDD3;">Issue Refund</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="od-btn-set-shipping">Update Shipping & Dates</button>
+        <button type="button" class="btn btn-primary btn-sm" id="od-btn-invoice">View Tax Invoice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shipping / Dates Update Modal -->
+  <div class="modal-overlay" id="shipping-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="ship-modal-order-title">Shipping Management</h3>
+        <button class="modal-close" onclick="document.getElementById('shipping-modal').classList.remove('active')">&times;</button>
+      </div>
+      <form onsubmit="saveShippingModal(event)">
+        <input type="hidden" id="ship-modal-order-id">
+        <input type="hidden" id="ship-modal-created-at">
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
+          <div class="grid-2" style="gap:14px;">
+            <div class="form-group">
+              <label class="form-label">Shipping Carrier *</label>
+              <select id="ship-modal-carrier" class="form-control">
+                <option value="BlueDart Express">BlueDart Express</option>
+                <option value="Delhivery Surface">Delhivery Surface</option>
+                <option value="DTDC Express">DTDC Express</option>
+                <option value="FedEx India">FedEx India</option>
+                <option value="India Post Speed Post">India Post Speed Post</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tracking Number *</label>
+              <input type="text" id="ship-modal-tracking" class="form-control" placeholder="TRK-98765432" required>
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap:14px;">
+            <div class="form-group">
+              <label class="form-label">Expected Shipping Date</label>
+              <input type="date" id="ship-modal-exp-ship" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expected Delivery Date *</label>
+              <input type="date" id="ship-modal-exp-del" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap:14px;">
+            <div class="form-group">
+              <label class="form-label">Actual Delivery Date (if delivered)</label>
+              <input type="date" id="ship-modal-act-del" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Delivery Time Window</label>
+              <select id="ship-modal-window" class="form-control">
+                <option value="10:00 AM - 02:00 PM">Morning (10:00 AM - 02:00 PM)</option>
+                <option value="02:00 PM - 06:00 PM">Afternoon (02:00 PM - 06:00 PM)</option>
+                <option value="06:00 PM - 09:00 PM">Evening (06:00 PM - 09:00 PM)</option>
+                <option value="Anytime (09:00 AM - 08:00 PM)">Anytime (09:00 AM - 08:00 PM)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Delivery Instructions / Carrier Notes</label>
+            <input type="text" id="ship-modal-notes" class="form-control" placeholder="e.g. Call before delivery, handle with care">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('shipping-modal').classList.remove('active')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Shipping Details</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Invoice Viewer Modal -->
+  <div class="modal-overlay" id="invoice-modal">
+    <div class="modal-card" style="max-width: 850px;">
+      <div class="modal-header no-print">
+        <h3>Tax Invoice Preview</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ Print / Download PDF</button>
+          <button class="modal-close" onclick="document.getElementById('invoice-modal').classList.remove('active')">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body printable-area">
+        <div id="invoice-render-sheet" class="invoice-sheet">
+          <div style="text-align:center; padding:40px;"><div class="loading-spinner"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminOrders();
+    });
+
+    async function exportOrdersCsv() {
+      const token = getToken();
+      const status = document.getElementById('orders-status-filter')?.value || 'all';
+      try {
+        const res = await fetch(`${API_BASE}/orders/export/csv?status=${status}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('Failed to generate export');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `proteinx-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Orders exported to CSV!', 'success');
+      } catch (err) {
+        showToast('Export failed: ' + err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
+

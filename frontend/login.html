@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | NUTRATEIN</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .auth-card {
+      max-width: 440px;
+      margin: 40px auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+    }
+    .quick-login-card {
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--bg-2);
+      border-radius: var(--radius);
+      border: 1.5px dashed var(--brand);
+    }
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .password-toggle-btn:hover {
+      color: var(--text-primary);
+    }
+    .quick-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .quick-btn {
+      padding: 10px 8px;
+      font-size: 0.825rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .quick-btn-admin {
+      background: #7C3AED;
+      color: #FFFFFF;
+    }
+    .quick-btn-admin:hover {
+      background: #6D28D9;
+      transform: translateY(-1px);
+    }
+    .quick-btn-user {
+      background: #0284C7;
+      color: #FFFFFF;
+    }
+    .quick-btn-user:hover {
+      background: #0369A1;
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body style="background: var(--bg-2); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+
+  <div class="auth-page" style="width: 100%; padding: 20px;">
+    <div class="auth-card">
+      <div class="auth-logo" style="text-align: center; margin-bottom: 20px;">
+        <a href="index.html" class="logo" style="justify-content: center; display: inline-flex;">
+          <div class="logo-icon">N</div>
+          NUTRA<span style="color: var(--brand);">TEIN</span>
+        </a>
+      </div>
+
+      <h1 class="auth-title" style="text-align: center; font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;">Welcome Back</h1>
+      <p class="auth-subtitle" style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Sign in to your NUTRATEIN account</p>
+
+      <div id="login-alert" class="hidden" style="padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 18px; font-size: 0.85rem; font-weight: 500; line-height: 1.4;"></div>
+
+      <!-- Quick 1-Click Instant Login Section -->
+      <div class="quick-login-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+            ⚡ 1-Click Instant Login:
+          </span>
+          <span style="font-size: 0.7rem; font-weight: 700; color: #16A34A; background: #DCFCE7; padding: 2px 8px; border-radius: 999px;">
+            No Typing Required
+          </span>
+        </div>
+        <p style="font-size: 0.775rem; color: var(--text-muted); margin: 6px 0 0 0;">
+          Click below to sign in instantly without password autofill or Microsoft account prompts:
+        </p>
+        <div class="quick-btn-grid">
+          <button type="button" class="quick-btn quick-btn-admin" onclick="quickLogin('admin')" id="quick-admin-btn">
+            🛡️ Admin Panel
+          </button>
+          <button type="button" class="quick-btn quick-btn-user" onclick="quickLogin('user')" id="quick-user-btn">
+            👤 Customer Demo
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; margin: 22px 0 18px 0; color: var(--text-muted); font-size: 0.8rem;">
+        <div style="flex: 1; height: 1px; background: var(--border);"></div>
+        <span style="padding: 0 12px; font-weight: 600;">OR SIGN IN MANUALLY</span>
+        <div style="flex: 1; height: 1px; background: var(--border);"></div>
+      </div>
+
+      <form id="login-form" autocomplete="off" onsubmit="handleLogin(event)">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">Email Address</label>
+          <input 
+            type="email" 
+            id="login-email" 
+            class="form-control" 
+            placeholder="kaziadnan275@gmail.com" 
+            autocomplete="off" 
+            autocapitalize="none"
+            spellcheck="false"
+            required
+            style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); font-size: 0.9rem;"
+          >
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0; font-size: 0.85rem; font-weight: 600;">Password</label>
+            <a href="#" style="font-size: 0.8rem; color: var(--brand);" onclick="showToast('Password reset link sent to registered email', 'info'); return false;">Forgot password?</a>
+          </div>
+          <div class="password-wrapper">
+            <input 
+              type="password" 
+              id="login-password" 
+              class="form-control" 
+              placeholder="••••••••" 
+              autocomplete="off" 
+              spellcheck="false"
+              required
+              style="width: 100%; padding: 10px 42px 10px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); font-size: 0.9rem;"
+            >
+            <button type="button" class="password-toggle-btn" id="toggle-pwd-btn" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="login-submit-btn" class="btn btn-primary w-full btn-lg" style="width: 100%; padding: 12px; font-weight: 700; font-size: 0.95rem;">
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-footer" style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--text-muted);">
+        Don't have an account yet? <a href="register.html" style="font-weight: 700; color: var(--brand);">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="js/config.js"></script>
+  <script src="config/siteContent.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Password show/hide toggle
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById('login-password');
+      const toggleBtn = document.getElementById('toggle-pwd-btn');
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        toggleBtn.textContent = '🙈';
+      } else {
+        pwdInput.type = 'password';
+        toggleBtn.textContent = '👁️';
+      }
+    }
+
+    // 1-Click Instant Login
+    function quickLogin(role) {
+      const emailInput = document.getElementById('login-email');
+      const passInput = document.getElementById('login-password');
+      if (role === 'admin') {
+        emailInput.value = 'kaziadnan275@gmail.com';
+        passInput.value = 'Admin@123';
+      } else {
+        emailInput.value = 'john@example.com';
+        passInput.value = 'User@123';
+      }
+      handleLogin(new Event('submit'));
+    }
+
+    // Check if user is already logged in
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const u = getUser();
+        const t = getToken();
+        if (u && t) {
+          const alertEl = document.getElementById('login-alert');
+          const target = u.role === 'admin' ? 'admin/index.html' : 'index.html';
+          alertEl.innerHTML = `Signed in as <strong>${u.name}</strong> (${u.role || 'user'}). <a href="${target}" style="text-decoration: underline; font-weight: 700; margin-left: 6px;">Go to ${u.role === 'admin' ? 'Admin Dashboard' : 'Storefront'} &rarr;</a> <div style="margin-top: 6px;"><a href="#" onclick="logout(); return false;" style="color: #DC2626; font-size: 0.8rem; font-weight: 600;">Sign out / Switch account</a></div>`;
+          alertEl.style.background = '#EFF6FF';
+          alertEl.style.color = '#1D4ED8';
+          alertEl.style.border = '1px solid #BFDBFE';
+          alertEl.classList.remove('hidden');
+        }
+      } catch (err) {
+        console.warn('Auth check error:', err);
+      }
+    });
+
+    async function handleLogin(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const alertEl = document.getElementById('login-alert');
+      const btn = document.getElementById('login-submit-btn');
+
+      alertEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading-spinner" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px;"></div> Signing in...';
+
+      const baseUrl = (typeof API_BASE !== 'undefined' && API_BASE) 
+        ? API_BASE 
+        : (window.location.port === '5000' ? '/api' : 'http://localhost:5000/api');
+
+      try {
+        const res = await fetch(`${baseUrl}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          // Synchronize token & user in all localStorage keys
+          localStorage.setItem('proteinx_token', data.token);
+          localStorage.setItem('proteinx_user', JSON.stringify(data.user));
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          if (typeof setAuth === 'function') {
+            setAuth(data.token, data.user);
+          }
+
+          showToast('Welcome back, ' + data.user.name.split(' ')[0] + '!', 'success');
+
+          const params = new URLSearchParams(window.location.search);
+          let redirect = params.get('redirect');
+          if (redirect && (redirect.includes('login') || redirect.includes('register'))) {
+            redirect = null;
+          }
+
+          setTimeout(() => {
+            if (data.user.role === 'admin') {
+              window.location.href = redirect || 'admin/index.html';
+            } else {
+              window.location.href = redirect || 'index.html';
+            }
+          }, 600);
+        } else {
+          alertEl.textContent = data.message || 'Invalid email or password';
+          alertEl.style.background = '#FEE2E2';
+          alertEl.style.color = '#991B1B';
+          alertEl.style.border = '1px solid #FECACA';
+          alertEl.classList.remove('hidden');
+          btn.disabled = false;
+          btn.textContent = 'Sign In';
+        }
+      } catch (err) {
+        alertEl.innerHTML = 'Cannot reach API server at <code>http://localhost:5000</code>. Please ensure the backend is running.';
+        alertEl.style.background = '#FEE2E2';
+        alertEl.style.color = '#991B1B';
+        alertEl.style.border = '1px solid #FECACA';
+        alertEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flash Sales | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-brand">
+        <a href="../index.html" class="logo">
+          <div class="logo-icon">N</div>
+          NUTRA<span>TEIN</span>
+        </a>
+        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-top: 4px;">ADMIN CONSOLE</div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-item"><span>📊</span> Dashboard</a>
+        <a href="products.html" class="admin-nav-item"><span>📦</span> Products</a>
+        <a href="orders.html" class="admin-nav-item"><span>🛒</span> Orders</a>
+        <a href="customers.html" class="admin-nav-item"><span>👥</span> Customers</a>
+        <a href="reviews.html" class="admin-nav-item"><span>⭐</span> Reviews</a>
+        <a href="coupons.html" class="admin-nav-item"><span>🏷️</span> Coupons</a>
+        <a href="flash-sales.html" class="admin-nav-item active"><span>⚡</span> Flash Sales</a>
+        <a href="returns.html" class="admin-nav-item"><span>🔄</span> Returns</a>
+        <a href="banners.html" class="admin-nav-item"><span>🖼️</span> Banners</a>
+        <a href="videos.html" class="admin-nav-item"><span>🎥</span> Videos</a>
+        <a href="analytics.html" class="admin-nav-item"><span>📈</span> Analytics</a>
+        <a href="invoices.html" class="admin-nav-item"><span>🧾</span> Invoices</a>
+        <a href="shipping.html" class="admin-nav-item"><span>🚚</span> Shipping</a>
+        <a href="email.html" class="admin-nav-item"><span>📧</span> Email</a>
+        <a href="cms.html" class="admin-nav-item"><span>📝</span> CMS Pages</a>
+        <a href="media.html" class="admin-nav-item"><span>🖼️</span> Media</a>
+        <a href="roles.html" class="admin-nav-item"><span>🛡️</span> Roles & Staff</a>
+        <a href="backup.html" class="admin-nav-item"><span>💾</span> Backup</a>
+        <a href="settings.html" class="admin-nav-item"><span>⚙️</span> Settings</a>
+        <a href="activity-log.html" class="admin-nav-item"><span>📋</span> Activity Log</a>
+        <a href="../index.html" class="admin-nav-item" style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px;"><span>🌐</span> View Store</a>
+        <button onclick="logout()" class="admin-nav-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: #DC2626;"><span>🚪</span> Logout</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <div style="font-weight: 700; font-size: 1.1rem;">⚡ Flash Sales</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="btn btn-primary btn-sm" onclick="openCreateModal()">+ Create Flash Sale</button>
+          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+          <div style="font-size: 0.875rem; font-weight: 600;" id="admin-user-display">Admin</div>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <div class="flex-between" style="margin-bottom: 24px;">
+          <div>
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Flash Sales & Limited Deals</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">Manage timed promotional sales, product discounts, and countdown banners</p>
+          </div>
+          <div>
+            <button class="btn btn-secondary btn-sm" onclick="loadFlashSalesPage()">Refresh Deals</button>
+          </div>
+        </div>
+
+        <div id="flash-sales-table-container">
+          <div style="text-align:center;padding:40px;"><div class="loading-spinner"></div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <div class="search-overlay" id="flash-sale-modal" onclick="if(event.target===this) closeFlashModal()">
+    <div class="search-box" style="max-width:560px;padding:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 id="flash-modal-title" style="font-size:1.1rem;font-weight:800;">Create Flash Sale</h3>
+        <button onclick="closeFlashModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">×</button>
+      </div>
+      <form id="flash-sale-form" onsubmit="saveFlashSale(event)">
+        <input type="hidden" id="flash-sale-id">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:0.85rem;">Sale Name *</label>
+          <input type="text" id="fs-name" class="form-control" style="width:100%;padding:8px 12px;box-sizing:border-box;" placeholder="e.g. Weekend Flash Sale" required>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:0.85rem;">Description</label>
+          <input type="text" id="fs-desc" class="form-control" style="width:100%;padding:8px 12px;box-sizing:border-box;" placeholder="Brief description of the sale">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;">
+          <div class="form-group">
+            <label class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:0.85rem;">Discount Type *</label>
+            <select id="fs-discount-type" class="form-control" style="width:100%;padding:8px 12px;" required>
+              <option value="PERCENT">Percentage (%)</option>
+              <option value="FIXED">Fixed Amount (₹)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:0.85rem;">Discount Value *</label>
+            <input type="number" id="fs-discount-value" class="form-control" style="width:100%;padding:8px 12px;box-sizing:border-box;" placeholder="e.g. 20" min="1" required>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;">
+          <div class="form-group">
+            <label class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:0.85rem;">Start Date & Time *</label>
+            <input type="datetime-local" id="fs-start" class="form-control" style="width:100%;padding:8px 12px;box-sizing:border-box;" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:0.85rem;">End Date & Time *</label>
+            <input type="datetime-local" id="fs-end" class="form-control" style="width:100%;padding:8px 12px;box-sizing:border-box;" required>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:0.85rem;">Apply to Products</label>
+          <div id="fs-products-list" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Leave all unchecked to apply to all products.</p>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+          <button type="button" class="btn btn-secondary" onclick="closeFlashModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="flash-save-btn">Create Sale</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allProducts = [];
+    let allSales = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      await ensureAdminAuth();
+      loadFlashSalesPage();
+    });
+
+    async function loadFlashSalesPage() {
+      const token = getToken();
+      const container = document.getElementById('flash-sales-table-container');
+      try {
+        const [salesRes, productsRes] = await Promise.all([
+          fetch(`${API_BASE}/flash-sales`, { headers: { 'Authorization': 'Bearer ' + token } }),
+          fetch(`${API_BASE}/products?limit=100`)
+        ]);
+        const salesData = await salesRes.json();
+        const productsData = await productsRes.json();
+        allProducts = productsData.products || [];
+        allSales = salesData.sales || [];
+        renderSalesTable(allSales);
+      } catch (err) {
+        container.innerHTML = '<div class="alert alert-error">Failed to load flash sales: ' + err.message + '</div>';
+      }
+    }
+
+    function renderSalesTable(sales) {
+      const container = document.getElementById('flash-sales-table-container');
+      if (!sales.length) {
+        container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted);background:var(--card-bg);border:1px solid var(--border);border-radius:12px;">No flash sales yet. Create your first flash sale!</div>';
+        return;
+      }
+      const now = new Date();
+      container.innerHTML = `
+        <div class="table-wrap admin-table-wrap">
+          <table class="data-table admin-table">
+            <thead><tr>
+              <th>Sale Name</th><th>Discount</th><th>Products</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+              ${sales.map(s => {
+                const start = new Date(s.startAt);
+                const end = new Date(s.endAt);
+                let statusClass = 'inactive', statusText = 'Inactive';
+                if (s.isActive) {
+                  if (now >= start && now <= end) { statusClass = 'active'; statusText = '🟢 Active'; }
+                  else if (now < start) { statusClass = 'scheduled'; statusText = '🟡 Scheduled'; }
+                  else { statusClass = 'expired'; statusText = '🔴 Expired'; }
+                }
+                const discountText = s.discountType === 'PERCENT' ? s.discountValue + '%' : '₹' + s.discountValue;
+                return `
+                  <tr>
+                    <td><strong>${s.name}</strong><div style="font-size:0.75rem;color:var(--text-muted);">${s.description || ''}</div></td>
+                    <td><strong style="color:var(--brand);">${discountText} OFF</strong></td>
+                    <td><span style="font-size:0.8rem;">${s.products && s.products.length ? s.products.length + ' product(s)' : 'All products'}</span></td>
+                    <td style="font-size:0.8rem;">${start.toLocaleString('en-IN', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+                    <td style="font-size:0.8rem;">${end.toLocaleString('en-IN', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+                    <td><span class="status-pill flash-sale-status-${statusClass}">${statusText}</span></td>
+                    <td>
+                      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <button class="btn btn-sm btn-secondary" onclick="editFlashSale('${s._id}')">Edit</button>
+                        <button class="btn btn-sm" style="background:${s.isActive ? '#FEE2E2' : '#D1FAE5'};color:${s.isActive ? '#991B1B' : '#065F46'};border:none;" onclick="toggleFlashSale('${s._id}')">${s.isActive ? 'Deactivate' : 'Activate'}</button>
+                        <button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:none;" onclick="deleteFlashSale('${s._id}')">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function openCreateModal() {
+      document.getElementById('flash-modal-title').textContent = 'Create Flash Sale';
+      document.getElementById('flash-save-btn').textContent = 'Create Sale';
+      document.getElementById('flash-sale-id').value = '';
+      document.getElementById('flash-sale-form').reset();
+      populateProductsList([]);
+      document.getElementById('flash-sale-modal').classList.add('open');
+    }
+
+    function editFlashSale(id) {
+      const sale = allSales.find(s => s._id === id);
+      if (!sale) return;
+      document.getElementById('flash-modal-title').textContent = 'Edit Flash Sale';
+      document.getElementById('flash-save-btn').textContent = 'Save Changes';
+      document.getElementById('flash-sale-id').value = id;
+      document.getElementById('fs-name').value = sale.name;
+      document.getElementById('fs-desc').value = sale.description || '';
+      document.getElementById('fs-discount-type').value = sale.discountType;
+      document.getElementById('fs-discount-value').value = sale.discountValue;
+      document.getElementById('fs-start').value = new Date(sale.startAt).toISOString().slice(0, 16);
+      document.getElementById('fs-end').value = new Date(sale.endAt).toISOString().slice(0, 16);
+      populateProductsList(sale.products || []);
+      document.getElementById('flash-sale-modal').classList.add('open');
+    }
+
+    function populateProductsList(selected) {
+      const container = document.getElementById('fs-products-list');
+      container.innerHTML = allProducts.map(p => `
+        <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;cursor:pointer;padding:4px;">
+          <input type="checkbox" value="${p._id}" ${selected.includes(p._id) ? 'checked' : ''}> ${p.name}
+        </label>
+      `).join('');
+    }
+
+    function closeFlashModal() {
+      document.getElementById('flash-sale-modal').classList.remove('open');
+    }
+
+    async function saveFlashSale(e) {
+      e.preventDefault();
+      const id = document.getElementById('flash-sale-id').value;
+      const selectedProducts = Array.from(document.querySelectorAll('#fs-products-list input:checked')).map(c => c.value);
+      const body = {
+        name: document.getElementById('fs-name').value,
+        description: document.getElementById('fs-desc').value,
+        discountType: document.getElementById('fs-discount-type').value,
+        discountValue: Number(document.getElementById('fs-discount-value').value),
+        products: selectedProducts,
+        startAt: document.getElementById('fs-start').value,
+        endAt: document.getElementById('fs-end').value
+      };
+      const btn = document.getElementById('flash-save-btn');
+      btn.disabled = true; btn.textContent = 'Saving...';
+      try {
+        const res = await fetch(`${API_BASE}/flash-sales${id ? '/' + id : ''}`, {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeFlashModal();
+          showToast(id ? 'Flash sale updated!' : 'Flash sale created!', 'success');
+          loadFlashSalesPage();
+        } else {
+          showToast(data.message || 'Error saving.', 'error');
+        }
+      } catch { showToast('Network error.', 'error'); }
+      finally { btn.disabled = false; btn.textContent = id ? 'Save Changes' : 'Create Sale'; }
+    }
+
+    async function toggleFlashSale(id) {
+      try {
+        const res = await fetch(`${API_BASE}/flash-sales/${id}/toggle`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + getToken() } });
+        const data = await res.json();
+        if (data.success) { showToast('Flash sale ' + (data.isActive ? 'activated' : 'deactivated'), 'success'); loadFlashSalesPage(); }
+        else showToast(data.message || 'Error', 'error');
+      } catch { showToast('Network error.', 'error'); }
+    }
+
+    async function deleteFlashSale(id) {
+      if (!confirm('Delete this flash sale? This cannot be undone.')) return;
+      try {
+        const res = await fetch(`${API_BASE}/flash-sales/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + getToken() } });
+        const data = await res.json();
+        if (data.success) { showToast('Flash sale deleted.', 'success'); loadFlashSalesPage(); }
+        else showToast(data.message || 'Error', 'error');
+      } catch { showToast('Network error.', 'error'); }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "upiId": "proteinx@upi",
+  "upiName": "PROTEINX Supplements Official",
+  "qrCodeImage": "/uploads/images/upload_1790850734421_tzkufb.jpeg",
+  "instructions": "Scan the QR code with any UPI app (Google Pay, PhonePe, Paytm, BHIM) and enter the 12-digit UTR/Txn ID below.",
+  "enabled": true,
+  "enableCOD": false,
+  "enableUPI": true,
+  "enableCard": true,
+  "enableCash": false,
+  "razorpayEnabled": false
+}

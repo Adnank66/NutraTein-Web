@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account | NUTRATEIN</title>
+  <meta name="theme-color" content="#D9651E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">N</div>
+        NUTRA<span>TEIN</span>
+      </a>
+
+      <nav class="nav-desktop">
+        <a href="index.html" class="nav-link" data-i18n="nav_home">Home</a>
+        <a href="shop.html" class="nav-link" data-i18n="nav_shop">Shop</a>
+        <a href="build-stack.html" class="nav-link" data-i18n="nav_build_stack">Build Stack</a>
+        <a href="compare.html" class="nav-link" data-i18n="nav_compare">Compare</a>
+        <a href="calculator.html" class="nav-link" data-i18n="nav_calculator">Calculator</a>
+        <a href="tracking.html" class="nav-link" data-i18n="nav_track_order">Track Order</a>
+        <a href="about.html" class="nav-link" data-i18n="nav_about">About</a>
+        <a href="contact.html" class="nav-link" data-i18n="nav_contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Language Selector -->
+        <div class="lang-selector-wrap">
+          <select id="lang-select" class="lang-select" onchange="changeLanguage(this.value)" aria-label="Select Language">
+            <option value="en">EN</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+          </select>
+        </div>
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+        <a href="wishlist.html" class="header-action-btn" title="Wishlist">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+        </a>
+        <button class="header-action-btn" onclick="openCartDrawer()" title="Cart">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+          <span class="action-badge cart-badge" style="display: none;">0</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="logout()" data-i18n="nav_sign_out">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Account Dashboard Section -->
+  <section class="section" style="padding-top: 24px;">
+    <div class="container">
+      <div class="page-nav-bar">
+        <button onclick="goBack()" class="btn-nav-back" title="Go back to previous page">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav_back">Back</span>
+        </button>
+        <a href="index.html" class="btn-nav-home" title="Return to homepage">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span data-i18n="nav_home">Home</span>
+        </a>
+      </div>
+      <div class="flex-between" style="margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h1 style="font-size: 1.8rem; font-weight: 800;">My Account</h1>
+          <p id="account-welcome" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">Manage your profile and orders</p>
+        </div>
+        <div id="account-admin-badge" class="hidden">
+          <a href="admin/index.html" class="btn btn-dark btn-sm">⚡ Open Admin Dashboard</a>
+        </div>
+      </div>
+
+      <div class="grid-3" style="grid-template-columns: 1fr 2fr; gap: 32px; align-items: start;">
+        <!-- Left Profile Card -->
+        <div class="card" style="padding: 24px;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">Profile Details</h3>
+          <div style="margin-bottom: 12px;">
+            <label class="form-label" style="font-size: 0.75rem;">Full Name</label>
+            <div id="acc-name" style="font-weight: 700; font-size: 1rem;">-</div>
+          </div>
+          <div style="margin-bottom: 12px;">
+            <label class="form-label" style="font-size: 0.75rem;">Email Address</label>
+            <div id="acc-email" style="color: var(--text-secondary); font-size: 0.9rem;">-</div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label class="form-label" style="font-size: 0.75rem;">Phone Number</label>
+            <div id="acc-phone" style="color: var(--text-secondary); font-size: 0.9rem;">-</div>
+          </div>
+          <button class="btn btn-secondary btn-sm w-full" onclick="logout()">Sign Out</button>
+        </div>
+
+        <!-- Right Orders History Card -->
+        <div class="card" style="padding: 24px;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">Recent Orders</h3>
+          <div id="acc-orders-list">
+            <div style="text-align: center; padding: 40px;"><div class="loading-spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Printable Invoice Modal -->
+  <div class="search-overlay" id="invoice-modal" onclick="if(event.target === this) closeInvoiceModal()">
+    <div class="search-box" style="max-width: 720px; padding: 32px; background: #fff; color: #111827; border-radius: 12px;">
+      <div id="invoice-content"></div>
+      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; flex-wrap: wrap;">
+        <button class="btn btn-secondary" onclick="closeInvoiceModal()">Close</button>
+        <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+        <button class="btn btn-primary" onclick="downloadInvoicePDF()">⬇️ Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel / Return Modal -->
+  <div class="search-overlay" id="return-cancel-modal" onclick="if(event.target===this) closeReturnModal()">
+    <div class="search-box return-cancel-modal" style="max-width: 480px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 id="return-modal-title" style="font-size:1.1rem; font-weight:800;">Cancel Order</h3>
+        <button onclick="closeReturnModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-muted);">×</button>
+      </div>
+      <p id="return-modal-desc" style="font-size:0.875rem; color:var(--text-muted); margin-bottom:16px;"></p>
+      <div class="cancel-reasons" id="return-reasons"></div>
+      <label style="font-size:0.8rem; font-weight:600; margin-bottom:6px; display:block; margin-top:12px;">Additional Details (optional)</label>
+      <textarea id="return-description" rows="3" class="form-control" style="resize:vertical; font-size:0.875rem;" placeholder="Describe your issue..."></textarea>
+      <div style="display:flex; gap:10px; margin-top:20px; justify-content:flex-end;">
+        <button class="btn btn-secondary" onclick="closeReturnModal()">Cancel</button>
+        <button class="btn btn-primary" id="return-submit-btn" onclick="submitReturnRequest()">Submit Request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recently Viewed Section -->
+  <section class="recently-viewed-section" id="recently-viewed-section" style="display:none;">
+    <div class="container">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h2 style="font-size:1.3rem; font-weight:800; margin-bottom:4px;">🕐 Recently Viewed</h2>
+          <p style="color:var(--text-muted); font-size:0.875rem;">Products you recently browsed</p>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="clearRecentlyViewed()">Clear History</button>
+      </div>
+      <div class="recently-viewed-grid" id="recently-viewed-grid"></div>
+    </div>
+  </section>
+
+  <script src="js/config.js"></script>
+  <script src="config/siteContent.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ai-chat.js"></script>
+  <script>
+    let myOrders = [];
+    let currentReturnOrderId = null;
+    let currentReturnType = null;
+    let selectedReason = null;
+
+    async function loadAccount() {
+      const user = getUser();
+      const token = getToken();
+      if (!token || !user) {
+        window.location.href = 'login.html?redirect=account.html';
+        return;
+      }
+      document.getElementById('acc-name').textContent = user.name;
+      document.getElementById('acc-email').textContent = user.email;
+      document.getElementById('acc-phone').textContent = user.phone || 'Not provided';
+      document.getElementById('account-welcome').textContent = `Hello, ${user.name} (${user.email})`;
+      if (user.role === 'admin') document.getElementById('account-admin-badge').classList.remove('hidden');
+
+      const ordersContainer = document.getElementById('acc-orders-list');
+      try {
+        const res = await fetch(`${API_BASE}/orders/my`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        if (!data.success || !data.orders || !data.orders.length) {
+          ordersContainer.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:30px;">You haven\'t placed any orders yet.</p>';
+          return;
+        }
+        myOrders = data.orders;
+        renderOrders();
+      } catch {
+        ordersContainer.innerHTML = '<p style="color:#DC2626;text-align:center;">Failed to load order history</p>';
+      }
+      loadRecentlyViewedSection();
+    }
+
+    function canCancel(status) {
+      return ['PENDING','CONFIRMED','PROCESSING'].includes(status);
+    }
+    function canReturn(status) {
+      return status === 'DELIVERED';
+    }
+
+    function renderOrders() {
+      const ordersContainer = document.getElementById('acc-orders-list');
+      ordersContainer.innerHTML = myOrders.map(o => `
+        <div style="border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;background:var(--card-bg);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:1.05rem;">Order #${o.orderNumber}</strong>
+              <span style="color:var(--text-muted);font-size:0.8rem;margin-left:8px;">Placed ${new Date(o.createdAt).toLocaleDateString('en-IN')}</span>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-family:monospace;margin-top:2px;">Invoice: ${o.invoiceNumber || 'PX-INV-2026-N/A'}</div>
+            </div>
+            <span class="status-pill ${(o.status||'').toLowerCase()}">${o.status}</span>
+          </div>
+          <div style="background:var(--bg-2);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:0.825rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div>
+              <span style="color:var(--text-muted);">Expected Delivery:</span>
+              <strong style="color:var(--brand);margin-left:4px;">${o.expectedDeliveryDate ? new Date(o.expectedDeliveryDate).toLocaleDateString('en-IN') : '3-5 Business Days'}</strong>
+            </div>
+            <div>
+              <span style="color:var(--text-muted);">Carrier:</span>
+              <strong style="margin-left:4px;">${o.shippingProvider || 'BlueDart Express'}</strong>
+              ${o.trackingNumber ? `<span style="font-family:monospace;color:var(--text-muted);font-size:0.75rem;"> [${o.trackingNumber}]</span>` : ''}
+            </div>
+          </div>
+          <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">
+            ${o.items.map(i => `${i.productName} (x${i.quantity})`).join(', ')}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:12px;flex-wrap:wrap;gap:8px;">
+            <span style="font-weight:800;font-size:1.1rem;color:var(--brand);">₹${o.totalAmount.toLocaleString('en-IN')}</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a href="tracking.html?orderId=${o.orderNumber}" class="btn btn-secondary btn-sm">Track</a>
+              <button class="btn btn-outline btn-sm" onclick="showInvoice('${o._id}')">📄 Invoice</button>
+              ${canCancel(o.status) ? `<button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:1px solid #FECACA;" onclick="openCancelModal('${o._id}')">❌ Cancel</button>` : ''}
+              ${canReturn(o.status) ? `<button class="btn btn-sm" style="background:#EDE9FE;color:#5B21B6;border:1px solid #DDD6FE;" onclick="openReturnModal('${o._id}')">🔄 Return</button>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ── Cancel/Return Modal ──────────────────────────────────
+    const cancelReasons = ['Changed my mind','Ordered by mistake','Found better price elsewhere','Delivery too slow','Duplicate order','Other'];
+    const returnReasons = ['Wrong product received','Product damaged/defective','Not as described','Missing items','Quality not as expected','Other'];
+
+    function openCancelModal(orderId) {
+      currentReturnOrderId = orderId;
+      currentReturnType = 'CANCELLATION';
+      selectedReason = null;
+      document.getElementById('return-modal-title').textContent = '❌ Cancel Order';
+      document.getElementById('return-modal-desc').textContent = 'Please select a reason for cancellation:';
+      renderReasonButtons(cancelReasons);
+      document.getElementById('return-description').value = '';
+      document.getElementById('return-cancel-modal').classList.add('open');
+    }
+
+    function openReturnModal(orderId) {
+      currentReturnOrderId = orderId;
+      currentReturnType = 'RETURN';
+      selectedReason = null;
+      document.getElementById('return-modal-title').textContent = '🔄 Request Return';
+      document.getElementById('return-modal-desc').textContent = 'Please select a reason for return:';
+      renderReasonButtons(returnReasons);
+      document.getElementById('return-description').value = '';
+      document.getElementById('return-cancel-modal').classList.add('open');
+    }
+
+    function renderReasonButtons(reasons) {
+      document.getElementById('return-reasons').innerHTML = reasons.map(r => `
+        <button class="cancel-reason-btn" onclick="selectReason(this, '${r}')">${r}</button>
+      `).join('');
+    }
+
+    function selectReason(btn, reason) {
+      document.querySelectorAll('.cancel-reason-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedReason = reason;
+    }
+
+    function closeReturnModal() {
+      document.getElementById('return-cancel-modal').classList.remove('open');
+    }
+
+    async function submitReturnRequest() {
+      if (!selectedReason) { showToast('Please select a reason.', 'error'); return; }
+      const btn = document.getElementById('return-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      try {
+        const res = await fetch(`${API_BASE}/returns`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+          body: JSON.stringify({
+            orderId: currentReturnOrderId,
+            type: currentReturnType,
+            reason: selectedReason,
+            description: document.getElementById('return-description').value
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeReturnModal();
+          showToast(data.message, 'success');
+          // Refresh orders
+          const res2 = await fetch(`${API_BASE}/orders/my`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+          const d2 = await res2.json();
+          if (d2.success) { myOrders = d2.orders; renderOrders(); }
+        } else {
+          showToast(data.message || 'Failed to submit request.', 'error');
+        }
+      } catch { showToast('Network error. Please try again.', 'error'); }
+      finally { btn.disabled = false; btn.textContent = 'Submit Request'; }
+    }
+
+    // ── Invoice ──────────────────────────────────────────────
+    function showInvoice(orderId) {
+      const order = myOrders.find(o => o._id === orderId);
+      if (!order) return;
+      const user = getUser();
+      const content = document.getElementById('invoice-content');
+      const invoiceNum = order.invoiceNumber || ('PX-INV-2026-' + order.orderNumber);
+      content.innerHTML = `
+        <div id="printable-invoice" style="font-family:'Inter',sans-serif;color:#111827;">
+          <div style="display:flex;justify-content:space-between;border-bottom:2px solid #111827;padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div style="font-size:1.6rem;font-weight:900;color:#E86C1A;letter-spacing:-0.03em;">PROTEINX</div>
+              <p style="font-size:0.78rem;color:#6B7280;margin-top:4px;">Premium Fitness & Sports Nutrition Ltd.<br>GSTIN: 27AABCP1234F1Z5<br>MG Road, Mumbai, Maharashtra - 400001</p>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;">Tax Invoice</div>
+              <p style="font-size:0.78rem;color:#6B7280;margin-top:4px;">
+                Invoice #: <strong>${invoiceNum}</strong><br>
+                Order: <strong>#${order.orderNumber}</strong><br>
+                Date: <strong>${new Date(order.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</strong><br>
+                Payment: <span style="color:${order.paymentStatus==='PAID'?'#065F46':'#991B1B'};font-weight:700;">${order.paymentStatus}</span>
+              </p>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;font-size:0.82rem;">
+            <div>
+              <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6B7280;margin-bottom:6px;">Billed To</div>
+              <strong>${order.shippingAddress?.name || user.name}</strong><br>
+              ${order.shippingAddress?.houseFlat || ''}, ${order.shippingAddress?.street || ''}<br>
+              ${order.shippingAddress?.city || ''}, ${order.shippingAddress?.state || ''} - ${order.shippingAddress?.pincode || ''}<br>
+              Phone: ${order.shippingAddress?.phone || user.phone || 'N/A'}
+            </div>
+            <div>
+              <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6B7280;margin-bottom:6px;">Shipped To</div>
+              <strong>${order.shippingAddress?.name || user.name}</strong><br>
+              ${order.shippingAddress?.houseFlat || ''}, ${order.shippingAddress?.street || ''}<br>
+              ${order.shippingAddress?.city || ''}, ${order.shippingAddress?.state || ''} - ${order.shippingAddress?.pincode || ''}<br>
+              Carrier: ${order.shippingProvider || 'BlueDart Express'}
+              ${order.trackingNumber ? '<br>AWB: ' + order.trackingNumber : ''}
+            </div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin-bottom:20px;">
+            <thead>
+              <tr style="background:#F3F4F6;">
+                <th style="padding:10px 12px;text-align:left;border:1px solid #E5E7EB;">Item Description</th>
+                <th style="padding:10px 12px;text-align:center;border:1px solid #E5E7EB;">Qty</th>
+                <th style="padding:10px 12px;text-align:right;border:1px solid #E5E7EB;">Unit Price</th>
+                <th style="padding:10px 12px;text-align:right;border:1px solid #E5E7EB;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map((i,idx) => `
+                <tr style="background:${idx%2?'#FAFAFA':'#fff'};">
+                  <td style="padding:10px 12px;border:1px solid #E5E7EB;">
+                    <div style="font-weight:600;">${i.productName}</div>
+                    ${i.flavor ? `<div style="font-size:0.73rem;color:#6B7280;">${i.flavor} ${i.size||''}</div>` : ''}
+                  </td>
+                  <td style="padding:10px 12px;text-align:center;border:1px solid #E5E7EB;">${i.quantity}</td>
+                  <td style="padding:10px 12px;text-align:right;border:1px solid #E5E7EB;">₹${i.price.toLocaleString('en-IN')}</td>
+                  <td style="padding:10px 12px;text-align:right;border:1px solid #E5E7EB;font-weight:700;">₹${(i.price * i.quantity).toLocaleString('en-IN')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div style="display:flex;justify-content:flex-end;">
+            <div style="width:260px;font-size:0.85rem;">
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #E5E7EB;"><span>Subtotal:</span><span>₹${(order.subtotal||order.totalAmount).toLocaleString('en-IN')}</span></div>
+              ${order.discountAmount ? `<div style="display:flex;justify-content:space-between;padding:5px 0;color:#065F46;border-bottom:1px dashed #E5E7EB;"><span>Discount${order.couponCode ? ' (' + order.couponCode + ')' : ''}:</span><span>-₹${order.discountAmount.toLocaleString('en-IN')}</span></div>` : ''}
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #E5E7EB;"><span>Shipping:</span><span>${order.shippingAmount === 0 ? 'FREE' : '₹' + order.shippingAmount}</span></div>
+              ${order.taxAmount ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #E5E7EB;color:#6B7280;"><span>GST (18%):</span><span>₹${order.taxAmount.toLocaleString('en-IN')}</span></div>` : ''}
+              <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:900;font-size:1.05rem;border-top:2px solid #111827;margin-top:4px;"><span>TOTAL:</span><span>₹${order.totalAmount.toLocaleString('en-IN')}</span></div>
+            </div>
+          </div>
+          <div style="margin-top:24px;padding-top:16px;border-top:1px solid #E5E7EB;font-size:0.75rem;color:#9CA3AF;text-align:center;">
+            Thank you for your purchase! For support: kaziadnan275@gmail.com | +91 93215 98094<br>
+            All prices are inclusive of GST. This is a computer-generated invoice.
+          </div>
+        </div>
+      `;
+      document.getElementById('invoice-modal').classList.add('open');
+    }
+
+    function closeInvoiceModal() { document.getElementById('invoice-modal').classList.remove('open'); }
+
+    function downloadInvoicePDF() {
+      showToast('Preparing PDF — use Print → Save as PDF', 'info');
+      setTimeout(() => window.print(), 300);
+    }
+
+    // ── Recently Viewed ──────────────────────────────────────
+    function loadRecentlyViewedSection() {
+      const items = getRecentlyViewed();
+      if (!items || !items.length) return;
+      const section = document.getElementById('recently-viewed-section');
+      const grid = document.getElementById('recently-viewed-grid');
+      section.style.display = 'block';
+      grid.innerHTML = items.map(p => `
+        <a href="product.html?slug=${p.slug}" class="recently-viewed-card">
+          <img src="${p.image || 'assets/placeholder.jpg'}" alt="${p.name}" loading="lazy" onerror="this.src='assets/placeholder.jpg'">
+          <div class="recently-viewed-card-name">${p.name}</div>
+          <div class="recently-viewed-card-price">₹${p.basePrice ? p.basePrice.toLocaleString('en-IN') : ''}</div>
+        </a>
+      `).join('');
+    }
+
+    function clearRecentlyViewed() {
+      localStorage.removeItem('proteinx_recently_viewed');
+      document.getElementById('recently-viewed-section').style.display = 'none';
+      showToast('Recently viewed history cleared.', 'info');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAccount);
+  </script>
+</body>
+</html>

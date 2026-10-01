@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store Settings | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body class="admin-layout">
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar-header">
+      <a href="../index.html" class="logo" style="font-size:1.1rem;"><div class="logo-icon" style="width:28px;height:28px;font-size:0.75rem;">X</div>NUTRA<span>TEIN</span></a>
+      <span style="font-size:0.65rem;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:700;">ADMIN</span>
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html" class="admin-nav-link"><span>📊</span> Dashboard</a>
+      <a href="products.html" class="admin-nav-link"><span>📦</span> Products</a>
+      <a href="orders.html" class="admin-nav-link"><span>🛒</span> Orders</a>
+      <a href="customers.html" class="admin-nav-link"><span>👥</span> Customers</a>
+      <a href="reviews.html" class="admin-nav-link"><span>⭐</span> Reviews</a>
+      <a href="coupons.html" class="admin-nav-link"><span>🏷️</span> Coupons</a>
+      <a href="flash-sales.html" class="admin-nav-link"><span>⚡</span> Flash Sales</a>
+      <a href="returns.html" class="admin-nav-link"><span>🔄</span> Returns</a>
+      <a href="banners.html" class="admin-nav-link"><span>🖼️</span> Banners</a>
+      <a href="videos.html" class="admin-nav-link"><span>🎥</span> Videos</a>
+      <a href="analytics.html" class="admin-nav-link"><span>📈</span> Analytics</a>
+      <a href="invoices.html" class="admin-nav-link"><span>🧾</span> Invoices</a>
+      <a href="shipping.html" class="admin-nav-link"><span>🚚</span> Shipping</a>
+      <a href="email.html" class="admin-nav-link"><span>📧</span> Email</a>
+      <a href="cms.html" class="admin-nav-link"><span>📝</span> CMS Pages</a>
+      <a href="media.html" class="admin-nav-link"><span>🖼️</span> Media</a>
+      <a href="roles.html" class="admin-nav-link"><span>🛡️</span> Roles & Staff</a>
+      <a href="backup.html" class="admin-nav-link"><span>💾</span> Backup</a>
+      <a href="settings.html" class="admin-nav-link active"><span>⚙️</span> Settings</a>
+      <a href="activity-log.html" class="admin-nav-link"><span>📋</span> Activity Log</a>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <button class="btn btn-secondary btn-sm w-full" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <h1 class="admin-page-title">⚙️ Store Settings</h1>
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">💾 Save All Settings</button>
+    </header>
+
+    <div style="max-width:800px;">
+      <div id="settings-load-error" style="display:none;" class="alert alert-error"></div>
+
+      <!-- 🎨 Appearance & Theme Customizer -->
+      <div class="admin-card" style="margin-bottom:24px;">
+        <div class="settings-section-title">🎨 Appearance & Theme Customizer</div>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">Customize storefront branding colors, default themes, and border styling with real-time live preview.</p>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:16px; margin-bottom:20px;">
+          <div class="form-group">
+            <label class="form-label" style="font-size:0.8rem;">Primary Brand</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="color" id="t-primary" value="#006948" style="width:36px; height:36px; border:none; border-radius:6px; cursor:pointer;" oninput="updateThemeLivePreview()">
+              <input type="text" id="t-primary-hex" value="#006948" class="form-control" style="font-size:0.8rem; padding:6px 8px; text-transform:uppercase;" oninput="syncColorInput('t-primary', this.value)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-size:0.8rem;">Secondary Color</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="color" id="t-secondary" value="#006a61" style="width:36px; height:36px; border:none; border-radius:6px; cursor:pointer;" oninput="updateThemeLivePreview()">
+              <input type="text" id="t-secondary-hex" value="#006a61" class="form-control" style="font-size:0.8rem; padding:6px 8px; text-transform:uppercase;" oninput="syncColorInput('t-secondary', this.value)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-size:0.8rem;">Accent Color</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="color" id="t-accent" value="#0d9488" style="width:36px; height:36px; border:none; border-radius:6px; cursor:pointer;" oninput="updateThemeLivePreview()">
+              <input type="text" id="t-accent-hex" value="#0d9488" class="form-control" style="font-size:0.8rem; padding:6px 8px; text-transform:uppercase;" oninput="syncColorInput('t-accent', this.value)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-size:0.8rem;">Header Background</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="color" id="t-header" value="#FFFFFF" style="width:36px; height:36px; border:none; border-radius:6px; cursor:pointer;" oninput="updateThemeLivePreview()">
+              <input type="text" id="t-header-hex" value="#FFFFFF" class="form-control" style="font-size:0.8rem; padding:6px 8px; text-transform:uppercase;" oninput="syncColorInput('t-header', this.value)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-size:0.8rem;">Footer Background</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="color" id="t-footer" value="#141b2b" style="width:36px; height:36px; border:none; border-radius:6px; cursor:pointer;" oninput="updateThemeLivePreview()">
+              <input type="text" id="t-footer-hex" value="#141b2b" class="form-control" style="font-size:0.8rem; padding:6px 8px; text-transform:uppercase;" oninput="syncColorInput('t-footer', this.value)">
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div class="form-group">
+            <label class="form-label">Default Theme Mode</label>
+            <select id="t-mode" class="form-control" onchange="updateThemeLivePreview()">
+              <option value="system">💻 System Match (Recommended)</option>
+              <option value="light">☀️ Light Theme</option>
+              <option value="dark">🌙 Dark Theme</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Border Radius Style</label>
+            <select id="t-radius" class="form-control" onchange="updateThemeLivePreview()">
+              <option value="8px">Athletic Soft (8px - Default)</option>
+              <option value="12px">Rounded Smooth (12px)</option>
+              <option value="4px">Subtle Modern (4px)</option>
+              <option value="20px">Curved Pill (20px)</option>
+              <option value="0px">Sharp Clean (0px)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Live Interactive Preview Box -->
+        <div style="background:var(--bg-2); border:1px dashed var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px;">
+          <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-bottom:12px;">
+            👁️ Live Storefront Component Preview
+          </div>
+          <div id="theme-preview-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; transition:all 0.2s ease;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div id="tp-logo-icon" style="width:36px; height:36px; border-radius:6px; background:#006948; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900;">X</div>
+              <div>
+                <div id="tp-brand-title" style="font-weight:800; font-size:1rem; color:#141b2b;">PROTEIN<span id="tp-brand-accent" style="color:#006948;">X</span> Store</div>
+                <div style="font-size:0.78rem; color:#6b7280;">100% Pure Whey Isolate 2kg</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span id="tp-badge" style="background:#006a61; color:#fff; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">27g Protein</span>
+              <span id="tp-price" style="font-weight:900; font-size:1.1rem; color:#006948;">₹3,499</span>
+              <button id="tp-btn" type="button" style="background:#006948; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer;">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="resetThemeDefaults()">🔄 Reset to Default Colors</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="saveThemeSettings()">💾 Save Theme Colors</button>
+        </div>
+      </div>
+
+      <!-- Contact & WhatsApp -->
+      <div class="admin-card" style="margin-bottom:24px;">
+        <div class="flex-between" style="margin-bottom:14px;">
+          <div class="settings-section-title" style="margin:0;">📞 Contact & WhatsApp Launcher</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.82rem;font-weight:700;">Show WhatsApp Button</span>
+            <input type="checkbox" id="s-whatsapp-enabled" checked style="width:20px;height:20px;cursor:pointer;">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Store Phone</label>
+            <input type="text" id="s-phone" class="form-control" placeholder="+91 98765 43210">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Store Email</label>
+            <input type="email" id="s-email" class="form-control" placeholder="kaziadnan275@gmail.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp Number (with country code, no +)</label>
+          <input type="text" id="s-whatsapp" class="form-control" placeholder="919876543210">
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Example: 919876543210 (India +91 98765 43210)</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp Pre-filled Message</label>
+          <input type="text" id="s-whatsapp-msg" class="form-control" placeholder="Hello, I need help with my order/product.">
+        </div>
+      </div>
+
+      <!-- Delivery Settings -->
+      <div class="admin-card" style="margin-bottom:24px;">
+        <div class="settings-section-title">🚚 Delivery Settings</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Processing Days</label>
+            <input type="number" id="s-processing" class="form-control" min="0" max="7">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Min Delivery Days</label>
+            <input type="number" id="s-min-delivery" class="form-control" min="1" max="30">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Delivery Days</label>
+            <input type="number" id="s-max-delivery" class="form-control" min="1" max="30">
+          </div>
+        </div>
+      </div>
+
+      <!-- Returns & Cancellations -->
+      <div class="admin-card" style="margin-bottom:24px;">
+        <div class="settings-section-title">🔄 Returns & Cancellations</div>
+        <div class="form-group">
+          <label class="form-label">Return Window (days after delivery)</label>
+          <input type="number" id="s-return-window" class="form-control" min="0" max="30">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Return Policy</label>
+          <textarea id="s-return-policy" class="form-control" rows="3" placeholder="Enter your return policy..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cancellation Policy</label>
+          <textarea id="s-cancel-policy" class="form-control" rows="2" placeholder="Enter your cancellation policy..."></textarea>
+        </div>
+      </div>
+
+      <!-- Store Info -->
+      <div class="admin-card" style="margin-bottom:24px;">
+        <div class="settings-section-title">🏪 Store Information</div>
+        <div class="form-group">
+          <label class="form-label">Store Name</label>
+          <input type="text" id="s-name" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Store Address</label>
+          <input type="text" id="s-address" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">GSTIN</label>
+          <input type="text" id="s-gstin" class="form-control" placeholder="27AABCP1234F1Z5">
+        </div>
+      </div>
+
+      <!-- Feature Toggles -->
+      <div class="admin-card" style="margin-bottom:24px;">
+        <div class="settings-section-title">🔧 Feature Toggles</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <label style="display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;">
+            <div>
+              <div style="font-weight:700;font-size:0.9rem;">⚡ Flash Sales</div>
+              <div style="font-size:0.78rem;color:var(--text-muted);">Allow flash sale discounts to be displayed on the storefront</div>
+            </div>
+            <input type="checkbox" id="s-flash-enabled" style="width:20px;height:20px;cursor:pointer;">
+          </label>
+          <label style="display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;">
+            <div>
+              <div style="font-weight:700;font-size:0.9rem;">🏷️ Barcode Verification</div>
+              <div style="font-size:0.78rem;color:var(--text-muted);">Enable the product verification page for customers</div>
+            </div>
+            <input type="checkbox" id="s-barcode-enabled" style="width:20px;height:20px;cursor:pointer;">
+          </label>
+          <label style="display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;">
+            <div>
+              <div style="font-weight:700;font-size:0.9rem;">📱 PWA / App-Like Experience</div>
+              <div style="font-size:0.78rem;color:var(--text-muted);">Enable progressive web app features and offline support</div>
+            </div>
+            <input type="checkbox" id="s-pwa-enabled" style="width:20px;height:20px;cursor:pointer;">
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:flex-end;">
+        <button class="btn btn-secondary" onclick="loadSettings()">↩️ Reset Changes</button>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Save All Settings</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    function updateThemeLivePreview() {
+      const primary = document.getElementById('t-primary')?.value || '#D9651E';
+      const secondary = document.getElementById('t-secondary')?.value || '#2B4C3F';
+      const accent = document.getElementById('t-accent')?.value || '#FF4E00';
+      const radius = document.getElementById('t-radius')?.value || '12px';
+
+      // Sync hex text inputs
+      const pText = document.getElementById('t-primary-hex');
+      const sText = document.getElementById('t-secondary-hex');
+      const aText = document.getElementById('t-accent-hex');
+      const hText = document.getElementById('t-header-hex');
+      const fText = document.getElementById('t-footer-hex');
+      if (pText && document.activeElement !== pText) pText.value = primary;
+      if (sText && document.activeElement !== sText) sText.value = secondary;
+      if (aText && document.activeElement !== aText) aText.value = accent;
+      if (hText && document.activeElement !== hText) hText.value = document.getElementById('t-header')?.value || '#FFFFFF';
+      if (fText && document.activeElement !== fText) fText.value = document.getElementById('t-footer')?.value || '#121316';
+
+      // Update Preview Card elements
+      const card = document.getElementById('theme-preview-card');
+      const logoIcon = document.getElementById('tp-logo-icon');
+      const brandAccent = document.getElementById('tp-brand-accent');
+      const badge = document.getElementById('tp-badge');
+      const price = document.getElementById('tp-price');
+      const btn = document.getElementById('tp-btn');
+
+      if (card) card.style.borderRadius = radius;
+      if (logoIcon) {
+        logoIcon.style.background = primary;
+        logoIcon.style.borderRadius = (parseInt(radius) > 8 ? '8px' : radius);
+      }
+      if (brandAccent) brandAccent.style.color = primary;
+      if (badge) badge.style.background = accent;
+      if (price) price.style.color = primary;
+      if (btn) {
+        btn.style.background = primary;
+        btn.style.borderRadius = radius;
+      }
+    }
+
+    function syncColorInput(pickerId, hex) {
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+        const picker = document.getElementById(pickerId);
+        if (picker) {
+          picker.value = hex;
+          updateThemeLivePreview();
+        }
+      }
+    }
+
+    async function loadSettings() {
+      await ensureAdminAuth();
+      try {
+        const res = await fetch(`${API_BASE}/settings`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        const s = data.settings;
+        document.getElementById('s-phone').value = s.storePhone || '';
+        document.getElementById('s-email').value = s.storeEmail || '';
+        document.getElementById('s-whatsapp').value = s.whatsappNumber || '';
+        document.getElementById('s-whatsapp-msg').value = s.whatsappPreMessage || '';
+        document.getElementById('s-whatsapp-enabled').checked = s.whatsappEnabled !== false;
+        document.getElementById('s-processing').value = s.processingDays ?? 1;
+        document.getElementById('s-min-delivery').value = s.minDeliveryDays ?? 3;
+        document.getElementById('s-max-delivery').value = s.maxDeliveryDays ?? 7;
+        document.getElementById('s-return-window').value = s.returnWindowDays ?? 7;
+        document.getElementById('s-return-policy').value = s.returnPolicy || '';
+        document.getElementById('s-cancel-policy').value = s.cancellationPolicy || '';
+        document.getElementById('s-name').value = s.storeName || '';
+        document.getElementById('s-address').value = s.storeAddress || '';
+        document.getElementById('s-gstin').value = s.storeGSTIN || '';
+        document.getElementById('s-flash-enabled').checked = !!s.flashSaleEnabled;
+        document.getElementById('s-barcode-enabled').checked = !!s.barcodeEnabled;
+        document.getElementById('s-pwa-enabled').checked = !!s.pwaEnabled;
+
+        // Theme Settings
+        if (s.themeSettings) {
+          const ts = s.themeSettings;
+          if (ts.primaryColor) {
+            document.getElementById('t-primary').value = ts.primaryColor;
+            document.getElementById('t-primary-hex').value = ts.primaryColor;
+          }
+          if (ts.secondaryColor) {
+            document.getElementById('t-secondary').value = ts.secondaryColor;
+            document.getElementById('t-secondary-hex').value = ts.secondaryColor;
+          }
+          if (ts.accentColor) {
+            document.getElementById('t-accent').value = ts.accentColor;
+            document.getElementById('t-accent-hex').value = ts.accentColor;
+          }
+          if (ts.headerColor) {
+            document.getElementById('t-header').value = ts.headerColor;
+            document.getElementById('t-header-hex').value = ts.headerColor;
+          }
+          if (ts.footerColor) {
+            document.getElementById('t-footer').value = ts.footerColor;
+            document.getElementById('t-footer-hex').value = ts.footerColor;
+          }
+          if (ts.defaultTheme) document.getElementById('t-mode').value = ts.defaultTheme;
+          if (ts.borderRadius) document.getElementById('t-radius').value = ts.borderRadius;
+        }
+        updateThemeLivePreview();
+      } catch (err) {
+        const errEl = document.getElementById('settings-load-error');
+        errEl.textContent = 'Failed to load settings: ' + err.message;
+        errEl.style.display = 'block';
+      }
+    }
+
+    async function saveThemeSettings() {
+      const themeSettings = {
+        primaryColor: document.getElementById('t-primary').value,
+        secondaryColor: document.getElementById('t-secondary').value,
+        accentColor: document.getElementById('t-accent').value,
+        headerColor: document.getElementById('t-header').value,
+        footerColor: document.getElementById('t-footer').value,
+        defaultTheme: document.getElementById('t-mode').value,
+        borderRadius: document.getElementById('t-radius').value
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/settings`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+          body: JSON.stringify({ themeSettings })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✓ Theme settings saved! Applied to storefront.', 'success');
+          // Immediately apply to current admin document root too
+          document.documentElement.style.setProperty('--primary', themeSettings.primaryColor);
+          document.documentElement.style.setProperty('--brand', themeSettings.primaryColor);
+        } else {
+          showToast(data.message || 'Error saving theme.', 'error');
+        }
+      } catch {
+        showToast('Network error while saving theme.', 'error');
+      }
+    }
+
+    async function resetThemeDefaults() {
+      try {
+        const res = await fetch(`${API_BASE}/settings`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+          body: JSON.stringify({ resetTheme: true })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('t-primary').value = '#006948';
+          document.getElementById('t-primary-hex').value = '#006948';
+          document.getElementById('t-secondary').value = '#006a61';
+          document.getElementById('t-secondary-hex').value = '#006a61';
+          document.getElementById('t-accent').value = '#0d9488';
+          document.getElementById('t-accent-hex').value = '#0d9488';
+          document.getElementById('t-header').value = '#FFFFFF';
+          document.getElementById('t-header-hex').value = '#FFFFFF';
+          document.getElementById('t-footer').value = '#141b2b';
+          document.getElementById('t-footer-hex').value = '#141b2b';
+          document.getElementById('t-mode').value = 'system';
+          document.getElementById('t-radius').value = '8px';
+          updateThemeLivePreview();
+          showToast('✓ Theme reset to factory defaults.', 'info');
+        } else {
+          showToast(data.message || 'Failed to reset theme.', 'error');
+        }
+      } catch {
+        showToast('Network error while resetting theme.', 'error');
+      }
+    }
+
+    async function saveSettings() {
+      const body = {
+        storePhone: document.getElementById('s-phone').value,
+        storeEmail: document.getElementById('s-email').value,
+        whatsappNumber: document.getElementById('s-whatsapp').value,
+        whatsappPreMessage: document.getElementById('s-whatsapp-msg').value,
+        whatsappEnabled: document.getElementById('s-whatsapp-enabled').checked,
+        processingDays: Number(document.getElementById('s-processing').value),
+        minDeliveryDays: Number(document.getElementById('s-min-delivery').value),
+        maxDeliveryDays: Number(document.getElementById('s-max-delivery').value),
+        returnWindowDays: Number(document.getElementById('s-return-window').value),
+        returnPolicy: document.getElementById('s-return-policy').value,
+        cancellationPolicy: document.getElementById('s-cancel-policy').value,
+        storeName: document.getElementById('s-name').value,
+        storeAddress: document.getElementById('s-address').value,
+        storeGSTIN: document.getElementById('s-gstin').value,
+        flashSaleEnabled: document.getElementById('s-flash-enabled').checked,
+        barcodeEnabled: document.getElementById('s-barcode-enabled').checked,
+        pwaEnabled: document.getElementById('s-pwa-enabled').checked,
+        themeSettings: {
+          primaryColor: document.getElementById('t-primary').value,
+          secondaryColor: document.getElementById('t-secondary').value,
+          accentColor: document.getElementById('t-accent').value,
+          headerColor: document.getElementById('t-header').value,
+          footerColor: document.getElementById('t-footer').value,
+          defaultTheme: document.getElementById('t-mode').value,
+          borderRadius: document.getElementById('t-radius').value
+        }
+      };
+      try {
+        const res = await fetch(`${API_BASE}/settings`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.success) showToast('Settings saved successfully!', 'success');
+        else showToast(data.message || 'Error saving settings.', 'error');
+      } catch { showToast('Network error.', 'error'); }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadSettings);
+  </script>
+</body>
+</html>

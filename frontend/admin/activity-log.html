@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Activity Audit Trail | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-brand">
+        <a href="../index.html" class="logo">
+          <div class="logo-icon">N</div>
+          NUTRA<span>TEIN</span>
+        </a>
+        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-top: 4px;">ADMIN CONSOLE</div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-item"><span>📊</span> Dashboard</a>
+        <a href="products.html" class="admin-nav-item"><span>📦</span> Products</a>
+        <a href="orders.html" class="admin-nav-item"><span>🛒</span> Orders</a>
+        <a href="customers.html" class="admin-nav-item"><span>👥</span> Customers</a>
+        <a href="reviews.html" class="admin-nav-item"><span>⭐</span> Reviews</a>
+        <a href="coupons.html" class="admin-nav-item"><span>🏷️</span> Coupons</a>
+        <a href="flash-sales.html" class="admin-nav-item"><span>⚡</span> Flash Sales</a>
+        <a href="returns.html" class="admin-nav-item"><span>🔄</span> Returns</a>
+        <a href="banners.html" class="admin-nav-item"><span>🖼️</span> Banners</a>
+        <a href="videos.html" class="admin-nav-item"><span>🎥</span> Videos</a>
+        <a href="analytics.html" class="admin-nav-item"><span>📈</span> Analytics</a>
+        <a href="invoices.html" class="admin-nav-item"><span>🧾</span> Invoices</a>
+        <a href="shipping.html" class="admin-nav-item"><span>🚚</span> Shipping</a>
+        <a href="email.html" class="admin-nav-item"><span>📧</span> Email</a>
+        <a href="cms.html" class="admin-nav-item"><span>📝</span> CMS Pages</a>
+        <a href="media.html" class="admin-nav-item"><span>🖼️</span> Media</a>
+        <a href="roles.html" class="admin-nav-item"><span>🛡️</span> Roles & Staff</a>
+        <a href="backup.html" class="admin-nav-item"><span>💾</span> Backup</a>
+        <a href="settings.html" class="admin-nav-item"><span>⚙️</span> Settings</a>
+        <a href="activity-log.html" class="admin-nav-item active"><span>📋</span> Activity Log</a>
+        <a href="../index.html" class="admin-nav-item" style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px;"><span>🌐</span> View Store</a>
+        <button onclick="logout()" class="admin-nav-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: #DC2626;"><span>🚪</span> Logout</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div style="font-weight: 700; font-size: 1.1rem;">System Audit Trail & Security Logs</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+          <div style="font-size: 0.875rem; font-weight: 600;" id="admin-user-display">Admin</div>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <div class="flex-between" style="margin-bottom: 20px;">
+          <div>
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Admin Activity Log</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">Immutable audit records capturing coupon changes, status modifications, stock updates, delivery dates and refunds</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="exportAuditLogsCsv()">📥 Export CSV</button>
+            <button class="btn btn-primary btn-sm" onclick="loadAdminLogs()">Refresh Audit Trail</button>
+          </div>
+        </div>
+
+        <!-- Read-only Security Banner -->
+        <div style="background: #F1F5F9; border: 1px solid #CBD5E1; border-left: 4px solid #475569; padding: 12px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 0.85rem; color: #334155;">
+          🔒 <strong>Read-Only Compliance:</strong> Administrative logs are permanent audit records and cannot be edited or erased by any administrative role.
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="stats-grid" id="logs-stats-row">
+          <div class="stat-card"><div class="loading-spinner"></div></div>
+        </div>
+
+        <!-- Filter Bar & Clear All -->
+        <div class="filter-bar">
+          <input type="text" id="logs-search" class="search-input" placeholder="Search by action, description, or administrator..." oninput="loadAdminLogs()">
+          <select id="logs-module-filter" onchange="loadAdminLogs()">
+            <option value="all">All Modules</option>
+            <option value="ORDERS">Orders</option>
+            <option value="COUPONS">Coupons</option>
+            <option value="SHIPPING">Shipping & Delivery</option>
+            <option value="PRODUCTS">Products & Inventory</option>
+            <option value="CUSTOMERS">Customers</option>
+            <option value="REVIEWS">Reviews</option>
+            <option value="BANNERS">Banners</option>
+            <option value="CMS">CMS Pages</option>
+            <option value="EMAIL">Email System</option>
+            <option value="ROLES">Roles & Staff</option>
+            <option value="MEDIA">Media</option>
+            <option value="BACKUP">Backup & Restore</option>
+            <option value="AUTH">Authentication</option>
+          </select>
+          <select id="logs-date-filter" onchange="loadAdminLogs()">
+            <option value="all">All Dates</option>
+            <option value="today">Today</option>
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+          </select>
+          <button class="btn-clear-all" onclick="clearAllFilters('activity')" title="Reset filters only">
+            <span>🔄</span> Clear Filters
+          </button>
+          <button class="btn-clear-data" onclick="openClearDataModal('activity')" title="Permanently clear logs from database" style="background:#ef444418;color:#ef4444;border:1px solid #ef444460;border-radius:6px;padding:6px 12px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            <span>🗑️</span> Clear Logs
+          </button>
+        </div>
+
+        <!-- Activity Table -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Administrator</th>
+                <th>Module</th>
+                <th>Action Type</th>
+                <th>Action Description</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="admin-logs-tbody">
+              <tr><td colspan="6" style="text-align:center; padding:30px;"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminLogs();
+    });
+
+    async function exportAuditLogsCsv() {
+      const token = getToken();
+      const module = document.getElementById('logs-module-filter')?.value || 'all';
+      const dateRange = document.getElementById('logs-date-filter')?.value || 'all';
+      try {
+        const res = await fetch(`${API_BASE}/activity-logs/export/csv?module=${encodeURIComponent(module)}&dateRange=${encodeURIComponent(dateRange)}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('Failed to generate export');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `proteinx-audit-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Audit log exported to CSV!', 'success');
+      } catch (err) {
+        showToast('Export failed: ' + err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
+

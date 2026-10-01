@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | NUTRATEIN</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">N</div>
+        NUTRA<span>TEIN</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <!-- Language Selector -->
+        <div class="lang-selector-wrap">
+          <select id="lang-select" class="lang-select" onchange="changeLanguage(this.value)" aria-label="Select Language">
+            <option value="en">EN</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+          </select>
+        </div>
+        <div style="font-size: 0.875rem; font-weight: 700; color: #065F46;">
+          🔒 Secure 256-Bit SSL Checkout
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Checkout Section -->
+  <section class="section" style="padding-top: 24px;">
+    <div class="container" id="checkout-page-container">
+      <div class="page-nav-bar">
+        <button onclick="goBack()" class="btn-nav-back" title="Go back to previous page">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav_back">Back</span>
+        </button>
+        <a href="index.html" class="btn-nav-home" title="Return to homepage">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span data-i18n="nav_home">Home</span>
+        </a>
+      </div>
+
+      <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 24px;">Complete Your Order</h1>
+
+      <div class="grid-3" style="grid-template-columns: 2fr 1fr; gap: 32px; align-items: start;">
+        <!-- Left: Address & Payment -->
+        <div>
+          <!-- Shipping Address -->
+          <div class="card" style="padding: 28px; margin-bottom: 24px;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 18px;">1. Shipping Address</h3>
+            <div class="grid-2" style="gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" id="ship-name" class="form-control" placeholder="John Doe" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="tel" id="ship-phone" class="form-control" placeholder="+91 98765 43210" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Flat / House No. / Building *</label>
+              <input type="text" id="ship-house" class="form-control" placeholder="Flat 402, Blue Ridge Apartments" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Street / Landmark *</label>
+              <input type="text" id="ship-street" class="form-control" placeholder="MG Road, Near Metro Station" required>
+            </div>
+            <div class="grid-3" style="gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">City *</label>
+                <input type="text" id="ship-city" class="form-control" placeholder="Mumbai" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">State *</label>
+                <input type="text" id="ship-state" class="form-control" placeholder="Maharashtra" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Pincode *</label>
+                <input type="text" id="ship-pincode" class="form-control" placeholder="400001" maxlength="6" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="card" style="padding: 28px;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 18px;">2. Payment Method</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <label style="display: flex; align-items: center; gap: 12px; padding: 14px; border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer;">
+                <input type="radio" name="paymentMethod" value="COD" checked>
+                <div style="flex: 1;">
+                  <strong>Cash on Delivery (COD)</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Pay securely in cash or UPI at your doorstep</div>
+                </div>
+              </label>
+              <label style="display: flex; align-items: center; gap: 12px; padding: 14px; border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer;">
+                <input type="radio" name="paymentMethod" value="UPI">
+                <div style="flex: 1;">
+                  <strong>UPI / Instant Online Payment</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">GPay, PhonePe, Paytm, BHIM</div>
+                </div>
+              </label>
+              <label style="display: flex; align-items: center; gap: 12px; padding: 14px; border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer;">
+                <input type="radio" name="paymentMethod" value="CARD">
+                <div style="flex: 1;">
+                  <strong>Debit / Credit Card</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Visa, MasterCard, RuPay</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Order Summary & Coupon -->
+        <div>
+          <div class="card" style="padding: 24px; position: sticky; top: 80px;">
+            <h3 style="font-size: 1.15rem; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">Order Summary</h3>
+            <div id="checkout-items-list" style="max-height: 240px; overflow-y: auto; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;"></div>
+
+            <!-- Coupon Input -->
+            <div style="margin-bottom: 20px;">
+              <label class="form-label">Have a Discount Coupon?</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="coupon-input" class="form-control" placeholder="e.g. FIRST10" style="text-transform: uppercase;">
+                <button type="button" class="btn btn-dark btn-sm" onclick="applyCoupon()">APPLY</button>
+              </div>
+              <div id="coupon-msg" style="margin-top: 6px; font-size: 0.8125rem;"></div>
+            </div>
+
+            <!-- Totals -->
+            <div class="cart-summary-row">
+              <span>Subtotal</span>
+              <span id="checkout-subtotal">₹0</span>
+            </div>
+            <div class="cart-summary-row" id="checkout-discount-row" style="display: none; color: #065F46;">
+              <span>Discount</span>
+              <span id="checkout-discount">-₹0</span>
+            </div>
+            <div class="cart-summary-row">
+              <span>Shipping</span>
+              <span id="checkout-shipping" style="color: #059669;">FREE</span>
+            </div>
+            <div class="cart-summary-total">
+              <span>Total Payable</span>
+              <span id="checkout-total" style="color: var(--brand);">₹0</span>
+            </div>
+
+            <button type="button" id="place-order-btn" class="btn btn-primary btn-lg w-full mt-6" onclick="handlePlaceOrder(event)">
+              Confirm & Place Order
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/config.js"></script>
+  <script src="config/siteContent.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/checkout.js"></script>
+  <script src="js/ai-chat.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initCheckoutPage();
+    });
+  </script>
+</body>
+</html>

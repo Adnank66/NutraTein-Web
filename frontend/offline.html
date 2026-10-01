@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You are offline | NUTRATEIN</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .offline-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 40px 20px; gap: 20px; }
+    .offline-icon { font-size: 5rem; line-height: 1; }
+    .offline-title { font-size: 1.8rem; font-weight: 900; color: var(--text); }
+    .offline-sub { color: var(--text-muted); font-size: 1rem; max-width: 420px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="offline-page">
+    <div class="offline-icon">📶</div>
+    <div class="offline-title">You are offline</div>
+    <p class="offline-sub">It seems you lost your internet connection. Please check your network and try again. Your cart and wishlist data are still saved locally.</p>
+    <button class="btn btn-primary" onclick="window.location.reload()">🔄 Try Again</button>
+    <a href="/" class="btn btn-secondary">Go to Homepage</a>
+    <div style="margin-top:24px; display:flex; align-items:center; gap:8px;">
+      <div class="logo-icon" style="width:32px;height:32px;font-size:0.9rem;">X</div>
+      <span style="font-weight:800; font-size:1.1rem;">PROTEIN<span style="color:var(--brand);">X</span></span>
+    </div>
+  </div>
+</body>
+</html>

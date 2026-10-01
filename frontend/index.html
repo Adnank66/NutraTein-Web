@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NUTRATEIN — Premium Fitness & Supplement Nutrition</title>
+  <meta name="description" content="India's premium fitness supplement brand. Shop pure Whey Protein, Creatine, Pre-Workout, Mass Gainers and Vitamins.">
+  <meta name="theme-color" content="#D9651E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PROTEINX">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+  <!-- 1. ANNOUNCEMENT BAR -->
+  <div class="announcement-bar" id="announcement-bar">
+    <span>🚀 FREE SHIPPING ON ORDERS ABOVE ₹999 | Use code <strong>FIRST10</strong> for 10% off your first order!</span>
+    <button class="announcement-close" onclick="document.getElementById('announcement-bar').style.display='none'">&times;</button>
+  </div>
+
+  <!-- 2. HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">N</div>
+        NUTRA<span>TEIN</span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="nav-desktop">
+        <a href="index.html" class="nav-link active">Home</a>
+        <div class="nav-dropdown">
+          <a href="shop.html" class="nav-link">Shop ▾</a>
+          <div class="dropdown-menu">
+            <a href="shop.html" class="dropdown-item">All Products</a>
+            <a href="shop.html?category=whey-protein" class="dropdown-item">Whey Protein</a>
+            <a href="shop.html?category=plant-protein" class="dropdown-item">Plant Protein</a>
+            <a href="shop.html?category=mass-gainers" class="dropdown-item">Mass Gainers</a>
+            <a href="shop.html?category=creatine" class="dropdown-item">Creatine</a>
+            <a href="shop.html?category=pre-workout" class="dropdown-item">Pre-Workout</a>
+            <a href="shop.html?category=bcaa-eaa" class="dropdown-item">BCAA / EAA</a>
+            <a href="shop.html?category=vitamins" class="dropdown-item">Vitamins & Omega</a>
+            <a href="shop.html?category=accessories" class="dropdown-item">Shakers & Gear</a>
+          </div>
+        </div>
+        <a href="build-stack.html" class="nav-link">Build Stack</a>
+        <a href="compare.html" class="nav-link">Compare</a>
+        <a href="calculator.html" class="nav-link">Calculator</a>
+        <a href="tracking.html" class="nav-link">Track Order</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+
+
+      </nav>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <!-- Language Selector -->
+        <div class="lang-select-wrap">
+          <select class="lang-select" onchange="changeLanguage(this.value)" aria-label="Select Language">
+            <option value="en">EN</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+          </select>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+
+        <!-- Search -->
+        <button class="header-action-btn" onclick="openSearchModal()" title="Search">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        </button>
+
+        <!-- Wishlist -->
+        <a href="wishlist.html" class="header-action-btn" title="Wishlist">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+          <span class="action-badge wishlist-badge" style="display: none;">0</span>
+        </a>
+
+        <!-- Cart -->
+        <button class="header-action-btn" onclick="openCartDrawer()" title="Cart">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+          <span class="action-badge cart-badge" style="display: none;">0</span>
+        </button>
+
+        <!-- User / Auth -->
+        <a href="account.html" class="header-action-btn auth-required-nav hidden" title="Account">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+        </a>
+        <a href="login.html" class="btn btn-primary btn-sm guest-required-nav" style="margin-left: 6px;">Sign In</a>
+
+        <!-- Mobile Hamburger -->
+        <button class="hamburger" onclick="toggleMobileMenu()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Drawer -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+    <div class="mobile-panel">
+      <div class="mobile-panel-header">
+        <span class="logo">NUTRA<span>TEIN</span></span>
+        <button onclick="toggleMobileMenu()" style="background: none; border: none; font-size: 1.5rem;">&times;</button>
+      </div>
+      <div class="mobile-nav">
+        <a href="index.html" class="mobile-nav-link">Home</a>
+        <a href="shop.html" class="mobile-nav-link">All Products</a>
+        <a href="shop.html?category=whey-protein" class="mobile-nav-link">Whey Protein</a>
+        <a href="shop.html?category=creatine" class="mobile-nav-link">Creatine</a>
+        <a href="shop.html?category=pre-workout" class="mobile-nav-link">Pre-Workout</a>
+        <a href="build-stack.html" class="mobile-nav-link">Build Your Stack</a>
+        <a href="compare.html" class="mobile-nav-link">Compare Products</a>
+        <a href="calculator.html" class="mobile-nav-link">Protein Calculator</a>
+        <a href="tracking.html" class="mobile-nav-link">Track Order</a>
+        <a href="about.html" class="mobile-nav-link">About Us</a>
+        <a href="contact.html" class="mobile-nav-link">Contact</a>
+        <div style="border-top: 1px solid var(--border); margin: 12px 0; padding-top: 12px;">
+          <a href="login.html" class="btn btn-primary w-full guest-required-nav" style="margin-bottom: 8px;">Sign In</a>
+          <a href="account.html" class="btn btn-secondary w-full auth-required-nav hidden">My Account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. LARGE HERO ADVERTISEMENT BANNER SLIDER -->
+  <section class="hero-slider" id="main-hero-slider">
+    <!-- Initial slide fallback while dynamic banners load from database -->
+    <div class="hero-slide active hero-slide-graphic" id="slide-0" onclick="if(!event.target.closest('a, button')) window.location.href='shop.html?category=creatine'" style="cursor:pointer;">
+      <div class="hero-slide-bg desktop-banner" style="background-image: url('/assets/banners/createin banner.png');"></div>
+      <div class="hero-slide-bg mobile-banner" style="background-image: url('/assets/banners/createin banner.png');"></div>
+      <div class="hero-slide-overlay hero-slide-overlay-subtle"></div>
+      <div class="hero-content">
+        <div class="hero-text-col">
+          <span class="hero-badge reveal-init reveal-fade">🔥 EXPLOSIVE POWER</span>
+          <h1 class="hero-title reveal-init reveal-slide-up stagger-1" style="text-shadow: 0 3px 12px rgba(0,0,0,0.85);">CREATINE POWER &amp; EXPLOSIVE STRENGTH</h1>
+          <p class="hero-subtitle reveal-init reveal-slide-up stagger-2" style="text-shadow: 0 2px 8px rgba(0,0,0,0.9);">100% Pure Micronized Creatine Monohydrate for Maximum Muscle Power &amp; Rapid ATP Recovery</p>
+          <div class="hero-actions reveal-init reveal-slide-up stagger-3">
+            <a href="shop.html?category=creatine" class="btn btn-primary btn-lg btn-glow btn-shimmer">Shop Creatine &rarr;</a>
+            <a href="shop.html" class="btn btn-secondary btn-lg btn-glow" style="background: rgba(255,255,255,0.18); color: #fff; border-color: rgba(255,255,255,0.45); backdrop-filter: blur(8px);">EXPLORE ALL PRODUCTS</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slider Nav Dots -->
+    <div class="slider-controls" aria-label="Slider Pagination">
+      <button class="slider-dot active" onclick="setSlide(0)" aria-label="Slide 1"></button>
+    </div>
+    <button class="slider-btn slider-btn-prev" onclick="changeSlide(-1)" aria-label="Previous Slide">&#10094;</button>
+    <button class="slider-btn slider-btn-next" onclick="changeSlide(1)" aria-label="Next Slide">&#10095;</button>
+  </section>
+
+  <!-- 4. TRUST STRIP -->
+  <div class="trust-strip reveal-init reveal-fade">
+    <div class="trust-strip-inner">
+      <div class="trust-item card-hover-lift">
+        <span class="trust-item-icon">🛡️</span>
+        <span>100% Genuine & Tested</span>
+      </div>
+      <div class="trust-item card-hover-lift">
+        <span class="trust-item-icon">🚚</span>
+        <span>Free Shipping Over ₹999</span>
+      </div>
+      <div class="trust-item card-hover-lift">
+        <span class="trust-item-icon">⚡</span>
+        <span>Express 2-4 Day Delivery</span>
+      </div>
+      <div class="trust-item card-hover-lift">
+        <span class="trust-item-icon">💳</span>
+        <span>Cash on Delivery & UPI</span>
+      </div>
+      <div class="trust-item card-hover-lift">
+        <span class="trust-item-icon">🔄</span>
+        <span>7-Day Easy Returns</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4B. ANIMATED ATHLETIC STATISTICS STRIP -->
+  <section class="stats-counter-strip reveal-init reveal-slide-up">
+    <div class="container">
+      <div class="stats-counter-grid">
+        <div class="stat-counter-item card-hover-lift">
+          <div class="stat-counter-icon">👥</div>
+          <div>
+            <div class="stat-counter-number">
+              <span data-counter="50000" data-suffix="+">50,000+</span>
+            </div>
+            <div class="stat-counter-label">Athletes Fueled Across India</div>
+          </div>
+        </div>
+        <div class="stat-counter-item card-hover-lift">
+          <div class="stat-counter-icon">🔬</div>
+          <div>
+            <div class="stat-counter-number">
+              <span data-counter="99.4" data-decimals="1" data-suffix="%">99.4%</span>
+            </div>
+            <div class="stat-counter-label">Lab-Verified Protein Purity</div>
+          </div>
+        </div>
+        <div class="stat-counter-item card-hover-lift">
+          <div class="stat-counter-icon">📦</div>
+          <div>
+            <div class="stat-counter-number">
+              <span data-counter="100" data-suffix="+">100+</span>
+            </div>
+            <div class="stat-counter-label">Certified Safe Batch Tests</div>
+          </div>
+        </div>
+        <div class="stat-counter-item card-hover-lift">
+          <div class="stat-counter-icon">⭐</div>
+          <div>
+            <div class="stat-counter-number">
+              <span data-counter="4.9" data-decimals="1" data-suffix="★">4.9★</span>
+            </div>
+            <div class="stat-counter-label">Average Community Rating</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- FLASH SALE SECTION (dynamic — hidden if no active sales) -->
+  <section id="flash-sale-section" class="section" style="padding: 28px 0; display:none;">
+    <div class="container">
+      <div id="flash-sale-container"></div>
+    </div>
+  </section>
+
+  <!-- 5. CATEGORIES GRID -->
+  <section class="section section-tint-warm reveal-on-scroll" style="padding-bottom: 30px;">
+    <div class="container">
+      <div class="section-header center">
+        <h2 class="section-title">Shop by Category</h2>
+        <p class="section-subtitle">Targeted fitness nutrition engineered for every workout goal and dietary requirement</p>
+      </div>
+      <div class="category-grid">
+        <a href="shop.html?category=whey-protein" class="category-card">
+          <div class="category-icon-wrap">W</div>
+          <span>Whey Protein</span>
+        </a>
+        <a href="shop.html?category=plant-protein" class="category-card">
+          <div class="category-icon-wrap">P</div>
+          <span>Plant Protein</span>
+        </a>
+        <a href="shop.html?category=mass-gainers" class="category-card">
+          <div class="category-icon-wrap">M</div>
+          <span>Mass Gainers</span>
+        </a>
+        <a href="shop.html?category=creatine" class="category-card">
+          <div class="category-icon-wrap">C</div>
+          <span>Creatine</span>
+        </a>
+        <a href="shop.html?category=pre-workout" class="category-card">
+          <div class="category-icon-wrap">E</div>
+          <span>Pre-Workout</span>
+        </a>
+        <a href="shop.html?category=bcaa-eaa" class="category-card">
+          <div class="category-icon-wrap">B</div>
+          <span>BCAA / EAA</span>
+        </a>
+        <a href="shop.html?category=vitamins" class="category-card">
+          <div class="category-icon-wrap">V</div>
+          <span>Vitamins & Omega</span>
+        </a>
+        <a href="shop.html?category=accessories" class="category-card">
+          <div class="category-icon-wrap">A</div>
+          <span>Shakers & Gear</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. TOP PRODUCTS -->
+  <section class="section reveal-on-scroll">
+    <div class="container">
+      <div class="flex-between section-header" style="flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h2 class="section-title">Top Products & Best Sellers</h2>
+          <p class="section-subtitle">Our community's highest-rated protein supplements</p>
+        </div>
+        <a href="shop.html" class="btn btn-secondary">View All Products →</a>
+      </div>
+      <div class="grid-products" id="home-top-products-grid">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px;"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEST RATED PRODUCTS SECTION -->
+  <section class="section reveal-on-scroll" style="padding-top: 0;">
+    <div class="container">
+      <div class="flex-between section-header" style="flex-wrap: wrap; gap: 16px;">
+        <div>
+          <span class="badge badge-brand" style="margin-bottom: 8px;">TOP RANKED</span>
+          <h2 class="section-title" data-i18n="sec_best_products">Best Rated Products</h2>
+          <p class="section-subtitle" data-i18n="sec_best_products_sub">Scientifically ranked based on purity, customer reviews, and athletic popularity.</p>
+        </div>
+      </div>
+      <div class="grid-products" id="home-best-products-grid">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px;"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. AI PRODUCT RECOMMENDATION WIDGET -->
+  <section class="section section-tint-cool reveal-on-scroll">
+    <div class="container">
+      <div class="section-header center">
+        <span class="badge badge-brand" style="margin-bottom: 10px;">INTELLIGENT MATCH</span>
+        <h2 class="section-title">AI Product Recommendation</h2>
+        <p class="section-subtitle">Answer 4 quick questions to receive personalized nutrition recommendations tailored to your routine</p>
+      </div>
+
+      <div class="card" style="max-width: 880px; margin: 0 auto; padding: 32px;">
+        <form onsubmit="getRecommendations(event)">
+          <div class="grid-3" style="gap: 16px; margin-bottom: 20px;">
+            <div>
+              <label class="form-label">Fitness Goal</label>
+              <select class="form-control" id="rec-goal">
+                <option value="muscle_gain">Lean Muscle Gain</option>
+                <option value="fat_loss">Fat Loss & Definition</option>
+                <option value="endurance">Endurance & Stamina</option>
+                <option value="general_fitness">General Wellness</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Experience Level</label>
+              <select class="form-control" id="rec-experience">
+                <option value="beginner">Beginner (0-6 months)</option>
+                <option value="intermediate" selected>Intermediate (1-3 years)</option>
+                <option value="advanced">Advanced Athlete</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Dietary Preference</label>
+              <select class="form-control" id="rec-dietary">
+                <option value="all">No Restrictions</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="vegan">100% Plant-Based / Vegan</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex-center">
+            <button type="submit" class="btn btn-primary btn-lg">Find My Recommended Supplements</button>
+          </div>
+        </form>
+        <div id="recommendations-results" style="margin-top: 24px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. RECENTLY VIEWED PRODUCTS -->
+  <section class="section reveal-on-scroll" id="recently-viewed-section" style="display: none;">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Recently Viewed</h2>
+        <p class="section-subtitle">Pick up right where you left off</p>
+      </div>
+      <div class="grid-products" id="recently-viewed-grid"></div>
+    </div>
+  </section>
+
+  <!-- RECOMMENDED FOR YOU -->
+  <section class="section reveal-on-scroll" style="background: var(--bg-2);">
+    <div class="container">
+      <div class="flex-between section-header" style="flex-wrap: wrap; gap: 16px;">
+        <div>
+          <span class="badge badge-brand" style="margin-bottom: 8px;">PERSONALIZED PICKS</span>
+          <h2 class="section-title" data-i18n="sec_recommended">Recommended For You</h2>
+          <p class="section-subtitle" data-i18n="sec_recommended_sub">Tailored supplement selections aligned with your fitness ambitions.</p>
+        </div>
+      </div>
+      <div class="grid-products" id="home-recommended-grid">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px;"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. BUILD YOUR STACK PROMO -->
+  <section class="section section-dark-mesh ambient-wrapper" id="home-stack-promo-section" style="background: linear-gradient(135deg, #0B1120 0%, #1E293B 50%, #0F172A 100%); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; opacity: 1 !important; visibility: visible !important;">
+    <div class="ambient-blob ambient-blob-1" style="background: radial-gradient(circle, rgba(217, 101, 30, 0.35) 0%, transparent 70%);"></div>
+    <div class="ambient-blob ambient-blob-accent" style="background: radial-gradient(circle, rgba(249, 115, 22, 0.3) 0%, transparent 70%);"></div>
+    <div class="container" style="position: relative; z-index: 2;">
+      <div class="grid-2" style="align-items: center; gap: 40px;">
+        <div>
+          <span class="badge badge-brand" style="margin-bottom: 14px; background: rgba(217,101,30,0.25); color: #FB923C; border: 1px solid rgba(251,146,60,0.4); font-weight: 800; letter-spacing: 0.05em; padding: 6px 14px; border-radius: 20px;">BUNDLE & SAVE 15%</span>
+          <h2 style="color: #FFFFFF !important; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; margin-bottom: 16px; line-height: 1.2;">Build Your Custom Supplement Stack</h2>
+          <p style="color: #E2E8F0 !important; font-size: 1.05rem; line-height: 1.6; margin-bottom: 24px;">
+            Choose your protein, creatine, pre-workout, and shaker to create a tailored nutritional regimen. Get an automatic 15% discount applied at checkout on all custom stacks.
+          </p>
+          <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+            <a href="build-stack.html" class="btn btn-primary btn-lg" style="box-shadow: 0 4px 20px rgba(217, 101, 30, 0.45); font-weight: 700;">Launch Stack Builder →</a>
+            <a href="shop.html" class="btn btn-secondary btn-lg" style="background: rgba(255,255,255,0.12); color: #FFFFFF !important; border: 1px solid rgba(255,255,255,0.35); font-weight: 600;">Browse Singles</a>
+          </div>
+        </div>
+        <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: var(--radius-xl, 16px); padding: 32px; text-align: center; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+          <div style="font-size: 3.5rem; margin-bottom: 10px;">⚡</div>
+          <h3 style="color: #FFFFFF !important; font-size: 1.3rem; font-weight: 800; margin-bottom: 8px;">What's in the Elite Stack?</h3>
+          <p style="color: #CBD5E1 !important; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">Gold Whey Isolate + Micronized Creatine + Ignition Pre-Workout + Pro Shaker</p>
+          <div style="font-size: 2rem; font-weight: 900; color: #FB923C;">₹5,354 <span style="font-size: 1.1rem; color: #94A3B8; text-decoration: line-through; margin-left: 8px;">₹6,298</span></div>
+          <div style="margin-top: 14px; display: inline-block; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.4); color: #4ADE80; font-size: 0.8rem; font-weight: 700; padding: 4px 12px; border-radius: 12px;">
+            Instant ₹944 Savings Applied
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. WHY CHOOSE US -->
+  <section class="section reveal-on-scroll">
+    <div class="container">
+      <div class="section-header center">
+        <h2 class="section-title">Why Choose PROTEINX?</h2>
+        <p class="section-subtitle">We hold our supplements to the most rigorous standards in modern sports nutrition</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon">🔬</div>
+          <div class="why-title">100% Tested Purity</div>
+          <div class="why-text">Every production batch undergoes third-party lab testing with published nutritional certificates.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">🌿</div>
+          <div class="why-title">Clean Ingredients</div>
+          <div class="why-text">No amino spiking, zero hidden fillers, no banned substances, and naturally sweetened flavors.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">🔒</div>
+          <div class="why-title">Secure Payments</div>
+          <div class="why-text">Bank-grade 256-bit SSL encryption with UPI, NetBanking, Credit/Debit cards & Cash on Delivery.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">⚡</div>
+          <div class="why-title">Fast Express Delivery</div>
+          <div class="why-text">Direct fulfillment dispatched within 24 hours with live step-by-step courier tracking.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">💬</div>
+          <div class="why-title">Dedicated Support</div>
+          <div class="why-text">Nutrition advisors and customer support ready to guide your supplementation journey.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">🔄</div>
+          <div class="why-title">Hassle-Free Returns</div>
+          <div class="why-text">7-day doorstep replacement or refund policy if you receive any damaged or broken seal product.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⚡ SCIENCE IN MOTION & ATHLETE SPOTLIGHT (3 Dynamic Video Showcase Cards) -->
+  <section class="fitness-showcase-section reveal-init reveal-fade" id="fitness-showcase-section">
+    <div class="container">
+      <div class="section-header center" style="margin-bottom: 32px;">
+        <span class="badge badge-brand" style="margin-bottom: 8px;">PERFORMANCE IN MOTION</span>
+        <h2 class="section-title">SCIENCE IN MOTION & ATHLETE SPOTLIGHT</h2>
+        <p class="section-subtitle">Witness the precision engineering, clean raw materials, and explosive athletic outcomes powered by PROTEINX</p>
+      </div>
+
+      <div class="fitness-showcase-grid" id="fitness-showcase-grid">
+        <!-- Card 1: Strength & Creatine -->
+        <div class="fitness-video-card-premium card-hover-lift reveal-init reveal-slide-up stagger-1" onclick="toggleFitnessCardPlayback(this)">
+          <div class="fitness-video-player-wrap">
+            <video muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&auto=format&fit=crop&q=80">
+              <source src="https://assets.mixkit.co/videos/preview/mixkit-man-working-out-with-weights-at-the-gym-44161-large.mp4" type="video/mp4">
+            </video>
+            <div class="fitness-play-overlay">
+              <div class="fitness-play-btn-circle" aria-label="Play Video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+            <div class="fitness-duration-pill">0:35</div>
+          </div>
+          <div class="fitness-video-card-body">
+            <span class="fitness-tag-chip">⚡ PRE-WORKOUT & CREATINE</span>
+            <h3 class="fitness-video-card-title">EXPLOSIVE STRENGTH & RAW POWER</h3>
+            <p class="fitness-video-card-desc">
+              Ultra-micronized creatine monohydrate and vasodilating pre-workout driving cellular glycogen replenishment and explosive bar speed.
+            </p>
+            <a href="shop.html?category=creatine" class="fitness-video-card-cta" onclick="event.stopPropagation()">
+              <span>SHOP STRENGTH FORMULAS</span> →
+            </a>
+          </div>
+        </div>
+
+        <!-- Card 2: Whey Isolate Purity -->
+        <div class="fitness-video-card-premium card-hover-lift reveal-init reveal-slide-up stagger-2" onclick="toggleFitnessCardPlayback(this)">
+          <div class="fitness-video-player-wrap">
+            <video muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=1200&auto=format&fit=crop&q=80">
+              <source src="https://assets.mixkit.co/videos/preview/mixkit-athlete-working-out-with-dumbbells-in-a-gym-44143-large.mp4" type="video/mp4">
+            </video>
+            <div class="fitness-play-overlay">
+              <div class="fitness-play-btn-circle" aria-label="Play Video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+            <div class="fitness-duration-pill">0:42</div>
+          </div>
+          <div class="fitness-video-card-body">
+            <span class="fitness-tag-chip">🥛 100% WHEY ISOLATE</span>
+            <h3 class="fitness-video-card-title">INSTANT MIXABILITY & ABSORPTION</h3>
+            <p class="fitness-video-card-desc">
+              Cold cross-flow microfiltration delivers 90% pure whey with zero clumping, rapid gastric emptying, and added DigeZyme® digestive enzymes.
+            </p>
+            <a href="shop.html?category=whey-protein" class="fitness-video-card-cta" onclick="event.stopPropagation()">
+              <span>SHOP WHEY ISOLATE</span> →
+            </a>
+          </div>
+        </div>
+
+        <!-- Card 3: Recovery & BCAAs -->
+        <div class="fitness-video-card-premium card-hover-lift reveal-init reveal-slide-up stagger-3" onclick="toggleFitnessCardPlayback(this)">
+          <div class="fitness-video-player-wrap">
+            <video muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80">
+              <source src="https://assets.mixkit.co/videos/preview/mixkit-athlete-exercising-in-a-gym-44158-large.mp4" type="video/mp4">
+            </video>
+            <div class="fitness-play-overlay">
+              <div class="fitness-play-btn-circle" aria-label="Play Video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+            <div class="fitness-duration-pill">0:30</div>
+          </div>
+          <div class="fitness-video-card-body">
+            <span class="fitness-tag-chip">💧 BCAA + ELECTROLYTES</span>
+            <h3 class="fitness-video-card-title">CELLULAR REPAIR & REHYDRATION</h3>
+            <p class="fitness-video-card-desc">
+              Fermented plant-based BCAAs in an optimal 2:1:1 ratio infused with Himalayan pink salt to curb DOMS and rehydrate exhausted muscle cells.
+            </p>
+            <a href="shop.html?category=bcaa-eaa" class="fitness-video-card-cta" onclick="event.stopPropagation()">
+              <span>SHOP RECOVERY STACK</span> →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. PRODUCT COMPARISON PREVIEW -->
+  <section class="section section-contrast reveal-on-scroll">
+    <div class="container">
+      <div class="flex-between section-header" style="flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h2 class="section-title">Live Product Comparison</h2>
+          <p class="section-subtitle">Transparent comparison of key nutritional values side-by-side</p>
+        </div>
+        <a href="compare.html" class="btn btn-secondary">Full Interactive Matrix →</a>
+      </div>
+
+      <div class="compare-table-wrap card" style="padding: 0;">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>100% Gold Whey Isolate</th>
+              <th>Clean Plant Protein</th>
+              <th>Extreme Mass Gainer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Protein / Serving</strong></td>
+              <td><strong>27g</strong> (90% pure)</td>
+              <td><strong>25g</strong> (Pea & Rice)</td>
+              <td><strong>50g</strong> (High Calorie)</td>
+            </tr>
+            <tr>
+              <td><strong>Calories</strong></td>
+              <td>115 kcal</td>
+              <td>125 kcal</td>
+              <td>450 kcal</td>
+            </tr>
+            <tr>
+              <td><strong>BCAAs</strong></td>
+              <td>6.2g per scoop</td>
+              <td>4.8g per scoop</td>
+              <td>8.5g per serving</td>
+            </tr>
+            <tr>
+              <td><strong>Digestibility</strong></td>
+              <td>DigeZyme® Added</td>
+              <td>Hypoallergenic</td>
+              <td>Complex Carbs</td>
+            </tr>
+            <tr>
+              <td><strong>Best For</strong></td>
+              <td>Lean Muscle Growth</td>
+              <td>Vegan Nutrition</td>
+              <td>Bulking & Weight Gain</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- GOAL-BASED SHOPPING SECTION -->
+  <section class="section section-tint-warm reveal-on-scroll" id="goal-shopping-section">
+    <div class="container">
+      <div class="section-header center">
+        <span class="badge badge-brand" style="margin-bottom: 10px;">🎯 TARGETED PROTOCOLS</span>
+        <h2 class="section-title">Shop by Fitness Goal</h2>
+        <p class="section-subtitle">Select your primary fitness objective to view hand-picked nutritional formulas tailored for results</p>
+      </div>
+      <div class="grid-4" style="gap: 20px;">
+        <a href="shop.html?category=mass-gainers" class="card" style="text-align: center; padding: 28px 20px; text-decoration: none; color: inherit; transition: transform 0.25s ease, border-color 0.2s ease;">
+          <div style="font-size: 2.8rem; margin-bottom: 12px;">💪</div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 6px;">Bulking & Mass</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">High-calorie gainers & creatine for serious muscle size and strength surplus.</p>
+          <span class="btn btn-sm btn-secondary" style="width: 100%;">Explore Bulking →</span>
+        </a>
+        <a href="shop.html?category=whey-protein" class="card" style="text-align: center; padding: 28px 20px; text-decoration: none; color: inherit; transition: transform 0.25s ease, border-color 0.2s ease;">
+          <div style="font-size: 2.8rem; margin-bottom: 12px;">⚡</div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 6px;">Lean Muscle & Cut</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">Zero sugar isolates and BCAAs to preserve hard-earned muscle while cutting.</p>
+          <span class="btn btn-sm btn-secondary" style="width: 100%;">Explore Lean Cut →</span>
+        </a>
+        <a href="shop.html?category=pre-workout" class="card" style="text-align: center; padding: 28px 20px; text-decoration: none; color: inherit; transition: transform 0.25s ease, border-color 0.2s ease;">
+          <div style="font-size: 2.8rem; margin-bottom: 12px;">🔥</div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 6px;">Power & Stamina</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">Explosive pre-workouts and electrolytes to fuel high-intensity endurance.</p>
+          <span class="btn btn-sm btn-secondary" style="width: 100%;">Explore Energy →</span>
+        </a>
+        <a href="shop.html?category=vitamins" class="card" style="text-align: center; padding: 28px 20px; text-decoration: none; color: inherit; transition: transform 0.25s ease, border-color 0.2s ease;">
+          <div style="font-size: 2.8rem; margin-bottom: 12px;">🌿</div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 6px;">Daily Wellness</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">Plant proteins, fish oils, and daily multivitamins for total recovery & immunity.</p>
+          <span class="btn btn-sm btn-secondary" style="width: 100%;">Explore Health →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. TRUSTED THIRD-PARTY SECTION -->
+  <section class="section-sm" style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="container">
+      <div style="text-align: center; color: var(--text-muted); font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 24px;">
+        Trusted Partners & Secure Compliance
+      </div>
+      <div style="display: flex; justify-content: center; align-items: center; gap: 36px; flex-wrap: wrap; opacity: 0.75;">
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700;"><span>🛡️</span> SSL 256-Bit Secure</div>
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700;"><span>📦</span> Shiprocket Express</div>
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700;"><span>💳</span> Razorpay Verified</div>
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700;"><span>⭐</span> Trustpilot 4.8/5</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. CUSTOMER REVIEWS & TESTIMONIALS -->
+  <section class="section section-tint-cool reveal-on-scroll">
+    <div class="container">
+      <div class="section-header center">
+        <h2 class="section-title">Verified Athlete Reviews</h2>
+        <p class="section-subtitle">Real feedback from over 50,000 satisfied athletes and gym enthusiasts</p>
+      </div>
+      <div class="grid-3" style="gap: 24px;">
+        <div class="card">
+          <div class="stars" style="margin-bottom: 10px;">★★★★★</div>
+          <h4 style="font-size: 1rem; margin-bottom: 8px;">"Exceptional mixability and clean taste"</h4>
+          <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            "Switched to PROTEINX Gold Isolate 3 months ago. Zero clumping, no bloating or gas, and the Double Chocolate flavor tastes like a real milkshake without sugar."
+          </p>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">AK</div>
+            <div>
+              <div style="font-weight: 700; font-size: 0.85rem;">Aman Kapoor</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Verified Buyer • Delhi</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="stars" style="margin-bottom: 10px;">★★★★★</div>
+          <h4 style="font-size: 1rem; margin-bottom: 8px;">"Noticeable strength gains in 3 weeks"</h4>
+          <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            "The micronized creatine dissolved completely in plain water. Added 10kg to my bench press within a month. Genuine product with verified batch code."
+          </p>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #065F46; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">RP</div>
+            <div>
+              <div style="font-weight: 700; font-size: 0.85rem;">Rahul Patil</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Verified Buyer • Mumbai</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="stars" style="margin-bottom: 10px;">★★★★★</div>
+          <h4 style="font-size: 1rem; margin-bottom: 8px;">"Clean energy without crashes"</h4>
+          <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            "Ignition Pre-Workout is hands-down the cleanest focus formula I have used in India. Solid vascular pumps without the jittery itch or post-gym crash."
+          </p>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #1E40AF; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">SS</div>
+            <div>
+              <div style="font-weight: 700; font-size: 0.85rem;">Simran Sharma</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Verified Buyer • Bangalore</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14. PROTEIN CALCULATOR -->
+  <section class="section section-contrast reveal-on-scroll">
+    <div class="container">
+      <div class="section-header center">
+        <h2 class="section-title">Interactive Protein Calculator</h2>
+        <p class="section-subtitle">Calculate your optimal daily protein intake based on your body weight and workout frequency</p>
+      </div>
+      <div class="card" style="max-width: 680px; margin: 0 auto; padding: 32px;">
+        <form onsubmit="calculateProtein(event)">
+          <div class="grid-3" style="gap: 16px; margin-bottom: 20px;">
+            <div>
+              <label class="form-label">Body Weight (kg)</label>
+              <input type="number" id="calc-weight" class="form-control" value="70" min="30" max="180">
+            </div>
+            <div>
+              <label class="form-label">Activity Level</label>
+              <select class="form-control" id="calc-activity">
+                <option value="sedentary">Sedentary (desk job)</option>
+                <option value="moderate" selected>Moderate (3-4 gym days)</option>
+                <option value="active">High (5-6 training days)</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Fitness Goal</label>
+              <select class="form-control" id="calc-goal">
+                <option value="muscle_gain" selected>Muscle Gain</option>
+                <option value="fat_loss">Fat Loss</option>
+                <option value="maintain">Maintenance</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex-center">
+            <button type="submit" class="btn btn-primary">Calculate Protein Needs</button>
+          </div>
+        </form>
+        <div id="calc-result" style="margin-top: 24px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15. PROMOTIONAL BANNER -->
+  <section class="section-sm">
+    <div class="container">
+      <div class="card" style="background: var(--brand-light); border-color: var(--brand); padding: 36px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
+        <div>
+          <span class="badge badge-brand" style="margin-bottom: 8px;">NEW CUSTOMER OFFER</span>
+          <h3 style="font-size: 1.5rem; margin-bottom: 6px;">Get 10% Off Your First Purchase</h3>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">Use code <strong>FIRST10</strong> during checkout. Minimum order value ₹500.</p>
+        </div>
+        <a href="shop.html" class="btn btn-primary btn-lg">Claim Your 10% Discount</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16. NEWSLETTER -->
+  <section class="section section-dark-mesh reveal-on-scroll ambient-wrapper" style="text-align: center;">
+    <div class="ambient-blob ambient-blob-1"></div>
+    <div class="ambient-blob ambient-blob-2"></div>
+    <div class="container" style="max-width: 600px; position: relative; z-index: 2;">
+      <h2 class="section-title">Join the PROTEINX Inner Circle</h2>
+      <p class="section-subtitle" style="margin: 0 auto 24px;">Subscribe for exclusive discounts, free training guides, and early access to new product drops.</p>
+      <form class="flex" style="gap: 8px; justify-content: center;" onsubmit="handleNewsletterSubmit(event, this);">
+        <input type="email" class="form-control" placeholder="Enter your email address" required style="max-width: 360px;">
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 17. FAQ ACCORDION -->
+  <section class="section section-tint-warm reveal-on-scroll">
+    <div class="container">
+      <div class="section-header center">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">Everything you need to know about our supplements, shipping, and quality assurance</p>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>How do I choose the right product for my fitness goals?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            For lean muscle gain, start with our 100% Gold Whey Isolate. If you follow a vegan or plant-based lifestyle, choose Clean Plant Protein. To gain mass and size, choose Extreme Mass Gainer. For explosive strength and power, add Micronized Creatine. You can also use our floating AI Shopping Assistant in the bottom right corner for personalized guidance!
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>How can I check delivery availability and COD at my location?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            You can enter your 6-digit postal pincode directly on any product details page. Our delivery checker will instantly show estimated arrival dates, shipping fees, and whether Cash on Delivery (COD) is available for your address.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>How can I track my order shipment in real time?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            Visit our Track Order page (/tracking.html) and enter your Order ID (e.g. PX000001) along with your email or phone. You will see a live 5-stage progress timeline showing whether your order is Placed, Confirmed, Processing, Shipped, or Out for Delivery.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>How do discount coupons work and how do I apply them?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            You can enter active promo codes such as FIRST10 (10% off), SAVE20 (20% off above ₹2000), or FLAT300 (₹300 off above ₹1500) during checkout. Discounts are verified server-side and automatically subtracted from your final bill.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>What is your return and refund policy?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            We offer a 7-day hassle-free replacement or refund policy if your order arrives damaged, unsealed, or contains an incorrect variant. Contact our customer support team with photos to initiate a pickup.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>How do I use Build Your Stack to get a 15% discount?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            Head to the Build Your Stack page (/build-stack.html), select your fitness goal, and pick your preferred combination of protein, creatine, pre-workout, and gear. An automatic 15% bundle discount is applied to the stack.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>How does the AI Recommendation Assistant work?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            Our intelligent assistant analyzes your fitness goals, dietary preferences, workout intensity, and budget to search the actual product database. It provides verified nutritional reasoning in English, Hindi, or Marathi, and lets you add items directly to your cart.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>How do I compare supplements side-by-side?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            Visit our Product Comparison page (/compare.html). You can select 2 to 4 products from the dropdown menu to inspect protein per scoop, BCAAs, calories, MRP, ratings, and price side-by-side before making a decision.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>What happens if a product is out of stock?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            When an item or flavor is out of stock, click the "Notify Me" button on the product card or details page. Simply enter your email address and our automated inventory system will send you an alert the instant it is restocked.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>How can I contact customer support?</span>
+            <div class="faq-chevron">▾</div>
+          </button>
+          <div class="faq-answer">
+            You can reach our team Monday to Saturday (9 AM - 7 PM) at kaziadnan275@gmail.com or call our toll-free line at +91 93215 98094. You can also send us a message directly from our Contact Us page.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18. CONTACT CTA -->
+  <section class="section-sm" style="background: var(--bg-3); text-align: center;">
+    <div class="container">
+      <h3 style="margin-bottom: 8px;">Still have questions about our supplements?</h3>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">Our certified sports nutrition team is available Monday to Saturday to assist you.</p>
+      <a href="contact.html" class="btn btn-secondary">Contact Our Team</a>
+    </div>
+  </section>
+
+  <!-- 19. FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <div class="logo-icon">N</div>
+            NUTRA<span>TEIN</span>
+          </a>
+          <p class="footer-description">
+            India's premium fitness supplement brand. Committed to helping athletes reach peak physical performance through pure, lab-tested nutrition.
+          </p>
+          <div class="footer-payments">
+            <span class="payment-icon">UPI</span>
+            <span class="payment-icon">VISA</span>
+            <span class="payment-icon">MASTERCARD</span>
+            <span class="payment-icon">COD</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="footer-heading">Shop</div>
+          <ul class="footer-links">
+            <li><a href="shop.html?category=whey-protein">Whey Protein</a></li>
+            <li><a href="shop.html?category=plant-protein">Plant Protein</a></li>
+            <li><a href="shop.html?category=mass-gainers">Mass Gainers</a></li>
+            <li><a href="shop.html?category=creatine">Creatine</a></li>
+            <li><a href="shop.html?category=pre-workout">Pre-Workout</a></li>
+            <li><a href="shop.html?category=vitamins">Vitamins & Omega</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-heading">Tools & Support</div>
+          <ul class="footer-links">
+            <li><a href="build-stack.html">Build Your Stack</a></li>
+            <li><a href="compare.html">Compare Products</a></li>
+            <li><a href="calculator.html">Protein Calculator</a></li>
+            <li><a href="tracking.html">Track Your Order</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="wishlist.html">My Wishlist</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-heading">Company</div>
+          <ul class="footer-links">
+            <li><a href="about.html">About PROTEINX</a></li>
+            <li><a href="contact.html">Quality & Lab Reports</a></li>
+            <li><a href="contact.html">Shipping Policy</a></li>
+            <li><a href="contact.html">Return Policy</a></li>
+            <li><a href="contact.html">Terms & Privacy</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2026 NUTRATEIN India Ltd. All rights reserved. Demo E-Commerce Project.</div>
+        <div style="font-size: 0.8125rem; color: rgba(255,255,255,0.5);">Handcrafted for Fitness Athletes</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SEARCH MODAL -->
+  <div class="search-overlay" id="search-modal" onclick="if(event.target === this) closeSearchModal()">
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20" style="color: var(--text-muted);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <input type="text" id="search-input-modal" class="search-input" placeholder="Search protein, creatine, brand...">
+        <button onclick="closeSearchModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+      <div class="search-results" id="search-results-modal">
+        <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">Type at least 2 characters to search...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART DRAWER -->
+  <div class="cart-overlay" id="cart-overlay" onclick="closeCartDrawer()"></div>
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-drawer-header">
+      <h3 style="font-size: 1.15rem; font-weight: 800;">Shopping Cart (<span class="cart-badge" style="display:inline; position:static; font-size:1rem; width:auto; height:auto; background:none; color:var(--brand);">0</span>)</h3>
+      <button onclick="closeCartDrawer()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+    <div class="cart-drawer-body" id="cart-drawer-items"></div>
+    <div class="cart-drawer-footer" id="cart-drawer-footer" style="display: none;">
+      <div class="cart-summary-row">
+        <span>Subtotal</span>
+        <span id="drawer-subtotal">₹0</span>
+      </div>
+      <div class="cart-summary-row">
+        <span>Shipping</span>
+        <span id="drawer-shipping" style="color: #059669;">FREE</span>
+      </div>
+      <div class="cart-summary-total">
+        <span>Total Amount</span>
+        <span id="drawer-total">₹0</span>
+      </div>
+      <div style="display: flex; gap: 10px; margin-top: 16px;">
+        <a href="cart.html" class="btn btn-secondary w-full" onclick="closeCartDrawer()">View Cart</a>
+        <a href="checkout.html" class="btn btn-primary w-full" onclick="closeCartDrawer()">Checkout</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/config.js"></script>
+  <script src="config/siteContent.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/interactive.js"></script>
+  <script src="js/ai-chat.js"></script>
+  <script src="js/animations.js"></script>
+  <script>
+    // === DYNAMIC HERO BANNER SLIDER (Loads from DB: Placement 'Homepage Hero', Active, Order) ===
+    let currentSlide = 0;
+    let totalSlides = 1;
+    let slideTimer = null;
+
+    function setSlide(n) {
+      if (totalSlides <= 0) return;
+      currentSlide = (n + totalSlides) % totalSlides;
+      const slides = document.querySelectorAll('.hero-slide');
+      const dots = document.querySelectorAll('.slider-dot');
+      slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+      dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+    }
+
+    function changeSlide(delta) {
+      setSlide(currentSlide + delta);
+    }
+
+    function startAutoSlide() {
+      stopAutoSlide();
+      if (totalSlides > 1) {
+        slideTimer = setInterval(() => changeSlide(1), 5000);
+      }
+    }
+
+    function stopAutoSlide() {
+      if (slideTimer) {
+        clearInterval(slideTimer);
+        slideTimer = null;
+      }
+    }
+
+    function attachSliderInteractions() {
+      const heroSection = document.getElementById('main-hero-slider');
+      if (!heroSection || heroSection._interactionsAttached) return;
+      heroSection._interactionsAttached = true;
+
+      heroSection.addEventListener('mouseenter', stopAutoSlide);
+      heroSection.addEventListener('mouseleave', startAutoSlide);
+
+      let touchStartX = 0;
+      let touchEndX = 0;
+      heroSection.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].clientX;
+        stopAutoSlide();
+      }, { passive: true });
+
+      heroSection.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].clientX;
+        const diff = touchEndX - touchStartX;
+        if (Math.abs(diff) > 40) {
+          changeSlide(diff > 0 ? -1 : 1);
+        }
+        startAutoSlide();
+      }, { passive: true });
+    }
+
+    async function loadHomepageHeroBanners() {
+      const heroSection = document.getElementById('main-hero-slider');
+      if (!heroSection) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/banners?placement=Homepage+Hero`);
+        const data = await res.json();
+        let banners = (data.success && Array.isArray(data.banners)) ? data.banners : [];
+
+        if (!banners.length) {
+          const resAll = await fetch(`${API_BASE}/banners`);
+          const dataAll = await resAll.json();
+          if (dataAll.success && Array.isArray(dataAll.banners)) {
+            banners = dataAll.banners.filter(b => (b.placement || 'Homepage Hero') === 'Homepage Hero');
+          }
+        }
+
+        if (banners.length > 0) {
+          renderHeroBanners(banners);
+        }
+      } catch (err) {
+        console.warn('Banner dynamic load warning:', err.message);
+      }
+    }
+
+    function renderHeroBanners(banners) {
+      const heroSection = document.getElementById('main-hero-slider');
+      if (!heroSection) return;
+
+      totalSlides = banners.length;
+      currentSlide = 0;
+
+      let slidesHtml = '';
+      banners.forEach((b, i) => {
+        const desktopImg = b.imageUrl || b.image || '/assets/banners/createin banner.png';
+        const mobileImg = b.mobileImageUrl || desktopImg;
+        const link = b.link || b.buttonLink || 'shop.html';
+        const cta = b.cta || b.buttonText || 'Shop Now';
+        const badge = b.badge || '🔥 FEATURED';
+        const title = b.title || '';
+        const subtitle = b.subtitle || '';
+        const hasMobile = Boolean(b.mobileImageUrl && b.mobileImageUrl !== desktopImg);
+
+        slidesHtml += `
+          <div class="hero-slide ${i === 0 ? 'active' : ''} hero-slide-graphic ${hasMobile ? 'has-mobile-bg' : ''}" id="slide-${i}" onclick="if(!event.target.closest('a, button')) window.location.href='${link}'" style="cursor:pointer;">
+            <div class="hero-slide-bg desktop-banner" style="background-image: url('${desktopImg}');"></div>
+            ${hasMobile ? `<div class="hero-slide-bg mobile-banner" style="background-image: url('${mobileImg}');"></div>` : ''}
+            <div class="hero-slide-overlay hero-slide-overlay-subtle"></div>
+            <div class="hero-content">
+              <div class="hero-text-col">
+                <span class="hero-badge reveal-init reveal-fade">${badge}</span>
+                <h1 class="hero-title reveal-init reveal-slide-up stagger-1" style="text-shadow: 0 3px 12px rgba(0,0,0,0.85);">${title}</h1>
+                ${subtitle ? `<p class="hero-subtitle reveal-init reveal-slide-up stagger-2" style="text-shadow: 0 2px 8px rgba(0,0,0,0.9);">${subtitle}</p>` : ''}
+                <div class="hero-actions reveal-init reveal-slide-up stagger-3">
+                  <a href="${link}" class="btn btn-primary btn-lg btn-glow btn-shimmer">${cta} &rarr;</a>
+                  <a href="shop.html" class="btn btn-secondary btn-lg btn-glow" style="background: rgba(255,255,255,0.18); color: #fff; border-color: rgba(255,255,255,0.45); backdrop-filter: blur(8px);">EXPLORE ALL PRODUCTS</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      let controlsHtml = '';
+      if (totalSlides > 1) {
+        controlsHtml += `<div class="slider-controls" aria-label="Slider Pagination">`;
+        for (let i = 0; i < totalSlides; i++) {
+          controlsHtml += `<button class="slider-dot ${i === 0 ? 'active' : ''}" onclick="setSlide(${i})" aria-label="Slide ${i + 1}"></button>`;
+        }
+        controlsHtml += `</div>`;
+        controlsHtml += `<button class="slider-btn slider-btn-prev" onclick="changeSlide(-1)" aria-label="Previous Slide">&#10094;</button>`;
+        controlsHtml += `<button class="slider-btn slider-btn-next" onclick="changeSlide(1)" aria-label="Next Slide">&#10095;</button>`;
+      }
+
+      heroSection.innerHTML = slidesHtml + controlsHtml;
+      attachSliderInteractions();
+      startAutoSlide();
+    }
+
+    attachSliderInteractions();
+    startAutoSlide();
+
+    // Fetch products on homepage load
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 0. Dynamic Hero Banners
+      loadHomepageHeroBanners();
+
+      // 1. Top Best Sellers
+      try {
+        const res = await fetch(`${API_BASE}/products?limit=8&isBestSeller=true`);
+        const data = await res.json();
+        const grid = document.getElementById('home-top-products-grid');
+        if (data.success && data.products.length && grid) {
+          data.products.forEach(p => window.productCache[p._id] = p);
+          grid.innerHTML = data.products.map(createProductCard).join('');
+        }
+      } catch (e) {
+        console.error('Home products load error:', e);
+      }
+
+      // 2. Best Rated Products
+      loadBestProducts('home-best-products-grid');
+
+      // 3. Recommended For You
+      loadRecommendedProducts('home-recommended-grid');
+
+      // 4. Show recently viewed
+      const recent = JSON.parse(localStorage.getItem('proteinx_recent') || '[]');
+      const recSec = document.getElementById('recently-viewed-section');
+      const recGrid = document.getElementById('recently-viewed-grid');
+      if (recent.length > 0 && recSec && recGrid) {
+        recent.forEach(p => window.productCache[p._id] = p);
+        recSec.style.display = 'block';
+        recGrid.innerHTML = recent.map(createProductCard).join('');
+      }
+
+      // 5. Load active flash sales
+      loadFlashSalesSection();
+
+      // 6. Load dynamic video configurations from backend API
+      loadDynamicVideos();
+    });
+
+    async function loadDynamicVideos() {
+      try {
+        const res = await fetch(`${API_BASE}/videos`);
+        const data = await res.json();
+        if (!data.success) return;
+
+        if (data.heroVideo) {
+          const hv = data.heroVideo;
+          const v = document.querySelector('.hero-video-bg');
+          if (v) {
+            if (hv.active && hv.videoUrl) {
+              v.src = hv.videoUrl;
+              if (hv.posterUrl) v.poster = hv.posterUrl;
+              v.style.display = 'block';
+            } else {
+              v.style.display = 'none';
+            }
+          }
+        }
+
+        if (data.fitnessVideos && data.fitnessVideos.length) {
+          const container = document.getElementById('fitness-showcase-grid');
+          if (container) {
+            container.innerHTML = data.fitnessVideos.map((c, idx) => `
+              <div class="fitness-video-card-premium card-hover-lift reveal-init reveal-slide-up stagger-${(idx % 4) + 1}" onclick="toggleFitnessCardPlayback(this)">
+                <div class="fitness-video-player-wrap">
+                  <video muted loop playsinline preload="metadata" poster="${c.posterUrl || ''}">
+                    <source src="${c.videoUrl}" type="video/mp4">
+                  </video>
+                  <div class="fitness-play-overlay">
+                    <div class="fitness-play-btn-circle" aria-label="Play Video">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                  </div>
+                  <div class="fitness-duration-pill">${c.duration || '0:30'}</div>
+                </div>
+                <div class="fitness-video-card-body">
+                  <span class="fitness-tag-chip">⚡ ${escapeHtml(c.tag || 'PERFORMANCE')}</span>
+                  <h3 class="fitness-video-card-title">${escapeHtml(c.title)}</h3>
+                  <p class="fitness-video-card-desc">${escapeHtml(c.description || '')}</p>
+                  <a href="${c.ctaLink || 'shop.html'}" class="fitness-video-card-cta" onclick="event.stopPropagation()">
+                    <span>${escapeHtml(c.ctaText || 'SHOP NOW')}</span> →
+                  </a>
+                </div>
+              </div>
+            `).join('');
+
+            if (typeof window.refreshScrollAnimations === 'function') {
+              window.refreshScrollAnimations();
+            }
+          }
+        }
+      } catch (err) {
+        console.debug('Dynamic videos load notice:', err);
+      }
+    }
+
+    // ── Flash Sales Section ──────────────────────────────────
+    async function loadFlashSalesSection() {
+      try {
+        const res = await fetch(`${API_BASE}/flash-sales/active`);
+        const data = await res.json();
+        if (!data.success || !data.sales || !data.sales.length) return;
+
+        const section = document.getElementById('flash-sale-section');
+        const container = document.getElementById('flash-sale-container');
+        if (!section || !container) return;
+
+        const activeSale = data.sales[0]; // Display first active sale
+        const serverTime = new Date(data.serverTime);
+        const endTime = new Date(activeSale.endAt);
+
+        const discountText = activeSale.discountType === 'PERCENT'
+          ? activeSale.discountValue + '% OFF'
+          : '₹' + activeSale.discountValue + ' OFF';
+
+        const productsHtml = activeSale.saleProducts && activeSale.saleProducts.length ? `
+          <div style="margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;">
+            ${activeSale.saleProducts.map(p => `
+              <a href="product.html?slug=${p.slug}" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:var(--radius);padding:12px;text-decoration:none;color:#fff;display:flex;align-items:center;gap:12px;backdrop-filter:blur(6px);transition:transform 0.2s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <img src="${p.image || 'assets/placeholder.jpg'}" alt="${p.name}" style="width:48px;height:48px;border-radius:6px;object-fit:cover;" onerror="this.src='assets/placeholder.jpg'">
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:0.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
+                  <div style="display:flex;gap:8px;align-items:baseline;margin-top:3px;">
+                    <span style="font-size:0.95rem;font-weight:900;">₹${p.salePrice.toLocaleString('en-IN')}</span>
+                    <span style="font-size:0.75rem;text-decoration:line-through;opacity:0.7;">₹${p.basePrice.toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+              </a>
+            `).join('')}
+          </div>
+        ` : '';
+
+        container.innerHTML = `
+          <div class="flash-sale-banner">
+            <div>
+              <span class="flash-sale-badge">⚡ FLASH SALE</span>
+              <div class="flash-sale-title" style="margin-top:8px;">${activeSale.name}</div>
+              <div class="flash-sale-desc">${activeSale.description || discountText + ' — Limited Time Only!'}</div>
+              ${productsHtml}
+            </div>
+            <div>
+              <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;opacity:0.85;margin-bottom:8px;text-align:center;">Ends In</div>
+              <div class="countdown-timer" id="flash-countdown">
+                <div class="countdown-unit"><span class="countdown-value" id="cd-h">00</span><span class="countdown-label">Hrs</span></div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-unit"><span class="countdown-value" id="cd-m">00</span><span class="countdown-label">Min</span></div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-unit"><span class="countdown-value" id="cd-s">00</span><span class="countdown-label">Sec</span></div>
+              </div>
+              <a href="shop.html" class="btn" style="margin-top:14px;background:rgba(255,255,255,0.2);color:#fff;border:1.5px solid rgba(255,255,255,0.5);display:block;text-align:center;border-radius:var(--radius);">Shop Sale →</a>
+            </div>
+          </div>
+        `;
+
+        section.style.display = 'block';
+
+        // Start countdown
+        const updateCountdown = () => {
+          const now = new Date();
+          const diff = endTime - now;
+          if (diff <= 0) {
+            document.getElementById('flash-sale-section').style.display = 'none';
+            return;
+          }
+          const hours = Math.floor(diff / 3600000);
+          const minutes = Math.floor((diff % 3600000) / 60000);
+          const seconds = Math.floor((diff % 60000) / 1000);
+          const pad = n => String(n).padStart(2, '0');
+          const cdH = document.getElementById('cd-h');
+          const cdM = document.getElementById('cd-m');
+          const cdS = document.getElementById('cd-s');
+          if (cdH) cdH.textContent = pad(hours);
+          if (cdM) cdM.textContent = pad(minutes);
+          if (cdS) cdS.textContent = pad(seconds);
+        };
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+      } catch (e) {
+        console.warn('Flash sale load error:', e);
+      }
+    }
+  </script>
+</body>
+</html>

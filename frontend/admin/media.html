@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media & Image Manager | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    .upload-dropzone {
+      border: 2px dashed var(--brand);
+      border-radius: 16px;
+      padding: 36px 20px;
+      text-align: center;
+      background: var(--bg-2);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 24px;
+    }
+    .upload-dropzone:hover, .upload-dropzone.dragover {
+      background: rgba(217, 101, 30, 0.08);
+      border-color: var(--brand-dark, #b84e10);
+    }
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .media-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .media-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    .media-thumb {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+    }
+    .media-details {
+      padding: 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .media-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .media-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .media-actions {
+      display: flex;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body class="admin-layout">
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar-header">
+      <a href="../index.html" class="logo" style="font-size:1.1rem;"><div class="logo-icon" style="width:28px;height:28px;font-size:0.75rem;">X</div>NUTRA<span>TEIN</span></a>
+      <span style="font-size:0.65rem;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:700;">ADMIN</span>
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html" class="admin-nav-link"><span>📊</span> Dashboard</a>
+      <a href="products.html" class="admin-nav-link"><span>📦</span> Products</a>
+      <a href="orders.html" class="admin-nav-link"><span>🛒</span> Orders</a>
+      <a href="customers.html" class="admin-nav-link"><span>👥</span> Customers</a>
+      <a href="reviews.html" class="admin-nav-link"><span>⭐</span> Reviews</a>
+      <a href="coupons.html" class="admin-nav-link"><span>🏷️</span> Coupons</a>
+      <a href="flash-sales.html" class="admin-nav-link"><span>⚡</span> Flash Sales</a>
+      <a href="returns.html" class="admin-nav-link"><span>🔄</span> Returns</a>
+      <a href="banners.html" class="admin-nav-link"><span>🖼️</span> Banners</a>
+      <a href="videos.html" class="admin-nav-link"><span>🎥</span> Videos</a>
+      <a href="analytics.html" class="admin-nav-link"><span>📈</span> Analytics</a>
+      <a href="invoices.html" class="admin-nav-link"><span>🧾</span> Invoices</a>
+      <a href="shipping.html" class="admin-nav-link"><span>🚚</span> Shipping</a>
+      <a href="email.html" class="admin-nav-link"><span>📧</span> Email</a>
+      <a href="cms.html" class="admin-nav-link"><span>📝</span> CMS Pages</a>
+      <a href="media.html" class="admin-nav-link active"><span>🖼️</span> Media</a>
+      <a href="roles.html" class="admin-nav-link"><span>🛡️</span> Roles & Staff</a>
+      <a href="backup.html" class="admin-nav-link"><span>💾</span> Backup</a>
+      <a href="settings.html" class="admin-nav-link"><span>⚙️</span> Settings</a>
+      <a href="activity-log.html" class="admin-nav-link"><span>📋</span> Activity Log</a>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <a href="../index.html" style="display:block;text-align:center;font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">← View Store</a>
+      <button class="btn btn-secondary btn-sm w-full" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <h1 class="admin-page-title">🖼️ Media & Image Manager</h1>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+        <div style="font-size:0.875rem;font-weight:600;" id="admin-user-display">Admin</div>
+      </div>
+    </header>
+
+    <!-- Media Navigation Tabs -->
+    <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:12px;">
+      <button class="btn btn-primary btn-sm" id="tab-media-btn" onclick="switchMediaTab('media')">📁 Uploaded Media Library</button>
+      <button class="btn btn-secondary btn-sm" id="tab-banners-btn" onclick="switchMediaTab('banners')">🖼️ Banners Gallery</button>
+    </div>
+
+    <!-- Media Library View -->
+    <div id="media-library-view">
+      <!-- Upload Area -->
+      <div class="upload-dropzone" id="dropzone" onclick="document.getElementById('file-picker').click()">
+        <input type="file" id="file-picker" accept="image/*" style="display:none;" onchange="handleFileSelected(this.files[0])">
+        <div style="font-size: 2.2rem; margin-bottom: 8px;">📤</div>
+        <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 4px;">Click or Drag & Drop Images Here</h3>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">Supports JPG, PNG, WebP, GIF, SVG up to 10MB</p>
+        <div id="upload-progress-text" style="margin-top: 10px; font-weight: 700; color: var(--brand); font-size: 0.85rem; display: none;"></div>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="admin-card" style="margin-bottom: 20px; padding: 14px 18px;">
+        <div class="flex-between" style="gap:12px; flex-wrap:wrap;">
+          <div style="display:flex; gap:8px; align-items:center; flex:1; max-width:420px;">
+            <input type="text" id="media-search" class="form-control" style="font-size: 0.85rem;" placeholder="Search uploaded images by name..." oninput="loadMedia(this.value)">
+            <button class="btn btn-secondary btn-sm" onclick="clearAllFilters('media')" title="Reset search">Clear Search</button>
+            <button class="btn btn-danger btn-sm" onclick="openClearDataModal('media')" title="Bulk clear uploaded media" style="background:#ef444418;color:#ef4444;border:1px solid #ef444460;">🗑️ Clear Media</button>
+          </div>
+          <span id="media-count-badge" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">0 Images Loaded</span>
+        </div>
+      </div>
+
+      <!-- Media Grid Container -->
+      <div class="media-grid" id="media-grid">
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px;"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Banners Gallery View -->
+    <div id="banners-gallery-view" style="display:none;">
+      <div class="admin-card" style="margin-bottom:20px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h3 style="font-size:1.1rem; font-weight:800; margin:0;">Banners Image Gallery</h3>
+          <p style="color:var(--text-muted); font-size:0.8rem; margin:2px 0 0;">All promotional and storefront banners managed in system</p>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <a href="banners.html" class="btn btn-primary btn-sm">+ Add New Banner</a>
+          <button class="btn btn-secondary btn-sm" onclick="loadBannersGallery()">↺ Refresh</button>
+        </div>
+      </div>
+
+      <div class="media-grid" id="banners-grid">
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px;"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      await ensureAdminAuth();
+      loadMedia();
+      setupDragDrop();
+    });
+
+    async function loadMedia(searchQuery = '') {
+      const token = getToken();
+      const grid = document.getElementById('media-grid');
+      try {
+        const url = searchQuery ? `${API_BASE}/media?search=${encodeURIComponent(searchQuery)}` : `${API_BASE}/media`;
+        const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+
+        const files = data.files || [];
+        document.getElementById('media-count-badge').textContent = `${files.length} Image${files.length === 1 ? '' : 's'}`;
+
+        if (!files.length) {
+          grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">No images found. Upload some above!</div>';
+          return;
+        }
+
+        grid.innerHTML = files.map(f => {
+          const kb = Math.round(f.size / 1024);
+          const sizeStr = kb > 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb + ' KB';
+          const fullUrl = window.location.origin + f.url;
+          const isVideo = f.filename.toLowerCase().endsWith('.mp4') || f.filename.toLowerCase().endsWith('.webm');
+          const thumbHtml = isVideo
+            ? `<div style="position:relative;height:150px;background:#000;overflow:hidden;border-bottom:1px solid var(--border);">
+                 <video src="${f.url}" class="media-thumb" style="height:100%;object-fit:cover;width:100%;display:block;" muted preload="metadata" onmouseenter="this.play()" onmouseleave="this.pause()"></video>
+                 <span style="position:absolute;top:6px;left:6px;background:rgba(217,101,30,0.92);color:#fff;font-size:0.65rem;font-weight:800;padding:2px 7px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.3);">🎥 VIDEO</span>
+               </div>`
+            : `<img src="${f.url}" class="media-thumb" alt="${f.filename}" loading="lazy" onerror="this.src='https://placehold.co/400x300?text=No+Preview'">`;
+
+          return `
+            <div class="media-card">
+              ${thumbHtml}
+              <div class="media-details">
+                <div>
+                  <div class="media-name" title="${f.filename}">${f.filename}</div>
+                  <div class="media-meta">${sizeStr} • ${new Date(f.createdAt).toLocaleDateString('en-IN')}</div>
+                </div>
+                <div class="media-actions">
+                  <button class="btn btn-secondary btn-sm" style="flex:1;font-size:0.75rem;padding:4px 6px;" onclick="copyImageUrl('${f.url}')">📋 Copy</button>
+                  <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;font-size:0.75rem;padding:4px 8px;border:none;border-radius:6px;cursor:pointer;" onclick="deleteMedia('${f.filename}')">🗑</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; color: #dc2626; padding: 20px; text-align: center;">Failed to load media: ${err.message}</div>`;
+      }
+    }
+
+    async function handleFileSelected(file) {
+      if (!file) return;
+      const token = getToken();
+      const progress = document.getElementById('upload-progress-text');
+      progress.style.display = 'block';
+      progress.textContent = `Uploading ${file.name}...`;
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch(`${API_BASE}/media/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Image uploaded!', 'success');
+          progress.style.display = 'none';
+          document.getElementById('file-picker').value = '';
+          loadMedia();
+        } else {
+          throw new Error(data.message || 'Upload failed');
+        }
+      } catch (err) {
+        progress.textContent = 'Upload failed: ' + err.message;
+        showToast(err.message, 'error');
+      }
+    }
+
+    function setupDragDrop() {
+      const dropzone = document.getElementById('dropzone');
+      ['dragenter', 'dragover'].forEach(name => {
+        dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); });
+      });
+      dropzone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files && files[0]) handleFileSelected(files[0]);
+      });
+    }
+
+    function copyImageUrl(relUrl) {
+      const fullUrl = window.location.origin + relUrl;
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        showToast('Image URL copied to clipboard!', 'success');
+      }).catch(() => {
+        prompt('Copy URL manually:', fullUrl);
+      });
+    }
+
+    async function deleteMedia(filename) {
+      if (!confirm(`Delete image "${filename}"?`)) return;
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/media/${encodeURIComponent(filename)}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Image deleted', 'success');
+          loadMedia();
+        } else {
+          showToast(data.message || 'Delete failed', 'error');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    function switchMediaTab(tab) {
+      const mediaView = document.getElementById('media-library-view');
+      const bannersView = document.getElementById('banners-gallery-view');
+      const mediaBtn = document.getElementById('tab-media-btn');
+      const bannersBtn = document.getElementById('tab-banners-btn');
+
+      if (tab === 'banners') {
+        mediaView.style.display = 'none';
+        bannersView.style.display = 'block';
+        bannersBtn.className = 'btn btn-primary btn-sm';
+        mediaBtn.className = 'btn btn-secondary btn-sm';
+        loadBannersGallery();
+      } else {
+        mediaView.style.display = 'block';
+        bannersView.style.display = 'none';
+        mediaBtn.className = 'btn btn-primary btn-sm';
+        bannersBtn.className = 'btn btn-secondary btn-sm';
+        loadMedia();
+      }
+    }
+
+    async function loadBannersGallery() {
+      const grid = document.getElementById('banners-grid');
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/banners/admin`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        const banners = data.banners || [];
+
+        if (!banners.length) {
+          grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">No banners configured yet. <a href="banners.html" style="color:var(--brand); text-decoration:underline;">Create one now</a></div>';
+          return;
+        }
+
+        grid.innerHTML = banners.map(b => {
+          const imgUrl = b.imageUrl || b.image || 'https://placehold.co/400x200?text=No+Image';
+          const filename = imgUrl.split('/').pop();
+          const startDate = b.scheduledStart ? new Date(b.scheduledStart).toLocaleDateString() : 'Immediate';
+          const endDate = b.scheduledEnd ? new Date(b.scheduledEnd).toLocaleDateString() : 'Permanent';
+
+          const placementStyles = {
+            'Homepage Hero': 'background:#fef3c7; color:#b45309;',
+            'Homepage Promotional Section': 'background:#e0f2fe; color:#0369a1;',
+            'Shop Page': 'background:#f3e8ff; color:#7e22ce;',
+            'Product Category': 'background:#dcfce7; color:#15803d;',
+            'Offers Section': 'background:#fee2e2; color:#b91c1c;',
+            'Custom Section': 'background:#f1f5f9; color:#475569;'
+          };
+          const pillStyle = placementStyles[b.placement] || 'background:var(--bg-2); color:var(--text-primary);';
+
+          return `
+            <div class="media-card" style="border-radius:12px; overflow:hidden;">
+              <div style="position:relative; height:140px; background:#000;">
+                <img src="${imgUrl}" alt="${b.title}" class="media-thumb" style="height:100%; object-fit:cover; width:100%; display:block;" onerror="this.src='https://placehold.co/400x200?text=Error'">
+                <span style="position:absolute; top:8px; left:8px; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:10px; ${pillStyle}">
+                  ${b.placement || 'Homepage Hero'}
+                </span>
+                <span style="position:absolute; top:8px; right:8px; font-size:0.68rem; font-weight:700; padding:2px 7px; border-radius:10px; background:${b.isActive !== false ? '#dcfce7; color:#166534' : '#fee2e2; color:#991b1b'};">
+                  ${b.isActive !== false ? 'Active' : 'Hidden'}
+                </span>
+              </div>
+              <div class="media-details" style="padding:12px;">
+                <div>
+                  <div class="media-name" title="${b.title}" style="font-size:0.88rem; font-weight:800;">${b.title}</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:4px;" title="${filename}">📄 ${filename}</div>
+                  <div style="font-size:0.7rem; color:var(--text-secondary); margin-bottom:8px;">
+                    📅 Window: ${startDate} → ${endDate}
+                  </div>
+                </div>
+                <div style="display:flex; gap:6px; margin-top:8px;">
+                  <a href="banners.html" class="btn btn-secondary btn-sm" style="flex:1; font-size:0.72rem; padding:4px 6px; text-align:center;">✏️ Edit</a>
+                  <button class="btn btn-secondary btn-sm" style="flex:1; font-size:0.72rem; padding:4px 6px;" onclick="promptReplaceBanner('${b._id}')">🔄 Replace</button>
+                  <button class="btn btn-sm" style="background:#fee2e2; color:#dc2626; border:none; border-radius:6px; font-size:0.72rem; padding:4px 8px; cursor:pointer;" onclick="deleteBannerFromMedia('${b._id}')">🗑</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; color: #dc2626; padding: 20px; text-align: center;">Failed to load banners: ${err.message}</div>`;
+      }
+    }
+
+    async function promptReplaceBanner(bannerId) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async () => {
+        const file = input.files[0];
+        if (!file) return;
+        showToast('Uploading replacement image...', 'info');
+        const formData = new FormData();
+        formData.append('image', file);
+        try {
+          const upRes = await fetch(`${API_BASE}/banners/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + getToken() },
+            body: formData
+          });
+          const upData = await upRes.json();
+          if (!upData.success) throw new Error(upData.message);
+
+          const putRes = await fetch(`${API_BASE}/banners/${bannerId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageUrl: upData.url, image: upData.url })
+          });
+          const putData = await putRes.json();
+          if (putData.success) {
+            showToast('Banner image replaced!', 'success');
+            loadBannersGallery();
+          } else {
+            showToast(putData.message || 'Update failed', 'error');
+          }
+        } catch (e) {
+          showToast('Replace failed: ' + e.message, 'error');
+        }
+      };
+      input.click();
+    }
+
+    async function deleteBannerFromMedia(bannerId) {
+      if (!confirm('Are you sure you want to delete this banner?')) return;
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/banners/${bannerId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Banner deleted', 'success');
+          loadBannersGallery();
+        } else {
+          showToast(data.message || 'Delete failed', 'error');
+        }
+      } catch (err) {
+        showToast('Delete error: ' + err.message, 'error');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('proteinx_token');
+      localStorage.removeItem('proteinx_user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

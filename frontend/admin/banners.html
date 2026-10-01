@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero Banners CMS | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    .banner-preview-img { width: 110px; height: 62px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+    .schedule-badge { font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; background: var(--bg-2); color: var(--text-muted); display: inline-block; margin-top: 2px; }
+  </style>
+</head>
+<body class="admin-layout">
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar-header">
+      <a href="../index.html" class="logo" style="font-size:1.1rem;"><div class="logo-icon" style="width:28px;height:28px;font-size:0.75rem;">X</div>NUTRA<span>TEIN</span></a>
+      <span style="font-size:0.65rem;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:700;">ADMIN</span>
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html" class="admin-nav-link"><span>📊</span> Dashboard</a>
+      <a href="products.html" class="admin-nav-link"><span>📦</span> Products</a>
+      <a href="orders.html" class="admin-nav-link"><span>🛒</span> Orders</a>
+      <a href="customers.html" class="admin-nav-link"><span>👥</span> Customers</a>
+      <a href="reviews.html" class="admin-nav-link"><span>⭐</span> Reviews</a>
+      <a href="coupons.html" class="admin-nav-link"><span>🏷️</span> Coupons</a>
+      <a href="flash-sales.html" class="admin-nav-link"><span>⚡</span> Flash Sales</a>
+      <a href="returns.html" class="admin-nav-link"><span>🔄</span> Returns</a>
+      <a href="banners.html" class="admin-nav-link active"><span>🖼️</span> Banners</a>
+      <a href="videos.html" class="admin-nav-link"><span>🎥</span> Videos</a>
+      <a href="analytics.html" class="admin-nav-link"><span>📈</span> Analytics</a>
+      <a href="invoices.html" class="admin-nav-link"><span>🧾</span> Invoices</a>
+      <a href="shipping.html" class="admin-nav-link"><span>🚚</span> Shipping</a>
+      <a href="email.html" class="admin-nav-link"><span>📧</span> Email</a>
+      <a href="cms.html" class="admin-nav-link"><span>📝</span> CMS Pages</a>
+      <a href="media.html" class="admin-nav-link"><span>🖼️</span> Media</a>
+      <a href="roles.html" class="admin-nav-link"><span>🛡️</span> Roles & Staff</a>
+      <a href="backup.html" class="admin-nav-link"><span>💾</span> Backup</a>
+      <a href="settings.html" class="admin-nav-link"><span>⚙️</span> Settings</a>
+      <a href="activity-log.html" class="admin-nav-link"><span>📋</span> Activity Log</a>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <a href="../index.html" style="display:block;text-align:center;font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">← View Store</a>
+      <button class="btn btn-secondary btn-sm w-full" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <h1 class="admin-page-title">🖼️ Hero Promotional Banners</h1>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-secondary btn-sm" onclick="syncBannerAssets()">🔄 Rescan Assets</button>
+        <button class="btn btn-danger btn-sm" onclick="openClearDataModal('banners')" title="Bulk clear banners from database" style="background:#ef444418;color:#ef4444;border:1px solid #ef444460;">🗑️ Clear Banners</button>
+        <button class="btn btn-primary btn-sm" onclick="openAddBannerModal()">+ Add New Banner</button>
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+        <div style="font-size:0.875rem;font-weight:600;" id="admin-user-display">Admin</div>
+      </div>
+    </header>
+
+    <!-- Placement Filter Bar -->
+    <div class="admin-card" style="margin-bottom:16px; padding:12px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">Filter by Placement:</span>
+        <select id="placement-filter" class="form-control" style="width:220px; font-size:0.85rem;" onchange="loadBanners(this.value)">
+          <option value="all">All Placements</option>
+          <option value="Homepage Hero">Homepage Hero</option>
+          <option value="Homepage Promotional Section">Homepage Promotional Section</option>
+          <option value="Shop Page">Shop Page</option>
+          <option value="Product Category">Product Category</option>
+          <option value="Offers Section">Offers Section</option>
+          <option value="Custom Section">Custom Section</option>
+        </select>
+      </div>
+      <span id="banner-count-badge" style="font-size:0.85rem; font-weight:700; color:var(--brand);">0 Banners Active</span>
+    </div>
+
+    <div class="admin-card" style="padding:0; overflow:hidden;">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Preview</th>
+              <th>Banner Content</th>
+              <th>Placement</th>
+              <th>Link & CTA</th>
+              <th>Schedule Window</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="banners-tbody">
+            <tr><td colspan="8" style="text-align: center; padding: 30px;"><div class="loading-spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add/Edit Banner Modal -->
+  <div id="banner-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px;">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;width:100%;max-width:680px;max-height:94vh;overflow-y:auto;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,0.35);">
+      <div class="flex-between" style="margin-bottom:16px;">
+        <h3 id="banner-modal-title" style="font-size:1.15rem;font-weight:800;margin:0;">Add Promotional Banner</h3>
+        <button onclick="closeBannerModal()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted);">&times;</button>
+      </div>
+
+      <!-- Live Interactive Banner Preview (16:9 Desktop & Mobile - Requirement 16) -->
+      <div style="margin-bottom:18px; background:var(--bg-2); border:1px solid var(--border); border-radius:12px; padding:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:0.8rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.05em;">Live Banner Preview</span>
+          <div style="display:flex; gap:6px;">
+            <button type="button" class="btn btn-sm" id="preview-mode-desk-btn" style="padding:2px 10px; font-size:0.75rem; background:var(--brand); color:#fff;" onclick="switchPreviewMode('desktop')">🖥️ Desktop (16:9)</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="preview-mode-mob-btn" style="padding:2px 10px; font-size:0.75rem;" onclick="switchPreviewMode('mobile')">📱 Mobile</button>
+          </div>
+        </div>
+
+        <!-- Desktop 16:9 Frame -->
+        <div id="live-preview-desktop-box" style="position:relative; width:100%; aspect-ratio:16/9; max-height:220px; border-radius:8px; overflow:hidden; background:#0f172a; display:flex; align-items:center; justify-content:center;">
+          <img id="live-preview-bg" src="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.85; display:none;" onerror="this.style.display='none'" onload="this.style.display='block'">
+          <video id="live-preview-video" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none;" autoplay muted loop playsinline></video>
+          <div id="live-preview-empty-hint" style="color:#64748b; font-size:0.85rem; font-weight:600;">Choose an image or video below to preview</div>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.1) 100%);"></div>
+          <div style="position:relative; z-index:2; padding:16px 20px; text-align:left; width:100%;">
+            <div id="live-preview-badge" style="display:inline-block; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:4px; background:var(--brand); color:#fff; margin-bottom:6px;">PROMO</div>
+            <div id="live-preview-title" style="color:#ffffff; font-size:1.05rem; font-weight:800; line-height:1.25; margin-bottom:4px; text-shadow:0 1px 3px rgba(0,0,0,0.8);">Banner Title</div>
+            <div id="live-preview-subtitle" style="color:#cbd5e1; font-size:0.72rem; line-height:1.4; margin-bottom:10px; max-width:85%;">Subtitle and promotional copy will render here in real time.</div>
+            <button type="button" id="live-preview-cta" class="btn btn-primary btn-sm" style="font-size:0.72rem; padding:4px 12px; pointer-events:none;">Shop Now</button>
+          </div>
+        </div>
+
+        <!-- Mobile Frame -->
+        <div id="live-preview-mobile-box" style="display:none; position:relative; width:170px; height:260px; margin:0 auto; border-radius:14px; overflow:hidden; background:#0f172a; border:3px solid #334155; box-shadow:0 8px 24px rgba(0,0,0,0.3); text-align:center;">
+          <img id="live-preview-mob-bg" src="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.85; display:none;" onerror="this.style.display='none'" onload="this.style.display='block'">
+          <video id="live-preview-mob-video" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none;" autoplay muted loop playsinline></video>
+          <div style="position:absolute; inset:0; background:rgba(0,0,0,0.5);"></div>
+          <div style="position:relative; z-index:2; padding:12px 8px; display:flex; flex-direction:column; justify-content:flex-end; height:100%; box-sizing:border-box;">
+            <div id="live-preview-mob-title" style="color:#fff; font-size:0.75rem; font-weight:800; line-height:1.2; margin-bottom:4px;">Banner Title</div>
+            <div id="live-preview-mob-cta" style="background:var(--brand); color:#fff; padding:3px 8px; border-radius:4px; font-size:0.65rem; font-weight:700; align-self:center;">Shop Now</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detected Project Banner Assets Quick-Select (Requirement 12) -->
+      <div style="margin-bottom:16px; background:var(--bg-2); border:1px solid var(--border); border-radius:10px; padding:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:0.78rem; font-weight:700; color:var(--text-secondary);">📁 Project Banner Assets (Click to choose directly):</span>
+          <button type="button" class="btn btn-secondary btn-sm" style="font-size:0.7rem; padding:2px 6px;" onclick="loadAvailableBannerAssets()">↺ Refresh</button>
+        </div>
+        <div id="project-banner-chips" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span style="font-size:0.72rem; color:var(--text-muted);">Loading assets...</span>
+        </div>
+      </div>
+
+      <form id="banner-form" onsubmit="handleSaveBanner(event)">
+        <input type="hidden" id="banner-edit-id">
+
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group">
+            <label class="form-label">Banner Title / Name <strong style="color:var(--brand);">*</strong></label>
+            <input type="text" id="b-title" class="form-control" required placeholder="e.g. CREATINE POWER & EXPLOSIVE STRENGTH" oninput="syncLivePreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Display Order</label>
+            <input type="number" id="b-position" class="form-control" placeholder="0" min="0">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label">Subtitle / Description</label>
+          <input type="text" id="b-subtitle" class="form-control" placeholder="e.g. 100% Pure Micronized Creatine for Maximum Muscle Power" oninput="syncLivePreview()">
+        </div>
+
+        <!-- Banner Placement Dropdown (Requirement 15) -->
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label" style="font-weight:700;">Banner Placement</label>
+          <select id="b-placement" class="form-control" required>
+            <option value="Homepage Hero">Homepage Hero</option>
+            <option value="Homepage Promotional Section">Homepage Promotional Section</option>
+            <option value="Shop Page">Shop Page</option>
+            <option value="Product Category">Product Category</option>
+            <option value="Offers Section">Offers Section</option>
+            <option value="Custom Section">Custom Section</option>
+          </select>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;">Controls where this banner is displayed across the storefront.</div>
+        </div>
+
+        <!-- Banner Media Format (Image vs Video Banner) -->
+        <div style="margin-bottom:14px; background:var(--bg-2); border:1px solid var(--border); border-radius:10px; padding:12px;">
+          <label class="form-label" style="font-weight:700; margin-bottom:8px; display:block;">Banner Media Format</label>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-sm" id="media-type-image-btn" style="background:var(--brand); color:#fff; font-weight:700; padding:6px 14px;" onclick="setBannerMediaType('image')">🖼️ Image Banner</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="media-type-video-btn" style="font-weight:700; padding:6px 14px;" onclick="setBannerMediaType('video')">🎬 Video Banner</button>
+          </div>
+          <input type="hidden" id="b-media-type" value="image">
+        </div>
+
+        <!-- Video Banner Configuration Box (Shown when Video Banner is selected) -->
+        <div id="video-banner-config-box" style="display:none; margin-bottom:16px; background:var(--bg-2); border:1px solid var(--brand); border-radius:10px; padding:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:0.85rem; font-weight:800; color:var(--brand);">🎬 Video Banner Setup</span>
+            <span id="video-upload-status" style="font-size:0.75rem; color:var(--brand); font-weight:700;"></span>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Upload Video File (MP4, WebM, MOV up to 100MB)</label>
+            <input type="file" id="b-video-file" accept="video/mp4,video/webm,video/quicktime,video/*" style="display:none;" onchange="handleUploadBannerFile(this.files[0], 'video')">
+            <button type="button" class="btn btn-secondary btn-sm" style="width:100%; padding:10px;" onclick="document.getElementById('b-video-file').click()">
+              📹 Select & Upload Video from Computer
+            </button>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Or Paste Video URL / Web Path</label>
+            <input type="text" id="b-video-url" class="form-control" placeholder="e.g. /assets/videos/hero-promo.mp4 or https://example.com/video.mp4" oninput="syncLivePreview()">
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">Direct MP4/WebM video stream URL or uploaded asset path.</div>
+          </div>
+
+          <!-- Video Playback Options -->
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding-top:8px; border-top:1px solid var(--border);">
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.75rem; cursor:pointer;">
+              <input type="checkbox" id="b-video-autoplay" checked onchange="syncLivePreview()"> Autoplay
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.75rem; cursor:pointer;">
+              <input type="checkbox" id="b-video-muted" checked onchange="syncLivePreview()"> Muted (required)
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.75rem; cursor:pointer;">
+              <input type="checkbox" id="b-video-loop" checked onchange="syncLivePreview()"> Loop
+            </label>
+          </div>
+        </div>
+
+        <!-- Desktop Banner Image Picker (Poster for video, main image for image banner) -->
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+            <span id="desktop-image-label">Desktop Banner Image <strong style="color:var(--brand);">*</strong></span>
+            <span id="desktop-upload-status" style="font-size:0.75rem; color:var(--brand); font-weight:700;"></span>
+          </label>
+          <input type="hidden" id="b-image" required>
+          <input type="file" id="b-desktop-file" accept="image/*" style="display:none;" onchange="handleUploadBannerFile(this.files[0], 'desktop')">
+
+          <div id="desktop-upload-placeholder" style="border:2px dashed var(--border); border-radius:10px; padding:16px; text-align:center; background:var(--bg-2); cursor:pointer; transition:border-color 0.2s;" onclick="document.getElementById('b-desktop-file').click()">
+            <div style="font-size:1.6rem; margin-bottom:4px;">🖼️</div>
+            <button type="button" class="btn btn-secondary btn-sm" style="pointer-events:none;">Choose Image / Upload Image</button>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Select from your computer (JPG, PNG, WebP)</div>
+          </div>
+
+          <div id="desktop-preview-wrap" style="display:none; margin-top:8px; background:var(--bg-2); border:1px solid var(--border); border-radius:10px; padding:10px; align-items:center; gap:12px;">
+            <img id="desktop-preview" style="width:120px; height:68px; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
+            <div style="flex:1; min-width:0;">
+              <div id="desktop-filename" style="font-size:0.8rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">image.png</div>
+              <div id="desktop-filesize" style="font-size:0.72rem; color:var(--text-muted);">Ready to save</div>
+              <div style="display:flex; gap:6px; margin-top:6px;">
+                <button type="button" class="btn btn-secondary btn-sm" style="font-size:0.72rem; padding:2px 8px;" onclick="document.getElementById('b-desktop-file').click()">🔄 Replace</button>
+                <button type="button" class="btn btn-sm" style="background:#fee2e2; color:#dc2626; border:none; font-size:0.72rem; padding:2px 8px; border-radius:4px; cursor:pointer;" onclick="removeBannerImage('desktop')">❌ Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Banner Image Picker (Optional) -->
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Mobile Banner Image (Optional)</span>
+            <span id="mobile-upload-status" style="font-size:0.75rem; color:var(--brand); font-weight:700;"></span>
+          </label>
+          <input type="hidden" id="b-mobile-image">
+          <input type="file" id="b-mobile-file" accept="image/*" style="display:none;" onchange="handleUploadBannerFile(this.files[0], 'mobile')">
+
+          <div id="mobile-upload-placeholder" style="border:2px dashed var(--border); border-radius:10px; padding:14px; text-align:center; background:var(--bg-2); cursor:pointer;" onclick="document.getElementById('b-mobile-file').click()">
+            <button type="button" class="btn btn-secondary btn-sm" style="pointer-events:none;">📱 Choose Mobile Image</button>
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Optimized image for mobile viewports</div>
+          </div>
+
+          <div id="mobile-preview-wrap" style="display:none; margin-top:8px; background:var(--bg-2); border:1px solid var(--border); border-radius:10px; padding:10px; align-items:center; gap:12px;">
+            <img id="mobile-preview" style="width:70px; height:70px; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
+            <div style="flex:1; min-width:0;">
+              <div id="mobile-filename" style="font-size:0.8rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">mobile.png</div>
+              <div style="display:flex; gap:6px; margin-top:6px;">
+                <button type="button" class="btn btn-secondary btn-sm" style="font-size:0.72rem; padding:2px 8px;" onclick="document.getElementById('b-mobile-file').click()">🔄 Replace</button>
+                <button type="button" class="btn btn-sm" style="background:#fee2e2; color:#dc2626; border:none; font-size:0.72rem; padding:2px 8px; border-radius:4px; cursor:pointer;" onclick="removeBannerImage('mobile')">❌ Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group">
+            <label class="form-label">Button CTA Text</label>
+            <input type="text" id="b-cta" class="form-control" placeholder="Shop Now" oninput="syncLivePreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destination Link</label>
+            <input type="text" id="b-link" class="form-control" placeholder="shop.html?category=creatine">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div class="form-group">
+            <label class="form-label">Schedule Start (Optional)</label>
+            <input type="datetime-local" id="b-start" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Schedule End (Optional)</label>
+            <input type="datetime-local" id="b-end" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="b-active" checked style="width:18px;height:18px;cursor:pointer;">
+          <label for="b-active" class="form-label" style="margin:0;cursor:pointer;">Active on Storefront</label>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeBannerModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="b-save-btn">Save Banner</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Hidden file picker for quick Replace Image from table -->
+  <input type="file" id="table-replace-banner-file" accept="image/*" style="display:none;">
+
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let bannersList = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      await ensureAdminAuth();
+      loadBanners();
+      loadAvailableBannerAssets();
+    });
+
+    function switchPreviewMode(mode) {
+      const deskBox = document.getElementById('live-preview-desktop-box');
+      const mobBox = document.getElementById('live-preview-mobile-box');
+      const deskBtn = document.getElementById('preview-mode-desk-btn');
+      const mobBtn = document.getElementById('preview-mode-mob-btn');
+
+      if (mode === 'desktop') {
+        deskBox.style.display = 'flex';
+        mobBox.style.display = 'none';
+        deskBtn.className = 'btn btn-sm';
+        deskBtn.style.background = 'var(--brand)';
+        deskBtn.style.color = '#fff';
+        mobBtn.className = 'btn btn-secondary btn-sm';
+        mobBtn.style.background = '';
+        mobBtn.style.color = '';
+      } else {
+        deskBox.style.display = 'none';
+        mobBox.style.display = 'block';
+        mobBtn.className = 'btn btn-sm';
+        mobBtn.style.background = 'var(--brand)';
+        mobBtn.style.color = '#fff';
+        deskBtn.className = 'btn btn-secondary btn-sm';
+        deskBtn.style.background = '';
+        deskBtn.style.color = '';
+      }
+    }
+
+    function setBannerMediaType(type) {
+      document.getElementById('b-media-type').value = type;
+      const imgBtn = document.getElementById('media-type-image-btn');
+      const vidBtn = document.getElementById('media-type-video-btn');
+      const vidBox = document.getElementById('video-banner-config-box');
+      const deskLabel = document.getElementById('desktop-image-label');
+
+      if (type === 'video') {
+        vidBtn.className = 'btn btn-sm';
+        vidBtn.style.background = 'var(--brand)';
+        vidBtn.style.color = '#fff';
+        imgBtn.className = 'btn btn-secondary btn-sm';
+        imgBtn.style.background = '';
+        imgBtn.style.color = '';
+        vidBox.style.display = 'block';
+        if (deskLabel) deskLabel.innerHTML = 'Poster / Fallback Image <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(shown before video plays)</span>';
+      } else {
+        imgBtn.className = 'btn btn-sm';
+        imgBtn.style.background = 'var(--brand)';
+        imgBtn.style.color = '#fff';
+        vidBtn.className = 'btn btn-secondary btn-sm';
+        vidBtn.style.background = '';
+        vidBtn.style.color = '';
+        vidBox.style.display = 'none';
+        if (deskLabel) deskLabel.innerHTML = 'Desktop Banner Image <strong style="color:var(--brand);">*</strong>';
+      }
+      syncLivePreview();
+    }
+
+    function syncLivePreview() {
+      const title = document.getElementById('b-title').value.trim() || 'Banner Title';
+      const subtitle = document.getElementById('b-subtitle').value.trim() || 'Subtitle and promotional copy will render here in real time.';
+      const cta = document.getElementById('b-cta').value.trim() || 'Shop Now';
+      const deskImg = document.getElementById('b-image').value.trim();
+      const mobImg = document.getElementById('b-mobile-image').value.trim() || deskImg;
+      const mediaType = document.getElementById('b-media-type')?.value || 'image';
+      const videoUrl = (document.getElementById('b-video-url')?.value || '').trim();
+      const autoplay = document.getElementById('b-video-autoplay')?.checked ?? true;
+      const muted = document.getElementById('b-video-muted')?.checked ?? true;
+      const loop = document.getElementById('b-video-loop')?.checked ?? true;
+
+      document.getElementById('live-preview-title').textContent = title;
+      document.getElementById('live-preview-subtitle').textContent = subtitle;
+      document.getElementById('live-preview-cta').textContent = cta;
+
+      document.getElementById('live-preview-mob-title').textContent = title;
+      document.getElementById('live-preview-mob-cta').textContent = cta;
+
+      const deskPreviewImg = document.getElementById('live-preview-bg');
+      const deskPreviewVideo = document.getElementById('live-preview-video');
+      const emptyHint = document.getElementById('live-preview-empty-hint');
+
+      const mobPreviewImg = document.getElementById('live-preview-mob-bg');
+      const mobPreviewVideo = document.getElementById('live-preview-mob-video');
+
+      if (mediaType === 'video' && videoUrl) {
+        if (deskPreviewVideo) {
+          deskPreviewVideo.src = videoUrl;
+          deskPreviewVideo.autoplay = autoplay;
+          deskPreviewVideo.muted = muted;
+          deskPreviewVideo.loop = loop;
+          deskPreviewVideo.style.display = 'block';
+          if (autoplay) {
+            deskPreviewVideo.play().catch(() => {});
+          }
+        }
+        if (mobPreviewVideo) {
+          mobPreviewVideo.src = videoUrl;
+          mobPreviewVideo.autoplay = autoplay;
+          mobPreviewVideo.muted = muted;
+          mobPreviewVideo.loop = loop;
+          mobPreviewVideo.style.display = 'block';
+          if (autoplay) {
+            mobPreviewVideo.play().catch(() => {});
+          }
+        }
+        if (deskPreviewImg) {
+          if (deskImg) {
+            deskPreviewImg.src = deskImg;
+            deskPreviewImg.style.display = 'block';
+          } else {
+            deskPreviewImg.style.display = 'none';
+          }
+        }
+        if (mobPreviewImg) {
+          if (mobImg) {
+            mobPreviewImg.src = mobImg;
+            mobPreviewImg.style.display = 'block';
+          } else {
+            mobPreviewImg.style.display = 'none';
+          }
+        }
+        if (emptyHint) emptyHint.style.display = 'none';
+      } else {
+        if (deskPreviewVideo) {
+          deskPreviewVideo.style.display = 'none';
+          deskPreviewVideo.pause();
+        }
+        if (mobPreviewVideo) {
+          mobPreviewVideo.style.display = 'none';
+          mobPreviewVideo.pause();
+        }
+        if (deskImg) {
+          if (deskPreviewImg) {
+            deskPreviewImg.src = deskImg;
+            deskPreviewImg.style.display = 'block';
+          }
+          if (emptyHint) emptyHint.style.display = 'none';
+        } else {
+          if (deskPreviewImg) deskPreviewImg.style.display = 'none';
+          if (emptyHint) emptyHint.style.display = 'block';
+        }
+
+        if (mobImg) {
+          if (mobPreviewImg) {
+            mobPreviewImg.src = mobImg;
+            mobPreviewImg.style.display = 'block';
+          }
+        } else {
+          if (mobPreviewImg) mobPreviewImg.style.display = 'none';
+        }
+      }
+    }
+
+    async function loadAvailableBannerAssets() {
+      const container = document.getElementById('project-banner-chips');
+      if (!container) return;
+      try {
+        const res = await fetch(`${API_BASE}/banners/available-assets`);
+        const data = await res.json();
+        if (data.success && data.assets && data.assets.length) {
+          container.innerHTML = data.assets.map(a => `
+            <button type="button" class="btn btn-secondary btn-sm" style="font-size:0.75rem; padding:4px 10px; display:inline-flex; align-items:center; gap:6px; border-radius:6px; cursor:pointer;" onclick="chooseProjectBannerAsset('${a.url}', '${a.filename}')">
+              <img src="${a.url}" style="width:24px; height:14px; object-fit:cover; border-radius:2px;">
+              <span>${a.label}</span>
+            </button>
+          `).join('');
+        } else {
+          container.innerHTML = '<span style="font-size:0.72rem; color:var(--text-muted);">No assets found in banners folders.</span>';
+        }
+      } catch (err) {
+        container.innerHTML = `<span style="font-size:0.72rem; color:#dc2626;">Error loading assets: ${err.message}</span>`;
+      }
+    }
+
+    function chooseProjectBannerAsset(url, filename) {
+      setBannerImageField('desktop', url, filename, 'Project Asset');
+      syncLivePreview();
+      showToast(`Selected ${filename} as banner image!`, 'success');
+    }
+
+    let _replaceTargetBannerId = null;
+    function triggerTableBannerReplace(bannerId) {
+      _replaceTargetBannerId = bannerId;
+      const input = document.getElementById('table-replace-banner-file');
+      input.value = '';
+      input.onchange = async () => {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        showToast('Uploading replacement image...', 'info');
+        const formData = new FormData();
+        formData.append('image', file);
+        try {
+          const res = await fetch(`${API_BASE}/banners/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + getToken() },
+            body: formData
+          });
+          const data = await res.json();
+          if (data.success && data.url) {
+            const updateRes = await fetch(`${API_BASE}/banners/${_replaceTargetBannerId}`, {
+              method: 'PUT',
+              headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+              body: JSON.stringify({ imageUrl: data.url })
+            });
+            const updateData = await updateRes.json();
+            if (updateData.success) {
+              showToast('Banner image replaced successfully!', 'success');
+              loadBanners();
+            } else {
+              showToast(updateData.message || 'Update failed', 'error');
+            }
+          } else {
+            showToast(data.message || 'Upload failed', 'error');
+          }
+        } catch (err) {
+          showToast('Replace error: ' + err.message, 'error');
+        }
+      };
+      input.click();
+    }
+
+    async function loadBanners(placementFilter = 'all') {
+      const tbody = document.getElementById('banners-tbody');
+      const token = getToken();
+      try {
+        let url = `${API_BASE}/banners/admin`;
+        if (placementFilter && placementFilter !== 'all') {
+          url += `?placement=${encodeURIComponent(placementFilter)}`;
+        }
+        const res = await fetch(url, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.status === 401) {
+          if (typeof handleSessionExpired === 'function') handleSessionExpired();
+          return;
+        }
+        const data = await res.json();
+        bannersList = data.banners || [];
+
+        const activeCount = bannersList.filter(b => b.isActive !== false).length;
+        document.getElementById('banner-count-badge').textContent = `${activeCount} / ${bannersList.length} Active`;
+
+        if (!bannersList.length) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted);">No banners configured for this filter.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = bannersList.map((b, idx) => {
+          const imgUrl = b.imageUrl || b.image || 'https://placehold.co/600x300?text=No+Image';
+          const scheduleInfo = (b.scheduledStart || b.scheduledEnd)
+            ? `<div class="schedule-badge">📅 ${b.scheduledStart ? new Date(b.scheduledStart).toLocaleDateString() : 'Now'} → ${b.scheduledEnd ? new Date(b.scheduledEnd).toLocaleDateString() : 'Always'}</div>`
+            : '<span style="font-size:0.75rem;color:var(--text-muted);">Always Active</span>';
+
+          const placementColors = {
+            'Homepage Hero': 'background:#fef3c7; color:#b45309; border:1px solid #fde68a;',
+            'Homepage Promotional Section': 'background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd;',
+            'Shop Page': 'background:#f3e8ff; color:#7e22ce; border:1px solid #e9d5ff;',
+            'Product Category': 'background:#dcfce7; color:#15803d; border:1px solid #bbf7d0;',
+            'Offers Section': 'background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;',
+            'Custom Section': 'background:#f1f5f9; color:#475569; border:1px solid #e2e8f0;'
+          };
+          const badgeStyle = placementColors[b.placement] || 'background:var(--bg-2); color:var(--text-primary);';
+
+          return `
+            <tr>
+              <td style="font-weight:700;font-size:0.85rem;white-space:nowrap;">
+                ${idx + 1}
+                <button class="btn btn-secondary btn-sm" style="padding:2px 6px;margin-left:4px;font-size:0.7rem;" onclick="moveBanner('${b._id}', -1)" ${idx === 0 ? 'disabled' : ''}>▲</button>
+                <button class="btn btn-secondary btn-sm" style="padding:2px 6px;font-size:0.7rem;" onclick="moveBanner('${b._id}', 1)" ${idx === bannersList.length - 1 ? 'disabled' : ''}>▼</button>
+              </td>
+              <td style="position:relative;">
+                <img src="${imgUrl}" class="banner-preview-img" alt="${b.title}" onerror="this.src='https://placehold.co/110x62?text=Error'">
+                ${(b.mediaType === 'video' || b.videoUrl) ? '<span style="position:absolute; bottom:6px; left:8px; background:rgba(0,0,0,0.85); color:#f59e0b; font-size:0.65rem; font-weight:800; padding:1px 5px; border-radius:4px; border:1px solid #f59e0b;">🎬 VIDEO</span>' : ''}
+              </td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <strong style="font-size:0.9rem;">${b.title}</strong>
+                  ${(b.mediaType === 'video' || b.videoUrl) ? '<span style="background:#fef3c7; color:#b45309; font-size:0.65rem; font-weight:800; padding:1px 5px; border-radius:4px; border:1px solid #fde68a;">VIDEO</span>' : ''}
+                </div>
+                <div style="color:var(--text-muted);font-size:0.75rem;margin-top:2px;">${b.subtitle || b.description || ''}</div>
+              </td>
+              <td>
+                <span style="display:inline-block; font-size:0.72rem; font-weight:700; padding:3px 8px; border-radius:12px; ${badgeStyle}">
+                  ${b.placement || 'Homepage Hero'}
+                </span>
+              </td>
+              <td>
+                <div style="font-size:0.82rem;font-weight:600;">${b.cta || b.buttonText || 'Shop Now'}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);">${b.link || b.buttonLink || '#'}</div>
+              </td>
+              <td>${scheduleInfo}</td>
+              <td>
+                <span class="status-pill ${b.isActive !== false ? 'active' : 'inactive'}" style="cursor:pointer;" onclick="toggleBannerStatus('${b._id}', ${b.isActive !== false})">
+                  ${b.isActive !== false ? 'Active' : 'Hidden'}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:4px 8px;" onclick="openEditBannerModal('${b._id}')">✏️ Edit</button>
+                  <button class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:4px 8px;" onclick="triggerTableBannerReplace('${b._id}')" title="Replace Banner Image">🔄 Replace</button>
+                  <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:0.75rem;padding:4px 8px;cursor:pointer;" onclick="deleteBanner('${b._id}')">🗑</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="alert alert-error">${err.message}</td></tr>`;
+      }
+    }
+
+    async function handleUploadBannerFile(file, type) {
+      if (!file) return;
+      const statusSpan = document.getElementById(`${type}-upload-status`);
+      if (statusSpan) statusSpan.textContent = 'Uploading...';
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch(`${API_BASE}/banners/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + getToken() },
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success && data.url) {
+          if (statusSpan) statusSpan.textContent = '✓ Uploaded';
+          if (type === 'video') {
+            document.getElementById('b-video-url').value = data.url;
+            syncLivePreview();
+            showToast('Video uploaded and configured!', 'success');
+          } else {
+            setBannerImageField(type, data.url, file.name, (file.size / 1024).toFixed(0) + ' KB');
+          }
+        } else {
+          if (statusSpan) statusSpan.textContent = '❌ Failed';
+          showToast(data.message || 'Upload failed', 'error');
+        }
+      } catch (err) {
+        if (statusSpan) statusSpan.textContent = '❌ Error';
+        showToast('Upload failed: ' + err.message, 'error');
+      }
+    }
+
+    function setBannerImageField(type, url, filename = '', sizeInfo = '') {
+      if (type === 'desktop') {
+        document.getElementById('b-image').value = url;
+        document.getElementById('desktop-preview').src = url;
+        document.getElementById('desktop-filename').textContent = filename || url.split('/').pop();
+        if (sizeInfo) document.getElementById('desktop-filesize').textContent = sizeInfo;
+        document.getElementById('desktop-upload-placeholder').style.display = 'none';
+        document.getElementById('desktop-preview-wrap').style.display = 'flex';
+      } else {
+        document.getElementById('b-mobile-image').value = url;
+        document.getElementById('mobile-preview').src = url;
+        document.getElementById('mobile-filename').textContent = filename || url.split('/').pop();
+        document.getElementById('mobile-upload-placeholder').style.display = 'none';
+        document.getElementById('mobile-preview-wrap').style.display = 'flex';
+      }
+      syncLivePreview();
+    }
+
+    function removeBannerImage(type) {
+      if (type === 'desktop') {
+        document.getElementById('b-image').value = '';
+        document.getElementById('desktop-preview').src = '';
+        document.getElementById('desktop-upload-placeholder').style.display = 'block';
+        document.getElementById('desktop-preview-wrap').style.display = 'none';
+        document.getElementById('desktop-upload-status').textContent = '';
+      } else {
+        document.getElementById('b-mobile-image').value = '';
+        document.getElementById('mobile-preview').src = '';
+        document.getElementById('mobile-upload-placeholder').style.display = 'block';
+        document.getElementById('mobile-preview-wrap').style.display = 'none';
+        document.getElementById('mobile-upload-status').textContent = '';
+      }
+      syncLivePreview();
+    }
+
+    async function syncBannerAssets() {
+      showToast('Scanning banner assets folder...', 'info');
+      try {
+        const res = await fetch(`${API_BASE}/banners/sync`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Assets synchronized: ${data.count} banners total`, 'success');
+          loadBanners();
+          loadAvailableBannerAssets();
+        } else {
+          showToast(data.message || 'Sync failed', 'error');
+        }
+      } catch (err) {
+        showToast('Sync error: ' + err.message, 'error');
+      }
+    }
+
+    function openAddBannerModal() {
+      document.getElementById('banner-form').reset();
+      document.getElementById('banner-edit-id').value = '';
+      document.getElementById('banner-modal-title').textContent = 'Add Promotional Banner';
+      removeBannerImage('desktop');
+      removeBannerImage('mobile');
+      setBannerMediaType('image');
+      document.getElementById('b-video-url').value = '';
+      document.getElementById('b-video-autoplay').checked = true;
+      document.getElementById('b-video-muted').checked = true;
+      document.getElementById('b-video-loop').checked = true;
+      document.getElementById('b-placement').value = 'Homepage Hero';
+      document.getElementById('b-position').value = bannersList.length;
+      loadAvailableBannerAssets();
+      syncLivePreview();
+      switchPreviewMode('desktop');
+      document.getElementById('banner-modal').style.display = 'flex';
+    }
+
+    function openEditBannerModal(id) {
+      const banner = bannersList.find(b => b._id === id);
+      if (!banner) return;
+      document.getElementById('banner-edit-id').value = banner._id;
+      document.getElementById('banner-modal-title').textContent = 'Edit Promotional Banner';
+      document.getElementById('b-title').value = banner.title || '';
+      document.getElementById('b-subtitle').value = banner.subtitle || banner.description || '';
+      document.getElementById('b-placement').value = banner.placement || 'Homepage Hero';
+      document.getElementById('b-position').value = banner.position !== undefined ? banner.position : 0;
+      document.getElementById('b-cta').value = banner.cta || banner.buttonText || 'Shop Now';
+      document.getElementById('b-link').value = banner.link || banner.buttonLink || '';
+      document.getElementById('b-start').value = banner.scheduledStart ? new Date(banner.scheduledStart).toISOString().slice(0, 16) : '';
+      document.getElementById('b-end').value = banner.scheduledEnd ? new Date(banner.scheduledEnd).toISOString().slice(0, 16) : '';
+      document.getElementById('b-active').checked = banner.isActive !== false;
+
+      // Video banner config
+      const mediaType = banner.mediaType || (banner.videoUrl ? 'video' : 'image');
+      document.getElementById('b-video-url').value = banner.videoUrl || '';
+      document.getElementById('b-video-autoplay').checked = banner.videoAutoplay !== false;
+      document.getElementById('b-video-muted').checked = banner.videoMuted !== false;
+      document.getElementById('b-video-loop').checked = banner.videoLoop !== false;
+      setBannerMediaType(mediaType);
+
+      const deskImg = banner.imageUrl || banner.image || '';
+      if (deskImg) {
+        setBannerImageField('desktop', deskImg);
+      } else {
+        removeBannerImage('desktop');
+      }
+
+      if (banner.mobileImageUrl) {
+        setBannerImageField('mobile', banner.mobileImageUrl);
+      } else {
+        removeBannerImage('mobile');
+      }
+
+      loadAvailableBannerAssets();
+      syncLivePreview();
+      switchPreviewMode('desktop');
+      document.getElementById('banner-modal').style.display = 'flex';
+    }
+
+    function closeBannerModal() {
+      document.getElementById('banner-modal').style.display = 'none';
+    }
+
+    async function handleSaveBanner(e) {
+      e.preventDefault();
+      const token = getToken();
+      const editId = document.getElementById('banner-edit-id').value;
+      const mediaType = document.getElementById('b-media-type').value;
+      const videoUrl = document.getElementById('b-video-url').value.trim();
+      let imageUrl = document.getElementById('b-image').value.trim();
+
+      if (mediaType === 'video' && !videoUrl) {
+        showToast('Please upload a video file or enter a video URL', 'error');
+        return;
+      }
+      if (mediaType === 'image' && !imageUrl) {
+        showToast('Please choose or upload a Desktop Banner Image', 'error');
+        return;
+      }
+      if (!imageUrl && videoUrl) {
+        imageUrl = '/assets/banners/whey-red-banner.png'; // fallback poster image
+      }
+
+      const posVal = document.getElementById('b-position').value;
+      const body = {
+        title: document.getElementById('b-title').value.trim(),
+        subtitle: document.getElementById('b-subtitle').value.trim(),
+        placement: document.getElementById('b-placement').value,
+        mediaType,
+        videoUrl,
+        videoAutoplay: document.getElementById('b-video-autoplay').checked,
+        videoMuted: document.getElementById('b-video-muted').checked,
+        videoLoop: document.getElementById('b-video-loop').checked,
+        imageUrl,
+        mobileImageUrl: document.getElementById('b-mobile-image').value.trim() || imageUrl,
+        cta: document.getElementById('b-cta').value.trim() || 'Shop Now',
+        link: document.getElementById('b-link').value.trim() || '#',
+        scheduledStart: document.getElementById('b-start').value || null,
+        scheduledEnd: document.getElementById('b-end').value || null,
+        isActive: document.getElementById('b-active').checked,
+        position: posVal !== '' ? Number(posVal) : 0
+      };
+
+      try {
+        const url = editId ? `${API_BASE}/banners/${editId}` : `${API_BASE}/banners`;
+        const method = editId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (res.status === 401) {
+          if (typeof handleSessionExpired === 'function') handleSessionExpired();
+          else showToast('Your admin session has expired. Please log in again.', 'error');
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          showToast(editId ? 'Banner updated successfully!' : 'Banner created successfully!', 'success');
+          closeBannerModal();
+          loadBanners();
+        } else {
+          showToast(data.message || 'Error saving banner', 'error');
+        }
+      } catch (err) {
+        showToast('Save failed: ' + err.message, 'error');
+      }
+    }
+
+    async function toggleBannerStatus(id, currentActive) {
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/banners/${id}`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isActive: !currentActive })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Banner ${!currentActive ? 'activated' : 'hidden'}`, 'success');
+          loadBanners();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function moveBanner(id, direction) {
+      const idx = bannersList.findIndex(b => b._id === id);
+      if (idx === -1) return;
+      const targetIdx = idx + direction;
+      if (targetIdx < 0 || targetIdx >= bannersList.length) return;
+
+      const temp = bannersList[idx];
+      bannersList[idx] = bannersList[targetIdx];
+      bannersList[targetIdx] = temp;
+
+      const orderPayload = bannersList.map((b, i) => ({ _id: b._id, position: i }));
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/banners/reorder`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: orderPayload })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadBanners();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function deleteBanner(id) {
+      if (!confirm('Are you sure you want to delete this promotional banner?')) return;
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/banners/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Banner deleted', 'success');
+          loadBanners();
+        } else {
+          showToast(data.message || 'Delete failed', 'error');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('proteinx_token');
+      localStorage.removeItem('proteinx_user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nutra Tein Loader Demo</title>
+  <link rel="stylesheet" href="loader.css?v=7">
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #fff; color: #181818; }
+    main { display: grid; min-height: 100vh; place-items: center; padding: 24px; }
+    h1 { margin: 0; font-size: clamp(2rem, 7vw, 5rem); letter-spacing: -.06em; }
+    p { max-width: 35rem; color: #666; line-height: 1.6; }
+    button { border: 0; border-radius: 999px; padding: 12px 18px; background: #ff5a1f; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+    button:hover { background: #dd4514; }
+  </style>
+</head>
+<body class="is-loading" aria-busy="true">
+  <!-- Put this loader immediately after your opening <body> tag. -->
+  <!-- The longer demo value makes the effect easy to see. Use 720 in production. -->
+  <div class="nt-loader" data-minimum-visible-ms="1250" role="status" aria-label="Loading Nutra Tein">
+    <div class="nt-loader__content">
+      <img class="nt-loader__brand" src="nutra-tein-loader-logo.svg?v=2" alt="Nutra Tein">
+      <div class="nt-loader__track" aria-hidden="true"><span class="nt-loader__progress"></span></div>
+    </div>
+  </div>
+
+  <!-- Replace this demo content with your existing website. -->
+  <main>
+    <section>
+      <h1>Your website is ready.</h1>
+      <p>The letters begin grouped in the centre, spread out in a quick stagger, and then reveal the website. Your production site remains fast at 720 ms.</p>
+      <button type="button" onclick="location.reload()">Replay loading effect</button>
+    </section>
+  </main>
+
+  <script src="loader.js?v=6" defer></script>
+</body>
+</html>

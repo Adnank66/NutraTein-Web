@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Roles & Permissions | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    .role-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .role-super_admin { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .role-admin { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .role-staff { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .perm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+    .perm-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+    .perm-card h4 { font-size: 0.95rem; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+    .perm-list { list-style: none; padding: 0; margin: 0; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.8; }
+    .perm-list li { display: flex; align-items: center; gap: 6px; }
+    .perm-check { color: #16a34a; font-weight: bold; }
+    .perm-cross { color: #9ca3af; }
+  </style>
+</head>
+<body class="admin-layout">
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar-header">
+      <a href="../index.html" class="logo" style="font-size:1.1rem;"><div class="logo-icon" style="width:28px;height:28px;font-size:0.75rem;">X</div>NUTRA<span>TEIN</span></a>
+      <span style="font-size:0.65rem;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:700;">ADMIN</span>
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html" class="admin-nav-link"><span>📊</span> Dashboard</a>
+      <a href="products.html" class="admin-nav-link"><span>📦</span> Products</a>
+      <a href="orders.html" class="admin-nav-link"><span>🛒</span> Orders</a>
+      <a href="customers.html" class="admin-nav-link"><span>👥</span> Customers</a>
+      <a href="reviews.html" class="admin-nav-link"><span>⭐</span> Reviews</a>
+      <a href="coupons.html" class="admin-nav-link"><span>🏷️</span> Coupons</a>
+      <a href="flash-sales.html" class="admin-nav-link"><span>⚡</span> Flash Sales</a>
+      <a href="returns.html" class="admin-nav-link"><span>🔄</span> Returns</a>
+      <a href="banners.html" class="admin-nav-link"><span>🖼️</span> Banners</a>
+      <a href="videos.html" class="admin-nav-link"><span>🎥</span> Videos</a>
+      <a href="analytics.html" class="admin-nav-link"><span>📈</span> Analytics</a>
+      <a href="invoices.html" class="admin-nav-link"><span>🧾</span> Invoices</a>
+      <a href="shipping.html" class="admin-nav-link"><span>🚚</span> Shipping</a>
+      <a href="email.html" class="admin-nav-link"><span>📧</span> Email</a>
+      <a href="cms.html" class="admin-nav-link"><span>📝</span> CMS Pages</a>
+      <a href="media.html" class="admin-nav-link"><span>🖼️</span> Media</a>
+      <a href="roles.html" class="admin-nav-link active"><span>🛡️</span> Roles & Staff</a>
+      <a href="backup.html" class="admin-nav-link"><span>💾</span> Backup</a>
+      <a href="settings.html" class="admin-nav-link"><span>⚙️</span> Settings</a>
+      <a href="activity-log.html" class="admin-nav-link"><span>📋</span> Activity Log</a>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <a href="../index.html" style="display:block;text-align:center;font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">← View Store</a>
+      <button class="btn btn-secondary btn-sm w-full" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <h1 class="admin-page-title">🛡️ Admin Roles & Permissions</h1>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+        <div style="font-size:0.875rem;font-weight:600;" id="admin-user-display">Admin</div>
+      </div>
+    </header>
+
+    <!-- Super Admin warning / non-super admin view -->
+    <div id="roles-access-denied" style="display:none;" class="alert alert-error">
+      🔒 <strong>Access Restricted:</strong> Role Management is restricted to <strong>Super Admins</strong> only.
+    </div>
+
+    <div id="roles-main-content">
+      <!-- Action Bar -->
+      <div class="flex-between" style="margin-bottom: 20px;">
+        <div>
+          <h2 style="font-size: 1.15rem; font-weight: 800;">Staff & Administrators</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Manage access tiers: Super Admin (Full access + Backup), Admin (Catalog & Orders), Staff (View & Process)</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddAdminModal()">+ Add Staff / Admin</button>
+      </div>
+
+      <!-- Admins Table -->
+      <div class="admin-card" style="padding:0; overflow:hidden; margin-bottom: 30px;">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Admin Name</th>
+                <th>Email Address</th>
+                <th>Phone</th>
+                <th>Access Tier</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admins-tbody">
+              <tr><td colspan="6" style="text-align:center;padding:30px;"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Permission Matrix Cards -->
+      <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 12px;">Permission Matrix by Role</h3>
+      <div class="perm-grid">
+        <div class="perm-card">
+          <h4><span class="role-badge role-super_admin">Super Admin</span> 👑</h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">Full ownership, system settings & disaster recovery</p>
+          <ul class="perm-list">
+            <li><span class="perm-check">✓</span> System Backup & Data Restore</li>
+            <li><span class="perm-check">✓</span> Create & Change Admin Roles</li>
+            <li><span class="perm-check">✓</span> SMTP & Email System Config</li>
+            <li><span class="perm-check">✓</span> Full Orders, Inventory & Revenue</li>
+            <li><span class="perm-check">✓</span> Activity Logs & Security Audits</li>
+            <li><span class="perm-check">✓</span> Storefront Themes & WhatsApp Config</li>
+          </ul>
+        </div>
+
+        <div class="perm-card">
+          <h4><span class="role-badge role-admin">Admin / Manager</span> 💼</h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">Daily e-commerce store operations</p>
+          <ul class="perm-list">
+            <li><span class="perm-cross">✗</span> Backup & Restore (Restricted)</li>
+            <li><span class="perm-cross">✗</span> Modify Admin Roles (Restricted)</li>
+            <li><span class="perm-check">✓</span> Product & Inventory Management</li>
+            <li><span class="perm-check">✓</span> Order Processing & Shipping Updates</li>
+            <li><span class="perm-check">✓</span> Coupons & Flash Sale Scheduling</li>
+            <li><span class="perm-check">✓</span> Review Moderation & CMS Pages</li>
+          </ul>
+        </div>
+
+        <div class="perm-card">
+          <h4><span class="role-badge role-staff">Staff / Support</span> 🎧</h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">Customer support & order fulfillment</p>
+          <ul class="perm-list">
+            <li><span class="perm-cross">✗</span> Backup & Restore (Restricted)</li>
+            <li><span class="perm-cross">✗</span> Store Settings & SMTP (Restricted)</li>
+            <li><span class="perm-check">✓</span> View Orders & Shipping Status</li>
+            <li><span class="perm-check">✓</span> Process Returns & Refunds</li>
+            <li><span class="perm-check">✓</span> View Customer Profiles & Search</li>
+            <li><span class="perm-check">✓</span> Check Inventory Levels</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add / Edit Admin Modal -->
+  <div id="admin-modal" class="modal-overlay hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:9999;">
+    <div class="modal-card" style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;width:90%;max-width:440px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+      <div class="flex-between" style="margin-bottom:16px;">
+        <h3 id="modal-title" style="font-size:1.1rem;font-weight:800;">Add Admin / Staff Member</h3>
+        <button onclick="closeAdminModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;">&times;</button>
+      </div>
+      <form id="admin-form" onsubmit="handleSaveAdmin(event)">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="admin-name-input" class="form-control" required placeholder="e.g. Rahul Verma">
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="admin-email-input" class="form-control" required placeholder="e.g. staff@proteinx.in">
+        </div>
+        <div class="form-group" style="margin-bottom:14px;" id="password-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="admin-password-input" class="form-control" required minlength="6" placeholder="At least 6 characters">
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label">Phone</label>
+          <input type="text" id="admin-phone-input" class="form-control" placeholder="+91 98765 43210">
+        </div>
+        <div class="form-group" style="margin-bottom:20px;">
+          <label class="form-label">Role / Access Tier</label>
+          <select id="admin-role-input" class="form-control">
+            <option value="staff">Staff / Support (Orders & Customer View)</option>
+            <option value="admin">Admin / Manager (Catalog & Operations)</option>
+            <option value="super_admin">Super Admin (Full System & Backup)</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeAdminModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-admin-btn">Save Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let adminsList = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      await ensureAdminAuth();
+      const user = getUser();
+      const isSuper = user && (user.adminRole === 'super_admin' || user.email === 'kaziadnan275@gmail.com');
+      if (!isSuper) {
+        document.getElementById('roles-access-denied').style.display = 'block';
+        document.getElementById('roles-main-content').style.display = 'none';
+        return;
+      }
+      loadAdmins();
+    });
+
+    async function loadAdmins() {
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/auth/admins`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success) {
+          adminsList = data.admins || [];
+          renderAdminsTable(adminsList);
+        } else {
+          document.getElementById('admins-tbody').innerHTML = `<tr><td colspan="6" class="alert alert-error">${data.message}</td></tr>`;
+        }
+      } catch (err) {
+        document.getElementById('admins-tbody').innerHTML = `<tr><td colspan="6" class="alert alert-error">${err.message}</td></tr>`;
+      }
+    }
+
+    function renderAdminsTable(list) {
+      const tbody = document.getElementById('admins-tbody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;">No admin accounts found</td></tr>';
+        return;
+      }
+      const currentUser = getUser();
+      tbody.innerHTML = list.map(a => {
+        const role = a.adminRole || (a.email === 'kaziadnan275@gmail.com' ? 'super_admin' : 'staff');
+        const roleNames = { super_admin: 'Super Admin', admin: 'Admin / Manager', staff: 'Staff' };
+        const isSelf = currentUser && currentUser._id === a._id;
+        return `
+          <tr>
+            <td style="font-weight:700;font-size:0.88rem;">${a.name} ${isSelf ? '<span style="font-size:0.7rem;color:var(--brand);">(You)</span>' : ''}</td>
+            <td style="font-size:0.85rem;">${a.email}</td>
+            <td style="font-size:0.85rem;">${a.phone || '—'}</td>
+            <td><span class="role-badge role-${role}">${roleNames[role] || role}</span></td>
+            <td><span style="font-size:0.75rem;padding:3px 8px;border-radius:12px;background:${a.isActive !== false ? '#dcfce7;color:#16a34a;' : '#fee2e2;color:#dc2626;'}font-weight:700;">${a.isActive !== false ? 'Active' : 'Disabled'}</span></td>
+            <td>
+              ${isSelf ? '<span style="font-size:0.8rem;color:var(--text-muted);">Root Account</span>' : `
+                <div style="display:flex;gap:6px;">
+                  <select onchange="changeRole('${a._id}', this.value)" class="form-control" style="font-size:0.78rem;padding:3px 6px;width:auto;">
+                    <option value="staff" ${role === 'staff' ? 'selected' : ''}>Set Staff</option>
+                    <option value="admin" ${role === 'admin' ? 'selected' : ''}>Set Admin</option>
+                    <option value="super_admin" ${role === 'super_admin' ? 'selected' : ''}>Set Super Admin</option>
+                  </select>
+                </div>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function changeRole(userId, newRole) {
+      const token = getToken();
+      try {
+        const res = await fetch(`${API_BASE}/auth/users/${userId}/role`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminRole: newRole })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Role updated to ${newRole}`, 'success');
+          loadAdmins();
+        } else {
+          showToast(data.message || 'Failed to update role', 'error');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    function openAddAdminModal() {
+      document.getElementById('admin-form').reset();
+      document.getElementById('admin-modal').style.display = 'flex';
+    }
+
+    function closeAdminModal() {
+      document.getElementById('admin-modal').style.display = 'none';
+    }
+
+    async function handleSaveAdmin(e) {
+      e.preventDefault();
+      const token = getToken();
+      const name = document.getElementById('admin-name-input').value.trim();
+      const email = document.getElementById('admin-email-input').value.trim();
+      const password = document.getElementById('admin-password-input').value;
+      const phone = document.getElementById('admin-phone-input').value.trim();
+      const adminRole = document.getElementById('admin-role-input').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/admins`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, phone, adminRole })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Staff member added!', 'success');
+          closeAdminModal();
+          loadAdmins();
+        } else {
+          showToast(data.message || 'Failed to add admin', 'error');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('proteinx_token');
+      localStorage.removeItem('proteinx_user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

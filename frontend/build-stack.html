@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Build Your Stack (15% Bundle Discount) | NUTRATEIN</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">N</div>
+        NUTRA<span>TEIN</span>
+      </a>
+      <nav class="nav-desktop">
+        <a href="index.html" class="nav-link" data-i18n="nav_home">Home</a>
+        <a href="shop.html" class="nav-link" data-i18n="nav_shop">Shop</a>
+        <a href="build-stack.html" class="nav-link active" data-i18n="nav_build_stack">Build Stack</a>
+        <a href="compare.html" class="nav-link" data-i18n="nav_compare">Compare</a>
+        <a href="calculator.html" class="nav-link" data-i18n="nav_calculator">Calculator</a>
+        <a href="tracking.html" class="nav-link" data-i18n="nav_track_order">Track Order</a>
+        <a href="about.html" class="nav-link" data-i18n="nav_about">About</a>
+        <a href="contact.html" class="nav-link" data-i18n="nav_contact">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <!-- Language Selector -->
+        <div class="lang-selector-wrap">
+          <select id="lang-select" class="lang-select" onchange="changeLanguage(this.value)" aria-label="Select Language">
+            <option value="en">EN</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+          </select>
+        </div>
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+        <button class="header-action-btn" onclick="openCartDrawer()" title="Cart">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+          <span class="action-badge cart-badge" style="display: none;">0</span>
+        </button>
+        <a href="login.html" class="btn btn-primary btn-sm guest-required-nav" data-i18n="nav_sign_in">Sign In</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" style="padding-top: 24px;">
+    <div class="container">
+      <div class="page-nav-bar">
+        <button onclick="goBack()" class="btn-nav-back" title="Go back to previous page">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav_back">Back</span>
+        </button>
+        <a href="index.html" class="btn-nav-home" title="Return to homepage">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span data-i18n="nav_home">Home</span>
+        </a>
+      </div>
+
+      <div class="breadcrumb">
+        <a href="index.html" data-i18n="nav_home">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <span data-i18n="nav_build_stack">Build Your Stack</span>
+      </div>
+
+      <div class="section-header">
+        <span class="badge badge-brand" style="margin-bottom: 8px;">CUSTOM COMBO BUILDER</span>
+        <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 6px; color: var(--text);">Build Your Custom Supplement Stack</h1>
+        <p class="section-subtitle" style="color: var(--text-muted);">Select your favorite protein, creatine, pre-workout, and vitamins. Automatic 15% discount applied to your entire bundle!</p>
+      </div>
+
+      <div class="grid-3" style="grid-template-columns: 2fr 1fr; gap: 32px; align-items: start;">
+        <!-- Left: Category steps -->
+        <div id="stack-categories-container">
+          <div style="text-align: center; padding: 40px;"><div class="loading-spinner"></div></div>
+        </div>
+
+        <!-- Right: Sticky Stack Summary -->
+        <div class="card" style="padding: 24px; position: sticky; top: 80px; background: var(--surface); border: 1px solid var(--border);">
+          <h3 style="font-size: 1.15rem; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 14px; color: var(--text);">Your Bundle Stack</h3>
+          <div id="stack-selected-count" style="font-size: 0.85rem; font-weight: 700; color: var(--brand); margin-bottom: 12px;">0 items selected</div>
+          <div id="stack-selected-list" style="margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;"></div>
+
+          <div class="cart-summary-row">
+            <span style="color: var(--text-muted);">Subtotal:</span>
+            <span id="stack-subtotal" style="color: var(--text); font-weight: 600;">₹0</span>
+          </div>
+          <div class="cart-summary-row" style="color: var(--success, #16a34a); font-weight: 700;">
+            <span>Bundle Discount (15%):</span>
+            <span id="stack-discount">-₹0</span>
+          </div>
+          <div class="cart-summary-total">
+            <span style="color: var(--text);">Stack Total:</span>
+            <span id="stack-total" style="color: var(--brand); font-weight: 800;">₹0</span>
+          </div>
+
+          <button id="add-stack-to-cart-btn" class="btn btn-primary btn-lg w-full mt-6" onclick="addStackToCart()" disabled>
+            Select at least 2 items
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Drawer -->
+  <div class="cart-overlay" id="cart-overlay" onclick="closeCartDrawer()"></div>
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-drawer-header">
+      <h3 style="font-size: 1.15rem; font-weight: 800;">Shopping Cart</h3>
+      <button onclick="closeCartDrawer()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+    <div class="cart-drawer-body" id="cart-drawer-items"></div>
+    <div class="cart-drawer-footer" id="cart-drawer-footer" style="display: none;">
+      <a href="checkout.html" class="btn btn-primary w-full mt-4" onclick="closeCartDrawer()">Proceed to Checkout</a>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/interactive.js"></script>
+  <script src="js/ai-chat.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', initStackBuilder);
+  </script>
+</body>
+</html>

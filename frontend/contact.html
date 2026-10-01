@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Support | NUTRATEIN</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">N</div>
+        NUTRA<span>TEIN</span>
+      </a>
+
+      <nav class="nav-desktop">
+        <a href="index.html" class="nav-link" data-i18n="nav_home">Home</a>
+        <a href="shop.html" class="nav-link" data-i18n="nav_shop">Shop</a>
+        <a href="build-stack.html" class="nav-link" data-i18n="nav_build_stack">Build Stack</a>
+        <a href="compare.html" class="nav-link" data-i18n="nav_compare">Compare</a>
+        <a href="calculator.html" class="nav-link" data-i18n="nav_calculator">Calculator</a>
+        <a href="tracking.html" class="nav-link" data-i18n="nav_track_order">Track Order</a>
+        <a href="about.html" class="nav-link" data-i18n="nav_about">About</a>
+        <a href="contact.html" class="nav-link active" data-i18n="nav_contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Language Selector -->
+        <div class="lang-selector-wrap">
+          <select id="lang-select" class="lang-select" onchange="changeLanguage(this.value)" aria-label="Select Language">
+            <option value="en">EN</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+          </select>
+        </div>
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+        <button class="header-action-btn" onclick="openSearchModal()" title="Search">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        </button>
+        <a href="wishlist.html" class="header-action-btn" title="Wishlist">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+          <span class="action-badge wishlist-badge" style="display: none;">0</span>
+        </a>
+        <button class="header-action-btn" onclick="openCartDrawer()" title="Cart">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+          <span class="action-badge cart-badge" style="display: none;">0</span>
+        </button>
+        <a href="login.html" class="btn btn-primary btn-sm guest-required-nav" data-i18n="nav_sign_in">Sign In</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contact Section -->
+  <section class="section" style="padding-top: 24px;">
+    <div class="container" style="max-width: 1000px;">
+      <div class="page-nav-bar">
+        <button onclick="goBack()" class="btn-nav-back" title="Go back to previous page">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav_back">Back</span>
+        </button>
+        <a href="index.html" class="btn-nav-home" title="Return to homepage">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span data-i18n="nav_home">Home</span>
+        </a>
+      </div>
+
+      <div class="breadcrumb">
+        <a href="index.html" data-i18n="nav_home">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <span data-i18n="nav_contact">Contact Us</span>
+      </div>
+
+      <div class="section-header" style="text-align: left; margin: 24px 0 32px;">
+        <span class="badge badge-brand" style="margin-bottom: 8px;">24/7 SUPPORT & ADVISORY</span>
+        <h1 style="font-size: 2.2rem; font-weight: 900; margin-bottom: 8px;">Get in Touch With Us</h1>
+        <p style="color: var(--text-secondary); font-size: 1.05rem;">
+          Have questions regarding order dispatch, dosage timing, stack pairing, or batch test results? We are here to help.
+        </p>
+      </div>
+
+      <div class="grid-2" style="gap: 36px; align-items: start;">
+        <!-- Left: Support Info & FAQ Card -->
+        <div>
+          <div class="card" style="padding: 32px; margin-bottom: 24px;">
+            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 20px; color: var(--text-primary);">Support Channels</h3>
+            
+            <div style="display: flex; gap: 14px; margin-bottom: 20px; align-items: flex-start;">
+              <div style="width: 44px; height: 44px; border-radius: var(--radius-sm); background: var(--bg-2); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; color: var(--brand);">
+                ✉️
+              </div>
+              <div>
+                <strong style="font-size: 0.95rem; color: var(--text-primary);">Seller Email</strong>
+                <p id="contact-disp-email" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 2px;">kaziadnan275@gmail.com</p>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Guaranteed response within 24 hours</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 14px; margin-bottom: 20px; align-items: flex-start;">
+              <div style="width: 44px; height: 44px; border-radius: var(--radius-sm); background: var(--bg-2); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; color: var(--brand);">
+                📞
+              </div>
+              <div>
+                <strong style="font-size: 0.95rem; color: var(--text-primary);">Toll-Free Helpline</strong>
+                <p id="contact-disp-phone" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 2px;">+91 93215 98094</p>
+                <span id="contact-disp-hours" style="font-size: 0.75rem; color: var(--text-muted);">Mon – Sat, 9:00 AM – 7:00 PM IST</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 14px; align-items: flex-start;">
+              <div style="width: 44px; height: 44px; border-radius: var(--radius-sm); background: var(--bg-2); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; color: var(--brand);">
+                📍
+              </div>
+              <div>
+                <strong style="font-size: 0.95rem; color: var(--text-primary);">Headquarters & Lab</strong>
+                <p id="contact-disp-address" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 2px; line-height: 1.5;">
+                  NUTRATEIN Nutrition Ltd.<br>
+                  DK Homes, kon gaon, kalyan west<br>
+                  Mumbai, Maharashtra 400069
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick FAQ Jump Card -->
+          <div class="card" style="padding: 24px; background: var(--bg-card); border-left: 4px solid var(--brand);">
+            <h4 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 8px;">Need Answers Immediately?</h4>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+              Check our FAQ section covering shipping speed, returns policy, authentication QR codes, and lactose content.
+            </p>
+            <a href="index.html#faq-section" class="btn btn-secondary w-full" style="text-align: center;">View Frequently Asked Questions</a>
+          </div>
+        </div>
+
+        <!-- Right: Contact Form -->
+        <div class="card" style="padding: 32px;">
+          <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">Send Us a Message</h3>
+          <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Fill out the form below and our supplement team will respond promptly.</p>
+
+          <form onsubmit="handleContactSubmit(event)">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" id="contact-name" class="form-control" placeholder="Amit Sharma" required>
+            </div>
+
+            <div class="grid-2" style="gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Email Address *</label>
+                <input type="email" id="contact-email" class="form-control" placeholder="amit@example.com" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" id="contact-phone" class="form-control" placeholder="+91 1234567890">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Topic</label>
+              <select id="contact-subject" class="form-control">
+                <option value="Order Tracking & Delivery">Order Tracking & Delivery</option>
+                <option value="Product Recommendation & Dosage">Product Recommendation & Dosage</option>
+                <option value="Lab Testing & Certificate Verification">Lab Testing & Certificate Verification</option>
+                <option value="Wholesale & Gym Partnerships">Wholesale & Gym Partnerships</option>
+                <option value="Other">Other Inquiry</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Your Message *</label>
+              <textarea id="contact-message" class="form-control" rows="5" placeholder="Please describe your question or requirement..." minlength="10" required></textarea>
+            </div>
+
+            <button type="submit" id="contact-btn" class="btn btn-primary btn-lg w-full">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2026 NUTRATEIN India Ltd. All rights reserved. | Demo platform.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Search Modal -->
+  <div class="search-overlay" id="search-modal" onclick="if(event.target === this) closeSearchModal()">
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <input type="text" id="search-input-modal" class="search-input" placeholder="Search products...">
+        <button onclick="closeSearchModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer;">&times;</button>
+      </div>
+      <div class="search-results" id="search-results-modal"></div>
+    </div>
+  </div>
+
+  <!-- Cart Drawer -->
+  <div class="cart-overlay" id="cart-overlay" onclick="closeCartDrawer()"></div>
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-drawer-header">
+      <h3 style="font-size: 1.15rem; font-weight: 800;">Shopping Cart</h3>
+      <button onclick="closeCartDrawer()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+    <div class="cart-drawer-body" id="cart-drawer-items"></div>
+    <div class="cart-drawer-footer" id="cart-drawer-footer" style="display: none;">
+      <div class="cart-summary-total">
+        <span>Total:</span>
+        <span id="drawer-total">₹0</span>
+      </div>
+      <a href="checkout.html" class="btn btn-primary w-full mt-4" onclick="closeCartDrawer()">Proceed to Checkout</a>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ai-chat.js"></script>
+  <script>
+    async function handleContactSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('contact-name').value.trim();
+      const email = document.getElementById('contact-email').value.trim();
+      const phone = document.getElementById('contact-phone').value.trim();
+      const subject = document.getElementById('contact-subject').value.trim();
+      const message = document.getElementById('contact-message').value.trim();
+      const btn = document.getElementById('contact-btn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading-spinner" style="width: 18px; height: 18px;"></div> Sending...';
+
+      try {
+        const res = await fetch(`${API_BASE}/contact`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, subject, message })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(data.message || 'Message sent successfully! We will contact you soon.', 'success');
+          e.target.reset();
+        } else {
+          showToast(data.message || 'Failed to send message', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'Network error occurred. Please try again or email kaziadnan275@gmail.com.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Message';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/cms/contact').then(r => r.json()).then(data => {
+        if (data.success && data.page) {
+          const p = data.page;
+          if (p.email && document.getElementById('contact-disp-email')) document.getElementById('contact-disp-email').textContent = p.email;
+          if (p.phone && document.getElementById('contact-disp-phone')) document.getElementById('contact-disp-phone').textContent = p.phone;
+          if (p.hours && document.getElementById('contact-disp-hours')) document.getElementById('contact-disp-hours').textContent = p.hours;
+          if (p.address && document.getElementById('contact-disp-address')) document.getElementById('contact-disp-address').innerHTML = p.address.replace(/\n/g, '<br>');
+        }
+      }).catch(() => {});
+    });
+  </script>
+</body>
+</html>

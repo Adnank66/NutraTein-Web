@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="PowerFuel protein store top sellers component." />
+    <title>PowerFuel — Our Top Sellers</title>
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="top-sellers" aria-labelledby="top-sellers-heading">
+      <section class="video-showcase" aria-labelledby="video-heading">
+        <div class="video-backdrop" aria-hidden="true"></div>
+        <div class="video-scrim" aria-hidden="true"></div>
+
+        <div class="video-copy">
+          <p class="eyebrow">POWERED BY PROGRESS</p>
+          <h1 id="video-heading"><span>Fuel the work.</span></h1>
+          <p>Built for the sessions that matter.</p>
+          <a class="upload-button" href="/products/nitrotein-performance-whey">Buy now <span aria-hidden="true">↗</span></a>
+        </div>
+
+        <video class="uploaded-video" autoplay muted playsinline loop preload="auto" poster="assets/nitrotein-performance-whey.png" data-video-player>
+          <source src="assets/shredtein-ani-video.mp4" type="video/mp4" />
+          Your browser does not support HTML video.
+        </video>
+      </section>
+
+      <section class="products-panel" aria-labelledby="top-sellers-heading">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow eyebrow-dark">POWERED BY PROGRESS</p>
+            <h2 id="top-sellers-heading">Our Top Sellers</h2>
+            <p class="panel-intro">High-performance essentials selected for strength, recovery, and lean-muscle goals.</p>
+          </div>
+        </div>
+
+        <div class="products-window">
+          <div class="products-track">
+            <article id="nitrotein-performance-whey" class="product-card product-card--featured">
+              <div class="product-image product-image--nitro">
+                <span class="product-badge">30G<br />PROTEIN</span>
+                <a class="product-media-link" href="/products/nitrotein-performance-whey" aria-label="View NitroTein Performance Whey">
+                  <img src="assets/nitrotein-performance-whey.png" alt="NitroTein Performance Whey Protein, Swiss Chocolate" />
+                </a>
+                <div class="product-image-fade" aria-hidden="true"></div>
+              </div>
+              <div class="product-meta">
+                <p class="product-kicker">PERFORMANCE WHEY</p>
+                <h3><a class="product-title-link" href="/products/nitrotein-performance-whey">NitroTein Performance Whey</a></h3>
+                <p class="product-description">Swiss Chocolate · 30 g protein per serving</p>
+                <p class="reviews"><span>★★★★★</span> <a href="#reviews-isolate">(128) Reviews</a></p>
+                <div class="buy-row">
+                  <div class="price"><strong>₹2,499.00</strong><del>₹2,899.00</del></div>
+                  <div class="product-actions"><a class="buy-now" href="/products/nitrotein-performance-whey">Buy now</a><button class="add-cart" type="button" data-add-cart="NitroTein Performance Whey">Add to cart</button></div>
+                </div>
+              </div>
+            </article>
+
+            <article id="shredtein-lean-protein" class="product-card">
+              <div class="product-image product-image--shred">
+                <span class="product-badge product-badge--gold">LEAN<br />MATRIX</span>
+                <a class="product-media-link" href="/products/shredtein-lean-protein" aria-label="View ShredTein Lean Protein Matrix">
+                  <img src="assets/shredtein-lean-protein.png" alt="ShredTein Advanced Lean Protein Matrix, Swiss Chocolate" loading="lazy" />
+                </a>
+                <div class="product-image-fade" aria-hidden="true"></div>
+              </div>
+              <div class="product-meta">
+                <p class="product-kicker">ADVANCED LEAN PROTEIN</p>
+                <h3><a class="product-title-link" href="/products/shredtein-lean-protein">ShredTein Lean Protein Matrix</a></h3>
+                <p class="product-description">Swiss Chocolate · 30 g protein per serving</p>
+                <p class="reviews"><span>★★★★★</span> <a href="#reviews-shredtein">(92) Reviews</a></p>
+                <div class="buy-row">
+                  <div class="price"><strong>₹2,699.00</strong><del>₹3,099.00</del></div>
+                  <div class="product-actions"><a class="buy-now" href="/products/shredtein-lean-protein">Buy now</a><button class="add-cart" type="button" data-add-cart="ShredTein Lean Protein Matrix">Add to cart</button></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+        <p class="cart-message" aria-live="polite" data-cart-message></p>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>

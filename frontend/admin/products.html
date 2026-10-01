@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Products | NUTRATEIN Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <!-- Injected by admin-nav.js -->
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="hamburger" aria-label="Toggle menu">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <div style="font-weight:700;font-size:1.1rem;">Product Inventory Management</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+          <div style="font-size:0.875rem;font-weight:600;" id="admin-user-display">Admin</div>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <div class="flex-between" style="margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h1 style="font-size:1.6rem;font-weight:800;">Products List</h1>
+            <p style="color:var(--text-muted);font-size:0.875rem;">Manage images, catalog assets, prices, stock, ratings and active status</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="openProductEditorModal()" style="display:flex;align-items:center;gap:6px;font-weight:700;">
+              <span>➕</span> Add Product
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="openAssetScannerModal()" style="display:flex;align-items:center;gap:6px;">
+              <span>📷</span> Scan Product Images
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="loadAdminProductsTable(); loadInventoryAlerts();">↺ Refresh</button>
+          </div>
+        </div>
+
+        <!-- Filter Bar with Clear All -->
+        <div class="filter-bar" style="margin-bottom:20px;">
+          <input type="text" id="products-search" oninput="loadAdminProductsTable()" placeholder="Search products by title, SKU, brand..." class="search-input" style="font-size:0.85rem;">
+          <select id="products-category-filter" onchange="loadAdminProductsTable()" class="form-control" style="width:180px;font-size:0.85rem;">
+            <option value="all">All Categories</option>
+            <option value="Whey Protein">Whey Protein</option>
+            <option value="Plant Protein">Plant Protein</option>
+            <option value="Mass Gainer">Mass Gainer</option>
+            <option value="Creatine">Creatine</option>
+            <option value="Pre-Workout">Pre-Workout</option>
+            <option value="BCAA">BCAA / Amino</option>
+            <option value="Vitamins">Vitamins & Minerals</option>
+          </select>
+          <button class="btn-clear-all" onclick="clearAllFilters('products')" title="Reset product filters">↺ Clear Filters</button>
+        </div>
+
+        <!-- Inventory Alerts Section -->
+        <div class="card" style="padding:24px;margin-bottom:24px;border-left:4px solid var(--brand);">
+          <div class="flex-between" style="margin-bottom:16px;">
+            <div>
+              <h3 style="font-size:1.1rem;font-weight:800;color:var(--text-primary);">⚡ Inventory Reorder & Out-of-Stock Alerts</h3>
+              <p style="color:var(--text-muted);font-size:0.82rem;margin-top:2px;">Items needing immediate inventory replenishment</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="loadInventoryAlerts()">Refresh Alerts</button>
+          </div>
+          <div id="admin-inventory-alerts">
+            <div style="text-align:center;padding:20px;"><div class="loading-spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Products Table Card -->
+        <div class="card" style="padding:24px;">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="min-width:180px;">Product Info</th>
+                  <th>Image</th>
+                  <th style="min-width:170px;">Variants & Sizes</th>
+                  <th>Price Range</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th style="min-width:180px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-products-tbody">
+                <tr><td colspan="7" style="text-align:center;padding:20px;"><div class="loading-spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Asset Scanner Modal -->
+  <div id="asset-scanner-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px;">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;width:100%;max-width:820px;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 12px 48px rgba(0,0,0,0.3);">
+      <div class="flex-between" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+        <div>
+          <h3 style="font-size:1.2rem;font-weight:800;margin:0;">📷 Automatic Product Image Scanner</h3>
+          <p style="color:var(--text-muted);font-size:0.8rem;margin:4px 0 0;">Scans project asset folders, reads filenames, and matches against catalog products</p>
+        </div>
+        <button onclick="closeAssetScannerModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">&times;</button>
+      </div>
+
+      <div id="scanner-loading" style="text-align:center;padding:40px;display:none;">
+        <div class="loading-spinner" style="margin:0 auto 12px;"></div>
+        <div style="font-weight:700;color:var(--brand);">Scanning product assets and matching filenames...</div>
+      </div>
+
+      <div id="scanner-content">
+        <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+          <div class="card" style="padding:10px 16px;flex:1;background:var(--bg-2);border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);">Detected Images</div>
+            <div id="scan-stat-total" style="font-size:1.3rem;font-weight:800;color:var(--brand);">0</div>
+          </div>
+          <div class="card" style="padding:10px 16px;flex:1;background:var(--bg-2);border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);">Matched to Products</div>
+            <div id="scan-stat-matched" style="font-size:1.3rem;font-weight:800;color:#059669;">0</div>
+          </div>
+          <div class="card" style="padding:10px 16px;flex:1;background:var(--bg-2);border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);">Unmatched Images</div>
+            <div id="scan-stat-unmatched" style="font-size:1.3rem;font-weight:800;color:#d97706;">0</div>
+          </div>
+        </div>
+
+        <!-- Matched Section -->
+        <div style="margin-bottom:20px;">
+          <h4 style="font-size:0.95rem;font-weight:800;margin-bottom:8px;color:#059669;display:flex;align-items:center;gap:6px;">
+            <span>✓</span> Detected Matches (Review & Confirm)
+          </h4>
+          <div id="scanner-matched-list" style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--bg-1);">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Unmatched Section -->
+        <div style="margin-bottom:20px;">
+          <h4 style="font-size:0.95rem;font-weight:800;margin-bottom:8px;color:#d97706;display:flex;align-items:center;gap:6px;">
+            <span>⚠️</span> Unmatched Images (Assign or Create Safely)
+          </h4>
+          <div id="scanner-unmatched-list" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--bg-1);">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:16px;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="runAssetScan()">↺ Rescan Folders</button>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="closeAssetScannerModal()">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-apply-matches" onclick="applyAssetScannerMatches()">✓ Apply Image Matches</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Image Manager Modal -->
+  <div id="product-image-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px;">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;width:100%;max-width:720px;max-height:92vh;overflow-y:auto;padding:24px;box-shadow:0 12px 48px rgba(0,0,0,0.3);">
+      <div class="flex-between" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+        <div>
+          <h3 id="pim-product-title" style="font-size:1.15rem;font-weight:800;margin:0;">Product Image Manager</h3>
+          <p id="pim-product-meta" style="color:var(--text-muted);font-size:0.8rem;margin:2px 0 0;">Manage gallery, upload from computer, set primary image</p>
+        </div>
+        <button onclick="closeProductImageModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">&times;</button>
+      </div>
+
+      <!-- Upload Controls -->
+      <div style="background:var(--bg-2);border:1px dashed var(--border);border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-weight:700;font-size:0.88rem;">Add Image to Gallery</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);">Upload from your computer or pick from scanned project assets</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input type="file" id="pim-file-input" accept="image/*" style="display:none;" onchange="handleProductImageUpload(this.files[0])">
+          <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('pim-file-input').click()">📤 Upload from Computer</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="openAssetPickerForProduct()">📁 Select Existing Asset</button>
+        </div>
+      </div>
+
+      <!-- Gallery Grid -->
+      <div style="margin-bottom:20px;">
+        <label class="form-label" style="font-weight:700;margin-bottom:8px;">Product Images Gallery (<span id="pim-images-count">0</span>)</label>
+        <div id="pim-gallery-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));gap:12px;">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border);padding-top:16px;">
+        <button type="button" class="btn btn-secondary" onclick="closeProductImageModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="saveProductGalleryChanges()">Save Gallery Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Editor Modal (Add / Edit Product + Live 3D Preview) -->
+  <div id="product-editor-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.65);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px;backdrop-filter:blur(4px);">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:18px;width:100%;max-width:1160px;max-height:92vh;overflow-y:auto;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative;">
+      
+      <!-- Modal Header -->
+      <div class="flex-between" style="margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:14px;">
+        <div>
+          <h3 id="product-modal-title" style="font-size:1.3rem;font-weight:800;margin:0;display:flex;align-items:center;gap:8px;">
+            <span>⚡</span> Add New Product
+          </h3>
+          <p style="color:var(--text-muted);font-size:0.82rem;margin:4px 0 0;">
+            Configure product details, multi-variant sizing, pricing, stock and test the live 3D card preview.
+          </p>
+        </div>
+        <button type="button" onclick="closeProductEditorModal()" style="background:none;border:none;font-size:1.6rem;cursor:pointer;color:var(--text-muted);">&times;</button>
+      </div>
+
+      <!-- Modal Form Body Grid -->
+      <form id="product-editor-form" onsubmit="handleProductEditorSubmit(event)">
+        <input type="hidden" id="prod-edit-id" value="">
+
+        <div class="product-editor-grid">
+          
+          <!-- Left Column: Form & Variants -->
+          <div>
+            <!-- Basic Info -->
+            <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
+              <div style="font-weight:800;font-size:0.95rem;margin-bottom:12px;color:var(--brand);">1. Basic Information</div>
+              
+              <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px;">
+                <div>
+                  <label class="form-label" style="font-size:0.8rem;font-weight:700;">Product Name *</label>
+                  <input type="text" id="prod-edit-name" class="form-control" required placeholder="e.g. Creatine Monohydrate" oninput="updateLive3DCardPreview()">
+                </div>
+                <div>
+                  <label class="form-label" style="font-size:0.8rem;font-weight:700;">Brand</label>
+                  <input type="text" id="prod-edit-brand" class="form-control" value="NUTRATEIN" placeholder="NUTRATEIN" oninput="updateLive3DCardPreview()">
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div>
+                  <label class="form-label" style="font-size:0.8rem;font-weight:700;">Category *</label>
+                  <select id="prod-edit-category" class="form-control" required onchange="updateLive3DCardPreview()">
+                    <option value="Whey Protein">Whey Protein</option>
+                    <option value="Plant Protein">Plant Protein</option>
+                    <option value="Mass Gainer">Mass Gainer</option>
+                    <option value="Creatine">Creatine</option>
+                    <option value="Pre-Workout">Pre-Workout</option>
+                    <option value="BCAA">BCAA / Amino</option>
+                    <option value="Vitamins">Vitamins & Minerals</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label" style="font-size:0.8rem;font-weight:700;">Subcategory / Tag</label>
+                  <input type="text" id="prod-edit-subcategory" class="form-control" placeholder="e.g. Strength & Power" oninput="updateLive3DCardPreview()">
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div>
+                  <label class="form-label" style="font-size:0.8rem;font-weight:700;">Status</label>
+                  <select id="prod-edit-status" class="form-control" onchange="updateLive3DCardPreview()">
+                    <option value="active">Active (Published)</option>
+                    <option value="inactive">Inactive (Hidden)</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label" style="font-size:0.8rem;font-weight:700;">Promotional Badge</label>
+                  <select id="prod-edit-badge" class="form-control" onchange="updateLive3DCardPreview()">
+                    <option value="">Auto (based on discount)</option>
+                    <option value="BEST SELLER">★ BEST SELLER</option>
+                    <option value="NEW LAUNCH">⚡ NEW LAUNCH</option>
+                    <option value="POPULAR">🔥 POPULAR</option>
+                    <option value="LAB TESTED">🧪 100% LAB TESTED</option>
+                    <option value="ULTRA PURE">💎 ULTRA PURE</option>
+                    <option value="SALE">🏷️ LIMITED SALE</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:20px;margin-top:8px;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:700;cursor:pointer;">
+                  <input type="checkbox" id="prod-edit-is-featured" onchange="updateLive3DCardPreview()"> Featured (Shows in 3D Coverflow)
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:700;cursor:pointer;">
+                  <input type="checkbox" id="prod-edit-is-bestseller" onchange="updateLive3DCardPreview()"> Best Seller
+                </label>
+              </div>
+            </div>
+
+            <!-- Descriptions -->
+            <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
+              <div style="font-weight:800;font-size:0.95rem;margin-bottom:12px;color:var(--brand);">2. Product Description</div>
+              <div style="margin-bottom:10px;">
+                <label class="form-label" style="font-size:0.8rem;font-weight:700;">Short Tagline (displayed on 3D Card)</label>
+                <input type="text" id="prod-edit-short-desc" class="form-control" placeholder="e.g. 100% Ultra-Pure Micronized Creatine for Explosive Power" oninput="updateLive3DCardPreview()">
+              </div>
+              <div>
+                <label class="form-label" style="font-size:0.8rem;font-weight:700;">Full Description</label>
+                <textarea id="prod-edit-desc" class="form-control" rows="3" placeholder="Detailed product specifications, ingredients, and usage guidelines..."></textarea>
+              </div>
+            </div>
+
+            <!-- Product Image & Asset Management -->
+            <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
+              <div class="flex-between" style="margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                <div style="font-weight:800;font-size:0.95rem;color:var(--brand);">3. Product Image</div>
+                <div style="display:flex;gap:8px;">
+                  <input type="file" id="prod-edit-file-input" accept="image/*" style="display:none;" onchange="handleProductModalFileUpload(this.files[0])">
+                  <button type="button" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 10px;" onclick="document.getElementById('prod-edit-file-input').click()">
+                    📤 Upload Computer Image
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:4px 10px;" onclick="openAssetPickerForEditor()">
+                    📁 Select Asset
+                  </button>
+                </div>
+              </div>
+
+              <div style="margin-bottom:10px;">
+                <label class="form-label" style="font-size:0.8rem;font-weight:700;">Primary Image URL</label>
+                <input type="text" id="prod-edit-image-url" class="form-control" placeholder="/assets/products/creatine-monohydrate.jpeg" oninput="updateLive3DCardPreview()">
+                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">
+                  Uploaded images are saved locally to <code>/public/assets/products/</code> with clean slug filenames.
+                </div>
+              </div>
+            </div>
+
+            <!-- Multi-Variant Manager -->
+            <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:16px;">
+              <div class="flex-between" style="margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+                <div>
+                  <div style="font-weight:800;font-size:0.95rem;color:var(--brand);">4. Product Variants & Sizes</div>
+                  <div style="font-size:0.74rem;color:var(--text-muted);">
+                    Configure weight/size (e.g. 100g, 250g), servings, MRP, Selling Price, and stock.
+                  </div>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 10px;" onclick="addVariantRow()">
+                  ➕ Add Variant
+                </button>
+              </div>
+
+              <div style="overflow-x:auto;">
+                <table class="variant-manager-table" id="variant-manager-table">
+                  <thead>
+                    <tr>
+                      <th style="width:105px;">Weight/Size *</th>
+                      <th style="width:105px;">Flavor</th>
+                      <th style="width:70px;">Servings</th>
+                      <th style="width:85px;">MRP (₹) *</th>
+                      <th style="width:85px;">Price (₹) *</th>
+                      <th style="width:60px;">Off %</th>
+                      <th style="width:65px;">Stock *</th>
+                      <th style="width:95px;">SKU</th>
+                      <th style="width:36px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="variant-rows-tbody">
+                    <!-- Injected dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Live 3D Product Card Preview -->
+          <div>
+            <div class="live-preview-box">
+              <div style="font-weight:800;font-size:0.95rem;margin-bottom:6px;color:var(--text-primary);display:flex;align-items:center;justify-content:center;gap:6px;">
+                <span>👁️</span> Live 3D Product Card Preview
+              </div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:18px;">
+                Interactive simulation of how this card appears & behaves on the storefront
+              </div>
+
+              <!-- 3D Card Simulation Container -->
+              <div class="admin-3d-card" id="admin-preview-card">
+                <div class="admin-card-glow"></div>
+
+                <!-- Badges & Wishlist row -->
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;position:relative;z-index:2;">
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <span id="preview-badge" style="background:#dc2626;color:#ffffff;font-size:0.68rem;font-weight:800;padding:2px 8px;border-radius:6px;letter-spacing:0.5px;">
+                      30% OFF
+                    </span>
+                    <span id="preview-tag-badge" style="background:var(--brand);color:#ffffff;font-size:0.68rem;font-weight:800;padding:2px 8px;border-radius:6px;letter-spacing:0.5px;display:none;">
+                      ★ BEST SELLER
+                    </span>
+                  </div>
+                  <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:#dc2626;box-shadow:0 2px 6px rgba(0,0,0,0.06);">
+                    ♥
+                  </div>
+                </div>
+
+                <!-- Product Image -->
+                <div class="admin-card-image-wrap">
+                  <img id="preview-img" src="/assets/products/nutratein-placeholder.svg" alt="Product Preview" onerror="this.src='/assets/products/nutratein-placeholder.svg'">
+                </div>
+
+                <!-- Content details -->
+                <div style="margin-top:14px;position:relative;z-index:2;">
+                  <!-- Rating and Category -->
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">
+                    <span id="preview-category" style="font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:0.5px;">CREATINE</span>
+                    <div style="display:flex;align-items:center;gap:3px;color:#d97706;font-weight:700;">
+                      <span>★</span> 4.9 <span style="color:var(--text-muted);font-weight:400;">(128)</span>
+                    </div>
+                  </div>
+
+                  <!-- Title -->
+                  <h4 id="preview-title" style="margin:0 0 4px;font-size:1.1rem;font-weight:800;color:var(--text-primary);line-height:1.25;">
+                    Creatine Monohydrate
+                  </h4>
+
+                  <!-- Short Desc -->
+                  <div id="preview-short-desc" style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px;line-height:1.3;height:2.6em;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+                    100% Ultra-Pure Micronized Creatine for Explosive Power
+                  </div>
+
+                  <!-- Interactive Variant Pills -->
+                  <div style="margin-bottom:14px;">
+                    <div style="font-size:0.7rem;font-weight:800;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+                      Select Variant:
+                    </div>
+                    <div id="preview-variants-container" style="display:flex;gap:6px;flex-wrap:wrap;">
+                      <!-- Injected variant pills -->
+                    </div>
+                  </div>
+
+                  <!-- Price and Info Row -->
+                  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;padding-top:10px;border-top:1px solid var(--border);">
+                    <div>
+                      <div style="display:flex;align-items:baseline;gap:6px;">
+                        <span id="preview-price" style="font-size:1.4rem;font-weight:900;color:var(--text-primary);">₹699</span>
+                        <span id="preview-mrp" style="font-size:0.85rem;color:var(--text-muted);text-decoration:line-through;">₹999</span>
+                      </div>
+                      <div id="preview-servings-info" style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">
+                        32 Servings • ₹21.8/serving
+                      </div>
+                    </div>
+                    <span id="preview-stock-status" style="font-size:0.7rem;font-weight:800;color:#059669;background:#d1fae5;padding:2px 8px;border-radius:6px;">
+                      ✓ In Stock
+                    </span>
+                  </div>
+
+                  <!-- Interactive Test Add to Cart Button -->
+                  <button type="button" class="btn btn-primary" style="width:100%;font-weight:800;padding:10px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px;" onclick="showToast('Live preview: Add to cart tested successfully!', 'info')">
+                    <span>🛒</span> Add to Cart
+                  </button>
+                </div>
+              </div>
+
+              <div style="margin-top:16px;font-size:0.74rem;color:var(--text-muted);">
+                💡 Tip: Click variant pills on the preview card to test instant price & servings switching!
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;border-top:1px solid var(--border);padding-top:18px;">
+          <button type="button" class="btn btn-secondary" onclick="closeProductEditorModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-product" style="display:flex;align-items:center;gap:6px;font-weight:700;">
+            <span>💾</span> Save Product & Variants
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/admin-nav.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminProductsTable();
+      loadInventoryAlerts();
+    });
+  </script>
+</body>
+</html>

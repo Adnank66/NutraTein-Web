@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Product | NUTRATEIN</title>
+  <meta name="theme-color" content="#D9651E">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><div class="logo-icon">N</div>NUTRA<span>TEIN</span></a>
+      <nav class="nav-desktop">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Shop</a>
+        <a href="verify.html" class="nav-link active">Verify Product</a>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-select-wrap">
+          <select class="lang-select" onchange="changeLanguage(this.value)" aria-label="Select Language">
+            <option value="en">EN</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+          </select>
+        </div>
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()"></button>
+        <button class="header-action-btn" onclick="typeof openCartDrawer === 'function' && openCartDrawer()" title="Cart">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span class="action-badge cart-badge" style="display:none;">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" style="padding-top:32px; padding-bottom:60px;">
+    <div class="container">
+      <div class="page-nav-bar">
+        <button onclick="goBack()" class="btn-nav-back">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Back</span>
+        </button>
+        <a href="index.html" class="btn-nav-home">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span>Home</span>
+        </a>
+      </div>
+
+      <div class="section-header" style="margin-bottom:32px;">
+        <h1 style="font-size:1.8rem; font-weight:900; margin-bottom:8px;">🏷️ Product Verification</h1>
+        <p class="section-subtitle">Enter your product's barcode or SKU to verify it is a genuine NUTRATEIN product registered in our database.</p>
+      </div>
+
+      <div class="barcode-verify-card">
+        <!-- Manual Entry -->
+        <div class="card" style="padding:28px; margin-bottom:24px;">
+          <h2 style="font-size:1.05rem; font-weight:800; margin-bottom:6px;">🔍 Enter Barcode / SKU</h2>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px;">Find the barcode or SKU on the product packaging and enter it below.</p>
+          <div class="barcode-input-group">
+            <input type="text" id="barcode-input" placeholder="e.g. NUT8901234567891 or NUT-GWI-01" maxlength="50" autocomplete="off" autocapitalize="none">
+            <button class="btn btn-primary" onclick="verifyBarcode()" id="verify-btn">Verify</button>
+          </div>
+
+          <!-- Camera Scanner -->
+          <div style="border-top:1px solid var(--border); padding-top:16px; margin-top:4px;">
+            <button class="btn btn-secondary btn-sm" onclick="toggleCamera()" id="camera-btn">📷 Scan with Camera</button>
+            <div id="camera-container" style="display:none; margin-top:14px;">
+              <video id="camera-video" style="width:100%; max-height:240px; border-radius:var(--radius-sm); background:#000;" autoplay playsinline muted></video>
+              <p style="font-size:0.78rem; color:var(--text-muted); margin-top:6px; text-align:center;">Point camera at the product barcode. Camera scanning works best on mobile devices.</p>
+              <button class="btn btn-outline btn-sm" onclick="stopCamera()" style="margin-top:8px;">Stop Camera</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Area -->
+        <div id="verify-result" class="verify-result">
+          <div class="verify-icon" id="verify-icon"></div>
+          <div id="verify-message" style="font-size:0.95rem; font-weight:700; margin-bottom:8px;"></div>
+          <div id="verify-detail" style="font-size:0.82rem; color:inherit; opacity:0.85;"></div>
+          <div id="verify-product-info"></div>
+        </div>
+
+        <!-- What we verify disclaimer -->
+        <div class="card" style="padding:18px; margin-top:20px; background:var(--bg-2); border-color:var(--border);">
+          <h4 style="font-size:0.85rem; font-weight:800; margin-bottom:8px;">ℹ️ About Our Verification System</h4>
+          <ul style="font-size:0.8rem; color:var(--text-muted); line-height:1.7; padding-left:16px; margin:0;">
+            <li>We check if the barcode/SKU is registered in the NUTRATEIN product database.</li>
+            <li>Verification confirms the product exists in our catalog — not that your specific unit is authentic.</li>
+            <li>If a barcode is not found, it may be a counterfeit, an older product, or an entry error.</li>
+            <li>For genuine authenticity concerns, contact our support team with your order details.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let cameraStream = null;
+
+    async function verifyBarcode() {
+      const barcode = document.getElementById('barcode-input').value.trim();
+      if (!barcode || barcode.length < 3) {
+        showToast('Please enter a valid barcode or SKU.', 'error');
+        return;
+      }
+      const btn = document.getElementById('verify-btn');
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      const resultEl = document.getElementById('verify-result');
+      resultEl.className = 'verify-result';
+      try {
+        const res = await fetch(`${API_BASE}/products/verify/${encodeURIComponent(barcode)}`);
+        const data = await res.json();
+        if (!data.success) {
+          showVerifyResult(false, '❌ Verification Failed', data.message || 'Error processing verification.');
+          return;
+        }
+        if (data.verified) {
+          const p = data.product;
+          const productHtml = `
+            <div class="verify-product-card">
+              <img src="${p.image || 'assets/placeholder.jpg'}" alt="${p.name}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;" onerror="this.src='assets/placeholder.jpg'">
+              <div>
+                <div style="font-weight:800;font-size:0.95rem;">${p.name}</div>
+                <div style="font-size:0.8rem;color:#065F46;margin-top:2px;">Brand: ${p.brand}</div>
+                <div style="font-size:0.8rem;margin-top:2px;">SKU: <code>${p.sku}</code></div>
+                <div style="font-size:0.75rem;color:#374151;margin-top:2px;">Category: ${p.category && p.category.name ? p.category.name : 'N/A'}</div>
+                <div style="font-size:0.72rem;color:#6B7280;margin-top:4px;">Verified on: ${new Date(data.verificationDate).toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+              </div>
+            </div>
+          `;
+          showVerifyResult(true, '✅ Product Found in Database', data.message, productHtml);
+        } else {
+          showVerifyResult(false, '❌ Product Not Found', data.message);
+        }
+      } catch {
+        showVerifyResult(false, '⚠️ Connection Error', 'Unable to reach verification server. Please check your internet and try again.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Verify';
+      }
+    }
+
+    function showVerifyResult(success, title, detail, productHtml = '') {
+      const resultEl = document.getElementById('verify-result');
+      resultEl.className = 'verify-result ' + (success ? 'success' : 'error');
+      document.getElementById('verify-message').textContent = title;
+      document.getElementById('verify-detail').textContent = detail;
+      document.getElementById('verify-product-info').innerHTML = productHtml;
+    }
+
+    async function toggleCamera() {
+      const container = document.getElementById('camera-container');
+      if (container.style.display === 'none') {
+        container.style.display = 'block';
+        document.getElementById('camera-btn').textContent = '📷 Camera Active';
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+          document.getElementById('camera-video').srcObject = cameraStream;
+
+          // Try BarcodeDetector if available
+          if ('BarcodeDetector' in window) {
+            const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'code_128', 'qr_code', 'upc_a'] });
+            const video = document.getElementById('camera-video');
+            const scanLoop = setInterval(async () => {
+              if (!cameraStream) { clearInterval(scanLoop); return; }
+              try {
+                const barcodes = await detector.detect(video);
+                if (barcodes.length > 0) {
+                  const code = barcodes[0].rawValue;
+                  document.getElementById('barcode-input').value = code;
+                  stopCamera();
+                  clearInterval(scanLoop);
+                  verifyBarcode();
+                }
+              } catch (e) {}
+            }, 500);
+          } else {
+            showToast('BarcodeDetector not supported on this browser. Please enter the barcode manually.', 'info');
+          }
+        } catch (err) {
+          showToast('Camera access denied. Please enter the barcode manually.', 'error');
+          container.style.display = 'none';
+          document.getElementById('camera-btn').textContent = '📷 Scan with Camera';
+        }
+      } else {
+        stopCamera();
+      }
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+      }
+      document.getElementById('camera-container').style.display = 'none';
+      document.getElementById('camera-btn').textContent = '📷 Scan with Camera';
+    }
+
+    // Allow Enter key
+    document.getElementById('barcode-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') verifyBarcode();
+    });
+
+    // Pre-fill from URL ?barcode=xxx
+    const urlBarcode = new URLSearchParams(window.location.search).get('barcode');
+    if (urlBarcode) {
+      document.getElementById('barcode-input').value = urlBarcode;
+      verifyBarcode();
+    }
+  </script>
+</body>
+</html>
