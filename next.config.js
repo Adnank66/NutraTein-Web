@@ -10,7 +10,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: '*.googleusercontent.com' },
     ],
-    unoptimized: false,
+    unoptimized: true,
     localPatterns: [
       { pathname: '/uploads/**' },
       { pathname: '/assets/**' },

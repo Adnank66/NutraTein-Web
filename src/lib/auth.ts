@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { withFastTimeout } from "@/lib/fast-data"
 
+if (!process.env.AUTH_SECRET) {
+  process.env.AUTH_SECRET = process.env.NEXTAUTH_SECRET || "proteinx_jwt_secret_key_2024_auth_secret_nutratein_fallback_for_vercel"
+}
+
 // Authorized admin credentials — stored server-side only, never exposed to client
 const ADMIN_CREDENTIALS = [
   {
