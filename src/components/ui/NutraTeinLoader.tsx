@@ -53,7 +53,7 @@ export default function NutraTeinLoader() {
           role="status"
           aria-label="Loading Nutra Tein"
         >
-          <div className="relative font-display text-[clamp(2rem,9vw,7rem)] leading-none uppercase tracking-wider sm:tracking-widest font-black px-4 text-center select-none">
+          <div className="relative font-display text-[clamp(1.5rem,11vw,6rem)] leading-none uppercase tracking-wider sm:tracking-widest font-black px-4 text-center select-none">
             <div className="text-transparent" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}>
               NUTRATEIN
             </div>

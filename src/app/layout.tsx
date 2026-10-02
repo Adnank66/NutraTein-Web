@@ -39,7 +39,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="/nutra-tein-loader/loader.css" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.classList.add('dark')}else{document.documentElement.classList.remove('dark')}}catch(e){}})()`,
+            __html: `(function(){try{document.documentElement.classList.remove('dark');localStorage.setItem('theme', 'light')}catch(e){}})()`,
           }}
         />
         {/* Security: Disable right-click and DevTools shortcuts */}
@@ -49,7 +49,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans antialiased text-dark-900 bg-white dark:bg-zinc-950 dark:text-zinc-100 selection:bg-brand-500 selection:text-white transition-colors duration-150">
+      <body className="font-sans antialiased text-dark-900 bg-white selection:bg-brand-500 selection:text-white transition-colors duration-150">
         <NutraTeinLoader />
         <SessionProvider>
           {children}
