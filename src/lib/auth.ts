@@ -30,6 +30,7 @@ const ADMIN_CREDENTIALS = [
 ]
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "proteinx_jwt_secret_key_2024_auth_secret_nutratein",
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days

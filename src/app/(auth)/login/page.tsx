@@ -152,12 +152,22 @@ function LoginForm() {
         if (role === "ADMIN") {
           toast.success("Administrator session authorized! Welcome to Admin Panel.")
           window.location.href = "/admin"
-        } else if (callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("/admin")) {
+        } else if (callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("/admin") && !callbackUrl.startsWith("/login")) {
           toast.success(`Welcome back, ${session?.user?.name?.split(" ")[0] || "Athlete"}!`)
           window.location.href = callbackUrl
         } else {
           toast.success(`Welcome back, ${session?.user?.name?.split(" ")[0] || "Athlete"}!`)
-          window.location.href = "/account"
+          try {
+            const orderCheckRes = await fetch("/api/user/has-orders")
+            const orderCheckData = await orderCheckRes.json()
+            if (orderCheckData?.hasOrders) {
+              window.location.href = "/account/orders"
+            } else {
+              window.location.href = "/"
+            }
+          } catch {
+            window.location.href = "/"
+          }
         }
       }
     } catch {

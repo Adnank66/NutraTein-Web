@@ -165,3 +165,9 @@ const server = app.listen(PORT, () => {
 server.on('error', (err) => {
   console.error('Server error:', err.message);
 });
+
+// Remove or comment out your app.listen block:
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Replace it with this so Vercel can run it:
+module.exports = app;

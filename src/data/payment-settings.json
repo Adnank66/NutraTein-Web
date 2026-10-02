@@ -6,7 +6,5 @@
   "enabled": true,
   "enableCOD": false,
   "enableUPI": true,
-  "enableCard": true,
-  "enableCash": false,
-  "razorpayEnabled": false
+  "enableCash": false
 }

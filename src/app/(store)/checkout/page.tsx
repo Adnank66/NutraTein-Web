@@ -27,14 +27,7 @@ function buildPaytmLink(upiId: string, name: string, amount: number, orderRef: s
   return `intent://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("PROTEINX " + orderRef)}#Intent;scheme=upi;package=net.one97.paytm;S.browser_fallback_url=https%3A%2F%2Fpaytm.com;end`
 }
 
-// ── Razorpay types (no @types/razorpay package available) ───────────────────
-declare global {
-  interface Window {
-    Razorpay: any
-  }
-}
-
-type PaymentMethodType = "COD" | "UPI" | "CARD" | "CASH"
+type PaymentMethodType = "COD" | "UPI" | "CASH"
 
 interface PaymentSettings {
   upiId: string
@@ -43,7 +36,6 @@ interface PaymentSettings {
   instructions: string
   enableCOD: boolean
   enableUPI: boolean
-  enableCard: boolean
   enableCash: boolean
 }
 
@@ -93,7 +85,6 @@ const DEFAULT_SETTINGS: PaymentSettings = {
   instructions: "Scan the QR code with any UPI app (Google Pay, PhonePe, Paytm, BHIM) and enter the 12-digit UTR/Txn ID below.",
   enableCOD: true,
   enableUPI: true,
-  enableCard: true,
   enableCash: false,
 }
 
@@ -125,7 +116,6 @@ export default function CheckoutPage() {
   } | null>(null)
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false)
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>(DEFAULT_SETTINGS)
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false)
   const [upiLaunchPending, setUpiLaunchPending] = useState(false)
   const [placedOrderNumber, setPlacedOrderNumber] = useState<string | null>(null)
   const [postOffices, setPostOffices] = useState<string[]>([])
@@ -333,103 +323,9 @@ export default function CheckoutPage() {
     }
   }
 
-  // ── Razorpay payment flow ─────────────────────────────────────────────────
-  const handleRazorpayPayment = async () => {
-    if (!validateForm()) return
-    if (!razorpayLoaded) { toast.error("Payment gateway loading, please wait..."); return }
-    setIsSubmitting(true)
-    try {
-      // 1. Create Razorpay order on backend
-      const rzpRes = await fetch("/api/payment/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: total,
-          currency: "INR",
-          notes: { customerName: formData.name, email: formData.email },
-        }),
-      })
-      const rzpData = await rzpRes.json()
-      if (!rzpRes.ok) throw new Error(rzpData.error || "Failed to initialize payment")
-
-      // 2. Create our order record first
-      const order = await createOrder("CARD")
-      persistOrderCookies(order.orderNumber || order.id)
-
-      // 3. Open Razorpay checkout modal
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || rzpData.key,
-        amount: rzpData.amount,
-        currency: rzpData.currency,
-        order_id: rzpData.orderId,
-        name: "PROTEINX Supplements",
-        description: `Order ${order.orderNumber}`,
-        image: "/favicon.ico",
-        prefill: {
-          name: formData.name,
-          email: formData.email,
-          contact: formData.phone,
-        },
-        notes: {
-          orderNumber: order.orderNumber,
-          address: `${formData.street}, ${formData.city}`,
-        },
-        // These enable UPI app redirect on mobile automatically
-        config: {
-          display: {
-            blocks: {
-              upi: { name: "Pay via UPI Apps", instruments: [{ method: "upi" }] },
-              banks: { name: "Cards & Net Banking", instruments: [{ method: "card" }, { method: "netbanking" }] },
-            },
-            sequence: ["block.upi", "block.banks"],
-            preferences: { show_default_blocks: true },
-          },
-        },
-        theme: { color: "#6366f1" },
-        handler: async (response: any) => {
-          // 4. Verify payment on backend
-          try {
-            const verifyRes = await fetch("/api/payment/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                orderNumber: order.orderNumber,
-              }),
-            })
-            const verifyData = await verifyRes.json()
-            if (!verifyRes.ok) throw new Error(verifyData.error)
-            clearCart()
-            toast.success("Payment successful!")
-            router.push(`/order-confirmation/${order.id}`)
-          } catch (verifyErr: any) {
-            toast.error("Payment verification failed: " + verifyErr.message)
-            router.push(`/order-confirmation/${order.id}?status=pending`)
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setIsSubmitting(false)
-            toast("Payment cancelled. Your order is saved — you can pay later.")
-            router.push(`/order-confirmation/${order.id}?status=pending`)
-          },
-        },
-      }
-
-      const rzp = new window.Razorpay(options)
-      rzp.open()
-    } catch (err: any) {
-      toast.error(err.message || "Payment failed")
-      setIsSubmitting(false)
-    }
-  }
-
   // ── Main place order handler ───────────────────────────────────────────────
   const handlePlaceOrder = () => {
     if (paymentMethod === "COD" || paymentMethod === "CASH") return handlePlaceOrderCOD()
-    if (paymentMethod === "CARD") return handleRazorpayPayment()
     if (paymentMethod === "UPI") return handleUPIManualOrder()
   }
 
@@ -466,13 +362,6 @@ export default function CheckoutPage() {
 
   return (
     <>
-      {/* Load Razorpay checkout.js — this enables UPI app redirect natively */}
-      <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        onLoad={() => setRazorpayLoaded(true)}
-        strategy="lazyOnload"
-      />
-
       <div className="py-10 bg-dark-50/50 dark:bg-zinc-950 min-h-[85vh]">
         <div className="container-custom">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-dark-900 dark:text-white mb-8">
@@ -597,7 +486,6 @@ export default function CheckoutPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <MethodCard id="UPI" icon={QrCode} title="UPI / QR Code (Manual)" subtitle="GPay, PhonePe, Paytm — scan & pay" available={paymentSettings.enableUPI} />
-                  <MethodCard id="CARD" icon={CreditCard} title="Card / UPI via Razorpay" subtitle="Cards, Net Banking, UPI apps — auto verified" available={paymentSettings.enableCard} />
                   <MethodCard id="COD" icon={Banknote} title="Cash on Delivery (COD)" subtitle="Pay ₹ cash when order arrives" available={paymentSettings.enableCOD} />
                   <MethodCard id="CASH" icon={Wallet} title="Cash on Pickup" subtitle="Pay at our pickup point" available={paymentSettings.enableCash} />
                 </div>
@@ -732,20 +620,6 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {/* ── Card / Razorpay Info ────────────────────────────────── */}
-                {paymentMethod === "CARD" && (
-                  <div className="p-4 rounded-xl bg-brand-50/60 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-800 flex items-start gap-2.5 text-xs">
-                    <CreditCard size={16} className="shrink-0 text-brand-600 dark:text-brand-400 mt-0.5" />
-                    <div>
-                      <p className="font-bold text-brand-900 dark:text-brand-200">Razorpay — Secure Auto-Verified Payment</p>
-                      <p className="text-brand-700 dark:text-brand-400 text-[11px] mt-0.5">
-                        Supports Cards (Visa/Mastercard), Net Banking, UPI with app redirect (GPay, PhonePe, Paytm), and Wallets.
-                        Payment is automatically confirmed — no manual verification needed.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 {/* ── COD Info ───────────────────────────────────────────── */}
                 {(paymentMethod === "COD" || paymentMethod === "CASH") && (
                   <div className="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
@@ -846,8 +720,6 @@ export default function CheckoutPage() {
                   >
                     {isSubmitting ? (
                       <><Loader2 size={16} className="animate-spin" /> Processing...</>
-                    ) : paymentMethod === "CARD" ? (
-                      <><CreditCard size={15} /> Pay {formatPrice(total)} via Razorpay</>
                     ) : paymentMethod === "UPI" ? (
                       <><QrCode size={15} /> Create Order & Pay via UPI</>
                     ) : (

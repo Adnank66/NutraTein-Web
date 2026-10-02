@@ -52,6 +52,9 @@ next-env.d.ts
 # large media / demo folders (not needed on Vercel)
 recomm animation video/
 top sellers animation/assets/*.mp4
+frontend/Nutra Tein Website/
+frontend/Nutra-Tein-Website/
+frontend/NutraTein-Web/
 
 # OS files
 Thumbs.db

@@ -25,9 +25,7 @@ function getSettings() {
     enabled: true,
     enableCOD: true,
     enableUPI: true,
-    enableCard: true,
     enableCash: false,
-    razorpayEnabled: false,
   }
 }
 
@@ -53,9 +51,7 @@ export async function POST(req: Request) {
       // Payment method toggles
       ...(body.enableCOD !== undefined && { enableCOD: body.enableCOD }),
       ...(body.enableUPI !== undefined && { enableUPI: body.enableUPI }),
-      ...(body.enableCard !== undefined && { enableCard: body.enableCard }),
       ...(body.enableCash !== undefined && { enableCash: body.enableCash }),
-      ...(body.razorpayEnabled !== undefined && { razorpayEnabled: body.razorpayEnabled }),
     }
 
     ensureDir()

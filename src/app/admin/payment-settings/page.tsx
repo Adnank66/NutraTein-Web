@@ -28,11 +28,7 @@ const DEFAULT_SETTINGS = {
   // Payment method toggles
   enableCOD: true,
   enableUPI: true,
-  enableCard: true,
   enableCash: false,
-  // Razorpay
-  razorpayEnabled: false,
-  razorpayNote: "Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to your .env.local file from dashboard.razorpay.com",
 }
 
 const cleanImagePath = (path: string | undefined | null): string => {
@@ -180,7 +176,7 @@ export default function AdminPaymentSettingsPage() {
           Payment Methods & UPI Configuration
         </h1>
         <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-          Manage all payment options shown to customers at checkout — UPI, COD, Card, and Razorpay gateway.
+          Manage all payment options shown to customers at checkout — UPI, COD, and Cash on Pickup.
         </p>
       </div>
 
@@ -205,13 +201,7 @@ export default function AdminPaymentSettingsPage() {
               enabled={settings.enableCOD}
               onChange={(v) => setSettings((p) => ({ ...p, enableCOD: v }))}
             />
-            <MethodToggle
-              icon={CreditCard}
-              label="Card / Net Banking"
-              desc="Via Razorpay — Cards, UPI, Wallets"
-              enabled={settings.enableCard}
-              onChange={(v) => setSettings((p) => ({ ...p, enableCard: v }))}
-            />
+
             <MethodToggle
               icon={Wallet}
               label="Cash on Pickup"
@@ -222,73 +212,7 @@ export default function AdminPaymentSettingsPage() {
           </div>
         </div>
 
-        {/* ── SECTION 2: Razorpay Gateway ──────────────────────────────────── */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl p-6 space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">Razorpay Payment Gateway</h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Enables Cards, Net Banking, Wallets, and automatic UPI verification
-              </p>
-            </div>
-            <span className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full ${
-              process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_live")
-                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
-            }`}>
-              {process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_live") ? "LIVE MODE" : "TEST MODE"}
-            </span>
-          </div>
 
-          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
-            <div className="flex items-start gap-2">
-              <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <div className="text-xs text-amber-800 dark:text-amber-300 space-y-1">
-                <p className="font-bold">Setup Required</p>
-                <p>Add your Razorpay API keys to <code className="bg-amber-100 dark:bg-amber-900/50 px-1 rounded">.env.local</code>:</p>
-                <div className="font-mono bg-amber-100 dark:bg-amber-900/30 rounded-lg p-3 mt-2 space-y-1 text-[11px]">
-                  <p>RAZORPAY_KEY_ID=rzp_test_xxxxx</p>
-                  <p>RAZORPAY_KEY_SECRET=xxxxx</p>
-                  <p>NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxxxx</p>
-                </div>
-                <p className="mt-1">
-                  Get keys from:{" "}
-                  <a
-                    href="https://dashboard.razorpay.com/app/keys"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline font-bold"
-                  >
-                    dashboard.razorpay.com/app/keys ↗
-                  </a>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3 space-y-1">
-              <p className="font-bold text-zinc-700 dark:text-zinc-300">✅ What Razorpay handles:</p>
-              <ul className="text-zinc-500 dark:text-zinc-400 space-y-0.5 list-disc list-inside">
-                <li>Credit & Debit Cards (Visa/MC/Amex)</li>
-                <li>UPI with direct app redirect (GPay, PhonePe)</li>
-                <li>Net Banking (50+ banks)</li>
-                <li>Wallets (Paytm, Amazon Pay)</li>
-                <li>Auto payment verification</li>
-              </ul>
-            </div>
-            <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3 space-y-1">
-              <p className="font-bold text-zinc-700 dark:text-zinc-300">🔗 Redirect flows supported:</p>
-              <ul className="text-zinc-500 dark:text-zinc-400 space-y-0.5 list-disc list-inside">
-                <li>PhonePe intent redirect</li>
-                <li>Google Pay intent</li>
-                <li>Paytm app redirect</li>
-                <li>BHIM & other UPI apps</li>
-                <li>QR scan fallback</li>
-              </ul>
-            </div>
-          </div>
-        </div>
 
         {/* ── SECTION 3: Manual UPI (QR Code) ─────────────────────────────── */}
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl p-6 space-y-5">
