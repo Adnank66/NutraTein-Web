@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useCartStore } from "@/store/cart"
 import { formatPrice } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import {
   ShieldCheck, Banknote, QrCode, Copy, Check, Info, Tag, X,
   Loader2, CreditCard, Smartphone, Wallet, CheckCircle2, ExternalLink,
@@ -90,8 +91,16 @@ const DEFAULT_SETTINGS: PaymentSettings = {
 
 export default function CheckoutPage() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const { items, getSubtotal, clearCart } = useCartStore()
   const t = useLanguageStore((s) => s.t)
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      toast.error("Please login to complete your order")
+      router.push(`/login?callbackUrl=/checkout`)
+    }
+  }, [status, router])
 
   const [formData, setFormData] = useState({
     name: "",

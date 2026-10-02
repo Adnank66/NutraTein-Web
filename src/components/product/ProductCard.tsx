@@ -134,6 +134,20 @@ export default function ProductCard({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    
+    // Check authentication before adding to cart
+    if (typeof window !== 'undefined') {
+      const match = document.cookie.match(/(?:^|; )next-auth\.session-token=([^;]*)/) || document.cookie.match(/(?:^|; )__Secure-next-auth\.session-token=([^;]*)/)
+      
+      // We do a soft check using cookies to avoid useSession re-rendering every card
+      // If no token exists, force them to login
+      if (!match) {
+        toast.error("Please login first to add items to cart")
+        window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`
+        return
+      }
+    }
+
     addItem({
       id: variantId || id,
       productId: id,

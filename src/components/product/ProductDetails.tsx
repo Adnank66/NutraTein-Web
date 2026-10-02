@@ -116,6 +116,17 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   }
 
   const handleAddToCart = () => {
+    // Check authentication before adding to cart
+    if (typeof window !== 'undefined') {
+      const match = document.cookie.match(/(?:^|; )next-auth\.session-token=([^;]*)/) || document.cookie.match(/(?:^|; )__Secure-next-auth\.session-token=([^;]*)/)
+      
+      if (!match) {
+        toast.error("Please login first to add items to cart")
+        window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`
+        return
+      }
+    }
+
     const itemFlavor = selectedFlavor || selectedVariant?.flavor || product.flavor || "Standard"
     const itemSize = selectedVariant?.size || selectedVariant?.weight || "Standard"
     const variantId = selectedVariant?.id
