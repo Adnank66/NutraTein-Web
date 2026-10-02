@@ -5,7 +5,7 @@ if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL =
     process.env.MONGO_URI ||
     process.env.MONGODB_URI ||
-    "mongodb+srv://adnankazi275_db_user:adnan123@cluster0.on7y9sy.mongodb.net/Proteinweb?retryWrites=true&w=majority&tlsAllowInvalidCertificates=true"
+    "mongodb+srv://adnankazi275_db_user:xPApn9ThZiQHtiSx@cluster0.ei0fs04.mongodb.net/nutratein-website?retryWrites=true&w=majority&tlsAllowInvalidCertificates=true"
 }
 
 const globalForPrisma = globalThis as unknown as {
