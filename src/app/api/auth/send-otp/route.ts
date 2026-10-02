@@ -18,11 +18,21 @@ export async function POST(req: Request) {
 
     const cleanEmail = email.toLowerCase().trim()
 
+    // Helper to prevent Vercel 10s timeout crashes
+    const withTimeout = <T>(promise: Promise<T>, ms: number, message: string): Promise<T> => {
+      return Promise.race([
+        promise,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error(message)), ms))
+      ])
+    }
+
     // If registering, check if email is already registered and verified
     if (type === "REGISTER") {
-      const existingUser = await prisma.user.findUnique({
-        where: { email: cleanEmail },
-      })
+      const existingUser = await withTimeout(
+        prisma.user.findUnique({ where: { email: cleanEmail } }),
+        4000,
+        "Database connection timed out. Please check MongoDB Network Access (0.0.0.0/0)."
+      )
       if (existingUser && existingUser.password) {
         return NextResponse.json(
           { error: "This email is already registered. Please sign in instead." },
@@ -37,21 +47,27 @@ export async function POST(req: Request) {
 
     // Delete any previous OTPs for this email
     try {
-      await prisma.emailOTP.deleteMany({
-        where: { email: cleanEmail },
-      })
+      await withTimeout(
+        prisma.emailOTP.deleteMany({ where: { email: cleanEmail } }),
+        3000,
+        "DB Timeout"
+      )
     } catch (e) {
       // Ignore cleanup error
     }
 
     // Save new OTP
-    await prisma.emailOTP.create({
-      data: {
-        email: cleanEmail,
-        code: otp,
-        expiresAt,
-      },
-    })
+    await withTimeout(
+      prisma.emailOTP.create({
+        data: {
+          email: cleanEmail,
+          code: otp,
+          expiresAt,
+        },
+      }),
+      4000,
+      "Database connection timed out when saving OTP."
+    )
 
     // Email Template
     const html = `
@@ -87,10 +103,14 @@ export async function POST(req: Request) {
     `
 
     // Send email using SMTP
-    const mailResult = await sendMail(
-      cleanEmail,
-      `🔑 ${otp} is your NUTRA TEIN Verification Code`,
-      html
+    const mailResult = await withTimeout(
+      sendMail(
+        cleanEmail,
+        `🔑 ${otp} is your NUTRA TEIN Verification Code`,
+        html
+      ),
+      5000,
+      "SMTP Email sending timed out. Check your Vercel SMTP environment variables and App Password."
     )
 
     console.log(`📨 [OTP Sent] Email: ${cleanEmail}, Code: ${otp}, Delivered: ${mailResult.success}`)
@@ -98,7 +118,6 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: "Verification code sent to your email.",
-      // Include debug OTP in development for easy local verification without waiting for inbox
       devCode: process.env.NODE_ENV !== "production" ? otp : undefined,
     })
   } catch (error: any) {

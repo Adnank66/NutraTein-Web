@@ -258,8 +258,7 @@ export default function ProductCard({
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 className={cn(
-                  "w-full h-full transition-transform duration-500 ease-out group-hover:scale-105",
-                  slug?.toLowerCase().includes("shaker") ? "object-cover p-0" : "object-contain p-2"
+                  "w-full h-full transition-transform duration-500 ease-out group-hover:scale-105 object-cover"
                 )}
               />
             </Link>

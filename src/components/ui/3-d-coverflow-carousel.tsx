@@ -530,7 +530,7 @@ export default function CoverflowCarousel({
                       fill
                       sizes="(max-width: 640px) 320px, 410px"
                       priority={isActive}
-                      className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover p-0 transition-transform duration-500 group-hover:scale-105"
                       onError={() => {
                         setImageErrors((prev) => ({ ...prev, [product.id]: true }))
                       }}
