@@ -1,28 +1,20 @@
 import { PrismaClient } from "@prisma/client"
 
 // ─────────────────────────────────────────────────────────────────────────────
-// NUTRA TEIN — Prisma MongoDB Connection
-//
-// Root cause of local "unable to verify first certificate":
-//   Windows Node.js does NOT include Let's Encrypt root CAs by default.
-//   MongoDB Atlas uses Let's Encrypt. So local dev needs tlsInsecure=true.
-//   On Vercel (Linux), this is NOT needed — certs verify fine.
-//
-// We detect local vs production using NODE_ENV and apply the right URL.
+// WINDOWS TLS FIX (local dev only)
+// MongoDB Atlas uses Let's Encrypt certs. Windows Node.js doesn't include
+// Let's Encrypt root CAs. This tells Node.js to skip TLS verification ONLY
+// in local development. On Vercel (Linux) this block never runs.
 // ─────────────────────────────────────────────────────────────────────────────
+if (process.env.NODE_ENV !== "production") {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+}
 
-const BASE_URL =
+const DB_URL =
   process.env.DATABASE_URL ||
   process.env.MONGO_URI ||
   process.env.MONGODB_URI ||
   "mongodb+srv://adnankazi275_db_user:xPApn9ThZiQHtiSx@cluster0.ei0fs04.mongodb.net/nutratein-website?retryWrites=true&w=majority&appName=Cluster0"
-
-// In local Windows dev, add tlsInsecure to bypass Windows CA chain issues.
-// In production (Vercel Linux) use the clean URL — no bypass needed.
-const DB_URL =
-  process.env.NODE_ENV !== "production" && !BASE_URL.includes("tlsInsecure")
-    ? BASE_URL + "&tlsInsecure=true"
-    : BASE_URL
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
