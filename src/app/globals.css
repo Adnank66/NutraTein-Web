@@ -224,35 +224,6 @@
     -webkit-perspective: 1000px;
   }
 
-  /* =========================================================
-     MOBILE-FIRST RESPONSIVE FIXES
-     ========================================================= */
-
-  /* Ensure all images are responsive by default */
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-
-  /* Prevent tables from causing horizontal overflow */
-  table {
-    width: 100%;
-    overflow-x: auto;
-    display: block;
-  }
-
-  /* Better touch targets — minimum 44px */
-  button, a, [role="button"] {
-    min-height: 36px;
-  }
-
-  /* Prevent fixed-width elements from overflowing */
-  .container-custom {
-    width: 100%;
-    overflow-x: hidden;
-  }
-
-  /* Safe area for notched phones (iPhone X+) */
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -260,7 +231,21 @@
   .safe-area-top {
     padding-top: env(safe-area-inset-top, 0px);
   }
+}
 
+/* =========================================================
+   MOBILE-FIRST RESPONSIVE FIXES (plain CSS — outside @layer)
+   ========================================================= */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 @keyframes progress-bar {
   from { width: 0% }
