@@ -177,8 +177,8 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center gap-1 sm:gap-2">
-              <span className="hidden sm:flex"><LanguageSwitcher /></span>
-              <span className="hidden sm:block"><ThemeToggle /></span>
+              <LanguageSwitcher />
+              <ThemeToggle />
 
               <button
                 onClick={() => setSearchOpen(true)}
@@ -188,10 +188,8 @@ export default function Header() {
                 <Search size={19} />
               </button>
 
-              <span className="hidden sm:block"><NotificationsDropdown /></span>
+              <NotificationsDropdown />
 
-
-              <span className="hidden sm:block">
               <Link
                 href="/account/wishlist"
                 className="btn-ghost p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white relative"
@@ -204,7 +202,6 @@ export default function Header() {
                   </span>
                 )}
               </Link>
-              </span>
 
               <button
                 onClick={openCart}
