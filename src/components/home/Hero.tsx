@@ -328,9 +328,9 @@ export default function Hero() {
             </div>
 
           {/* Bottom Thumbnails / Pagination Dots Strip */}
-          <div className="bg-black/90 border-t border-zinc-800 p-2 sm:p-3 flex items-center justify-between gap-3 flex-wrap">
-            {/* Banner Track Selectors */}
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1">
+          <div className="bg-black/90 border-t border-zinc-800 px-3 py-2 flex items-center justify-between gap-2 overflow-hidden">
+            {/* Banner Track Selectors - scrollable on mobile */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 flex-1 min-w-0">
               {banners.map((b, idx) => {
                 const isActive = idx === currentIndex
                 return (
@@ -338,27 +338,27 @@ export default function Hero() {
                     key={b.id + idx}
                     type="button"
                     onClick={() => setCurrentIndex(idx)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                       isActive
                         ? "bg-red-600 text-white shadow-md scale-105"
                         : "bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
                     }`}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-white shrink-0" />
                     <span>{b.title.split(" ")[0]}</span>
-                    <span className="text-[10px] opacity-75 font-normal">#{idx + 1}</span>
+                    <span className="hidden sm:inline text-[10px] opacity-75 font-normal">#{idx + 1}</span>
                   </button>
                 )
               })}
             </div>
 
-            {/* Slide Counter & Pause Status */}
-            <div className="flex items-center gap-3 text-xs text-zinc-400">
+            {/* Slide Counter */}
+            <div className="flex items-center gap-2 text-xs text-zinc-400 shrink-0">
               <span className="font-mono text-[11px]">
                 <strong className="text-white">{currentIndex + 1}</strong> / {banners.length}
               </span>
               <span className="hidden md:inline text-[10px] text-zinc-500">
-                {isPaused ? "❚❚ Paused on Hover" : "▶ Auto-playing"}
+                {isPaused ? "❚❚ Paused" : "▶ Auto"}
               </span>
             </div>
           </div>

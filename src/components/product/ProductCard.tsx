@@ -63,17 +63,23 @@ export default function ProductCard({
   const [tiltStyle, setTiltStyle] = useState<React.CSSProperties>({})
   const [text3dStyle, setText3dStyle] = useState<React.CSSProperties>({})
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [isMobile, setIsMobile] = useState(true)
+  // Track touch start Y to distinguish scroll vs tap
+  const touchStartY = useRef<number>(0)
+  const isTouchScrolling = useRef<boolean>(false)
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
       setPrefersReducedMotion(mq.matches)
+      // Only enable 3D tilt on non-touch devices (desktops)
+      setIsMobile(window.matchMedia("(hover: none) and (pointer: coarse)").matches)
     }
   }, [])
 
-  // Desktop Mouse Tilt & Zoom
+  // Desktop Mouse Tilt & Zoom — desktop only
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current || prefersReducedMotion) return
+    if (!cardRef.current || prefersReducedMotion || isMobile) return
     const { left, top, width, height } = cardRef.current.getBoundingClientRect()
     const x = e.clientX - left
     const y = e.clientY - top
@@ -92,7 +98,7 @@ export default function ProductCard({
   }
 
   const handleMouseLeave = () => {
-    if (prefersReducedMotion) return
+    if (prefersReducedMotion || isMobile) return
     setTiltStyle({
       transform: "perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
       transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
@@ -103,64 +109,27 @@ export default function ProductCard({
     })
   }
 
-  // Mobile / Touch Finger Rotation & Zoom-In / Zoom-Out
+  // MOBILE: Completely disabled — let native scroll work uninterrupted
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!cardRef.current || prefersReducedMotion || !e.touches[0]) return
-    const { left, top, width, height } = cardRef.current.getBoundingClientRect()
-    const touch = e.touches[0]
-    const x = touch.clientX - left
-    const y = touch.clientY - top
-
-    const normX = Math.max(-1, Math.min(1, (x - width / 2) / (width / 2)))
-    const normY = Math.max(-1, Math.min(1, (y - height / 2) / (height / 2)))
-
-    const rotateX = -normY * 10
-    const rotateY = normX * 10
-
-    setTiltStyle({
-      transform: `perspective(850px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.045, 1.045, 1.045)`,
-      transition: "transform 0.12s ease-out",
-    })
-    setText3dStyle({
-      transform: `translateZ(26px) rotateX(${(-normY * 8).toFixed(2)}deg) rotateY(${(normX * 8).toFixed(2)}deg)`,
-      transition: "transform 0.12s ease-out",
-    })
+    if (!e.touches[0]) return
+    touchStartY.current = e.touches[0].clientY
+    isTouchScrolling.current = false
   }
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!cardRef.current || prefersReducedMotion || !e.touches[0]) return
-    const { left, top, width, height } = cardRef.current.getBoundingClientRect()
-    const touch = e.touches[0]
-    const x = touch.clientX - left
-    const y = touch.clientY - top
-
-    const normX = Math.max(-1, Math.min(1, (x - width / 2) / (width / 2)))
-    const normY = Math.max(-1, Math.min(1, (y - height / 2) / (height / 2)))
-
-    const rotateX = -normY * 11
-    const rotateY = normX * 11
-
-    setTiltStyle({
-      transform: `perspective(850px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.045, 1.045, 1.045)`,
-      transition: "transform 0.06s ease-out",
-    })
-    setText3dStyle({
-      transform: `translateZ(26px) rotateX(${(-normY * 9).toFixed(2)}deg) rotateY(${(normX * 9).toFixed(2)}deg)`,
-      transition: "transform 0.06s ease-out",
-    })
+    if (!e.touches[0]) return
+    const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current)
+    // If user moves more than 8px vertically, it's a scroll — mark it
+    if (deltaY > 8) {
+      isTouchScrolling.current = true
+    }
   }
 
   const handleTouchEnd = () => {
-    if (prefersReducedMotion) return
-    setTiltStyle({
-      transform: "perspective(850px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
-      transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
-    })
-    setText3dStyle({
-      transform: "translateZ(0px) rotateX(0deg) rotateY(0deg)",
-      transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
-    })
+    // Reset — nothing to do, scroll was native
+    isTouchScrolling.current = false
   }
+
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()

@@ -50,6 +50,28 @@
 
   html {
     scroll-behavior: smooth;
+    /* CRITICAL: Prevent horizontal overflow on all mobile devices */
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #18181b;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent horizontal overflow */
+    overflow-x: hidden;
+    /* Improve text rendering on mobile */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Better touch scrolling */
+    -webkit-overflow-scrolling: touch;
   }
 
   ::selection {
@@ -201,7 +223,44 @@
     perspective: 1000px;
     -webkit-perspective: 1000px;
   }
-}
+
+  /* =========================================================
+     MOBILE-FIRST RESPONSIVE FIXES
+     ========================================================= */
+
+  /* Ensure all images are responsive by default */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Prevent tables from causing horizontal overflow */
+  table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+  }
+
+  /* Better touch targets — minimum 44px */
+  button, a, [role="button"] {
+    min-height: 36px;
+  }
+
+  /* Prevent fixed-width elements from overflowing */
+  .container-custom {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Safe area for notched phones (iPhone X+) */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
 
 @keyframes progress-bar {
   from { width: 0% }
