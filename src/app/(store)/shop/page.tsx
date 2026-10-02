@@ -233,10 +233,10 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     : "All Fitness Supplements"
 
   return (
-    <div className="bg-dark-50/50 py-8 min-h-[80vh]">
-      <div className="container-custom">
+    <div className="bg-zinc-50 py-4 sm:py-8 min-h-[80vh]">
+      <div className="container-custom px-3 sm:px-6">
         {/* Breadcrumb & Title */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="flex items-center gap-2 text-xs text-dark-400 mb-2">
             <Link href="/" className="hover:text-dark-700">Home</Link>
             <span>/</span>
@@ -248,17 +248,42 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
               </>
             )}
           </div>
-          <h1 className="text-3xl font-extrabold text-dark-900">
-            {categoryTitle}
-          </h1>
-          <p className="text-sm text-dark-500 mt-1">
-            Showing {paginatedProducts.length} of {totalCount} authentic products with verified lab pricing
+          <h1 className="text-xl sm:text-3xl font-extrabold text-dark-900">{categoryTitle}</h1>
+          <p className="text-xs text-dark-500 mt-1">
+            {paginatedProducts.length} of {totalCount} products
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Filters */}
-          <div className="lg:col-span-1">
+        {/* Quick Category Scrollable Chips - Full width on mobile */}
+        <div className="mb-4 -mx-3 sm:mx-0 px-3 sm:px-0 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-1.5 w-max sm:w-auto sm:flex-wrap">
+            <Link
+              href="/shop"
+              className={`badge text-[11px] whitespace-nowrap transition-colors ${
+                !categorySlug ? "bg-brand-600 text-white font-bold" : "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-100"
+              }`}
+            >
+              All
+            </Link>
+            {AUTHENTIC_CATEGORIES.map((c) => (
+              <Link
+                key={c.slug}
+                href={"/shop?category=" + c.slug}
+                className={`badge text-[11px] whitespace-nowrap transition-colors ${
+                  categorySlug === c.slug
+                    ? "bg-brand-600 text-white font-bold"
+                    : "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-100"
+                }`}
+              >
+                {c.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
+          {/* Sidebar Filters — hidden on mobile */}
+          <div className="hidden lg:block lg:col-span-1">
             <ProductFilters
               categories={AUTHENTIC_CATEGORIES}
               brands={brands}
@@ -267,54 +292,20 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           </div>
 
           {/* Product Listing */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Quick Links Header */}
-            <div className="card p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="text-xs text-dark-500 font-medium">Quick Categories:</span>
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-                  <Link
-                    href="/shop"
-                    className={`badge text-[11px] whitespace-nowrap transition-colors ${
-                      !categorySlug ? "bg-brand-600 text-white font-bold" : "bg-dark-100 text-dark-700 hover:bg-dark-200"
-                    }`}
-                  >
-                    All
-                  </Link>
-                  {AUTHENTIC_CATEGORIES.map((c) => (
-                    <Link
-                      key={c.slug}
-                      href={"/shop?category=" + c.slug}
-                      className={`badge text-[11px] whitespace-nowrap transition-colors ${
-                        categorySlug === c.slug
-                          ? "bg-brand-600 text-white font-bold"
-                          : "bg-dark-100 text-dark-700 hover:bg-dark-200"
-                      }`}
-                    >
-                      {c.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-
+          <div className="lg:col-span-3 space-y-4 sm:space-y-6">
             {/* Empty State */}
             {paginatedProducts.length === 0 ? (
               <div className="card p-12 text-center space-y-4">
-                <div className="w-12 h-12 mx-auto rounded-full bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl">
-                  !
-                </div>
+                <div className="w-12 h-12 mx-auto rounded-full bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl">!</div>
                 <h3 className="text-lg font-bold text-dark-900">No products found</h3>
                 <p className="text-xs text-dark-500 max-w-sm mx-auto">
-                  No verified supplements match the selected filter combination. Only products with authentic images and valid pricing are shown.
+                  No verified supplements match the selected filter combination.
                 </p>
-                <Link href="/shop" className="btn-secondary text-xs inline-flex mt-2">
-                  Reset All Filters
-                </Link>
+                <Link href="/shop" className="btn-secondary text-xs inline-flex mt-2">Reset All Filters</Link>
               </div>
             ) : (
-              /* Product Grid */
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              /* Product Grid — 2 cols on mobile, 3 on xl */
+              <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
                 {paginatedProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -342,7 +333,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 pt-6">
+              <div className="flex justify-center items-center gap-2 pt-4 sm:pt-6">
                 {Array.from({ length: totalPages }).map((_, idx) => {
                   const pageNum = idx + 1
                   const isCurrent = pageNum === page

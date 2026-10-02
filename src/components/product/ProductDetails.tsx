@@ -177,11 +177,11 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 sm:space-y-12">
       {/* Top Product Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-        {/* Left Gallery */}
-        <div className="lg:col-span-6 sticky top-24 z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start">
+        {/* Left Gallery — sticky only on desktop */}
+        <div className="lg:col-span-6 lg:sticky lg:top-24">
           <ProductGallery images={images} productName={product.name} />
         </div>
 

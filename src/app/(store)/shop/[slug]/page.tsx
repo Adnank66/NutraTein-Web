@@ -174,21 +174,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   return (
-    <div className="py-8 bg-white min-h-[80vh]">
-      <div className="container-custom">
-        <div className="flex items-center gap-2 text-xs text-dark-400 mb-6">
-          <Link href="/" className="hover:text-dark-700">Home</Link>
+    <div className="py-4 sm:py-8 bg-white min-h-[80vh]">
+      <div className="container-custom px-3 sm:px-6">
+        <div className="flex items-center gap-1.5 text-xs text-dark-400 mb-4 overflow-x-auto scrollbar-none whitespace-nowrap">
+          <Link href="/" className="hover:text-dark-700 shrink-0">Home</Link>
           <span>/</span>
-          <Link href="/shop" className="hover:text-dark-700">Shop</Link>
+          <Link href="/shop" className="hover:text-dark-700 shrink-0">Shop</Link>
           <span>/</span>
-          <Link href={`/shop?category=${product.category.slug}`} className="hover:text-dark-700">
+          <Link href={`/shop?category=${product.category.slug}`} className="hover:text-dark-700 shrink-0">
             {product.category.name}
           </Link>
           <span>/</span>
-          <span className="text-dark-900 font-semibold truncate max-w-xs">{product.name}</span>
+          <span className="text-dark-900 font-semibold truncate max-w-[140px] sm:max-w-xs">{product.name}</span>
         </div>
 
-        <div className="mb-16">
+        <div className="mb-8 sm:mb-16">
           <ProductDetails product={product} />
         </div>
 

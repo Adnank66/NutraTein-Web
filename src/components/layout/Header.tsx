@@ -185,30 +185,15 @@ export default function Header() {
                 className="btn-ghost p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white"
                 aria-label="Search"
               >
-                <Search size={19} />
+                <Search size={18} />
               </button>
-
-              <NotificationsDropdown />
-
-              <Link
-                href="/account/wishlist"
-                className="btn-ghost p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white relative"
-                aria-label="Wishlist"
-              >
-                <Heart size={19} />
-                {mounted && wishlistCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center animate-scale-in">
-                    {wishlistCount > 9 ? "9+" : wishlistCount}
-                  </span>
-                )}
-              </Link>
 
               <button
                 onClick={openCart}
                 className="btn-ghost p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white relative"
                 aria-label="Cart"
               >
-                <ShoppingCart size={19} />
+                <ShoppingCart size={18} />
                 {mounted && cartCount > 0 && (
                   <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-brand-600 text-white text-[10px] font-bold flex items-center justify-center animate-scale-in">
                     {cartCount > 9 ? "9+" : cartCount}
@@ -258,6 +243,22 @@ export default function Header() {
                         >
                           <Package size={14} /> My Orders
                         </Link>
+                        {/* Wishlist & Notifications in dropdown when logged in */}
+                        <Link
+                          href="/account/wishlist"
+                          className="flex items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <span className="flex items-center gap-2"><Heart size={14} /> Wishlist</span>
+                          {mounted && wishlistCount > 0 && (
+                            <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">
+                              {wishlistCount > 9 ? "9+" : wishlistCount}
+                            </span>
+                          )}
+                        </Link>
+                        <div className="px-1 py-1" onClick={() => setUserMenuOpen(false)}>
+                          <NotificationsDropdown />
+                        </div>
                         <Link
                           href="/account/settings"
                           className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
@@ -279,7 +280,7 @@ export default function Header() {
                 <div className="flex items-center gap-1.5">
                   <Link
                     href="/login"
-                    className="hidden sm:inline-flex btn-secondary py-2 px-3.5 text-xs font-semibold"
+                    className="btn-secondary py-1.5 px-3 text-xs font-semibold"
                   >
                     Sign In
                   </Link>
