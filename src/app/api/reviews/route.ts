@@ -116,25 +116,22 @@ export async function GET(req: Request) {
     })
   } catch (error: any) {
     console.error("Error fetching reviews:", error)
-    return NextResponse.json(
-      {
-        reviews: [],
-        summary: {
-          averageRating: 0,
-          totalReviews: 0,
-          fiveStarPercentage: 0,
-          breakdown: [
-            { star: 5, count: 0, percentage: 0 },
-            { star: 4, count: 0, percentage: 0 },
-            { star: 3, count: 0, percentage: 0 },
-            { star: 2, count: 0, percentage: 0 },
-            { star: 1, count: 0, percentage: 0 },
-          ],
-        },
-        error: "Failed to load customer reviews",
+    // Return 200 with empty data — frontend handles gracefully without showing an error
+    return NextResponse.json({
+      reviews: [],
+      summary: {
+        averageRating: 0,
+        totalReviews: 0,
+        fiveStarPercentage: 0,
+        breakdown: [
+          { star: 5, count: 0, percentage: 0 },
+          { star: 4, count: 0, percentage: 0 },
+          { star: 3, count: 0, percentage: 0 },
+          { star: 2, count: 0, percentage: 0 },
+          { star: 1, count: 0, percentage: 0 },
+        ],
       },
-      { status: 500 }
-    )
+    })
   }
 }
 
