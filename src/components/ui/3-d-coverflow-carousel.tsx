@@ -129,6 +129,10 @@ export default function CoverflowCarousel({
   const touchEndX = useRef<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  // Note: isMobile branching was removed — the coverflow renders the same
+  // 3D layout on all devices using responsive Tailwind classes, which prevents
+  // the duplicate card issue that appeared on mobile when only the active card was shown.
+
   // Detect prefers-reduced-motion
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -393,7 +397,7 @@ export default function CoverflowCarousel({
 
           {/* Category Filter Tabs */}
           {categories.length > 2 && (
-            <div className="mt-6 flex items-center justify-center gap-1.5 flex-wrap">
+            <div className="relative z-40 pointer-events-auto mt-6 mb-4 sm:mb-6 flex items-center justify-center gap-1.5 flex-wrap">
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -415,32 +419,31 @@ export default function CoverflowCarousel({
         </div>
 
         {/* 3D Coverflow Stage */}
-        <div className="relative w-full h-[620px] sm:h-[660px] flex items-center justify-center [perspective:1200px]">
+        <div className="relative w-full h-[440px] sm:h-[465px] lg:h-[480px] mt-8 sm:mt-10 flex items-start justify-center pt-2 [perspective:1200px]">
           {items.map((product, index) => {
             const offset = getOffset(index)
             const isActive = offset === 0
             const isPrev = offset === -1
             const isNext = offset === 1
             const isVisible = Math.abs(offset) <= 1
-
             if (!isVisible) return null
 
-            // 3D positioning styles
+            // 3D positioning styles: Uniform scale across cards
             const transformStyle = prefersReducedMotion
               ? {
-                  transform: `translateX(${offset * 105}%) scale(${isActive ? 1 : 0.9})`,
-                  zIndex: isActive ? 30 : 10,
-                  opacity: isActive ? 1 : 0.4
+                  transform: `translateX(${offset * 105}%) scale(1)`,
+                  zIndex: isActive ? 20 : 10,
+                  opacity: isActive ? 1 : 0.5
                 }
               : {
                   transform: isActive
                     ? "translateX(0%) scale(1) rotateY(0deg) translateZ(0px)"
                     : offset < 0
-                    ? "translateX(-64%) scale(0.84) rotateY(26deg) translateZ(-90px)"
-                    : "translateX(64%) scale(0.84) rotateY(-26deg) translateZ(-90px)",
-                  zIndex: isActive ? 30 : 20 - Math.abs(offset),
-                  opacity: isActive ? 1 : 0.72,
-                  filter: isActive ? "brightness(1)" : "brightness(0.75)"
+                    ? "translateX(-60%) scale(0.96) rotateY(12deg) translateZ(-40px)"
+                    : "translateX(60%) scale(0.96) rotateY(-12deg) translateZ(-40px)",
+                  zIndex: isActive ? 20 : 10,
+                  opacity: isActive ? 1 : 0.8,
+                  filter: isActive ? "brightness(1)" : "brightness(0.85)"
                 }
 
             const isWishlisted = isInWishlist(product.id)
@@ -469,57 +472,57 @@ export default function CoverflowCarousel({
                   ...transformStyle,
                   transition: "transform 900ms cubic-bezier(0.25, 1, 0.5, 1), opacity 900ms cubic-bezier(0.25, 1, 0.5, 1), filter 900ms cubic-bezier(0.25, 1, 0.5, 1)"
                 }}
-                className={`absolute w-[320px] sm:w-[380px] lg:w-[410px] rounded-3xl p-5 sm:p-6 cursor-pointer select-none transition-shadow will-change-transform ${
+                className={`absolute w-[240px] sm:w-[280px] lg:w-[305px] h-[410px] sm:h-[435px] rounded-2xl p-3 sm:p-3.5 cursor-pointer select-none transition-shadow will-change-transform flex flex-col justify-between ${
                   isActive
                     ? "bg-white/95 dark:bg-zinc-900/90 backdrop-blur-xl border-2 border-brand-500/50 shadow-2xl shadow-brand-500/20 ring-1 ring-brand-500/30"
                     : "bg-white/80 dark:bg-zinc-900/75 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-lg hover:border-zinc-300 dark:hover:border-zinc-700"
                 }`}
               >
                 {/* Card Top Strip: Badges + Wishlist & Compare */}
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-1.5 flex-wrap">
+                <div className="flex items-center justify-between gap-1.5 mb-2">
+                  <div className="flex items-center gap-1 flex-wrap">
                     {product.badge && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-600 text-white shadow-sm">
-                        <Flame className="w-3 h-3 fill-white" />
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-brand-600 text-white shadow-sm">
+                        <Flame className="w-2.5 h-2.5 fill-white" />
                         {product.badge}
                       </span>
                     )}
                     {displayDiscount !== undefined && displayDiscount > 0 && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                         {displayDiscount}% OFF
                       </span>
                     )}
                   </div>
 
                   {/* Micro Actions */}
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <button
                       onClick={(e) => handleCompareToggle(e, product)}
                       aria-label="Compare Product"
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
                         isCompared
                           ? "bg-brand-500 text-white shadow-sm scale-105"
                           : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
                       }`}
                     >
-                      <GitCompare className="w-3.5 h-3.5" />
+                      <GitCompare className="w-3 h-3" />
                     </button>
                     <button
                       onClick={(e) => handleWishlistToggle(e, product)}
                       aria-label="Save to Wishlist"
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
                         isWishlisted
                           ? "bg-rose-50 dark:bg-rose-950/50 text-rose-500 shadow-sm scale-110"
                           : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-rose-500 dark:hover:text-rose-400"
                       }`}
                     >
-                      <Heart className={`w-3.5 h-3.5 ${isWishlisted ? "fill-rose-500 text-rose-500" : ""}`} />
+                      <Heart className={`w-3 h-3 ${isWishlisted ? "fill-rose-500 text-rose-500" : ""}`} />
                     </button>
                   </div>
                 </div>
 
                 {/* Supplement Tub Container with Backlight Glow */}
-                <div className="relative w-full h-[210px] sm:h-[230px] rounded-2xl bg-gradient-to-b from-zinc-50/90 to-zinc-100/50 dark:from-zinc-800/40 dark:to-zinc-900/40 flex items-center justify-center p-3 overflow-hidden border border-zinc-100/80 dark:border-zinc-800/60">
+                <div className="relative w-full h-[155px] sm:h-[165px] lg:h-[175px] rounded-xl bg-zinc-950 flex items-center justify-center overflow-hidden border border-zinc-200 dark:border-zinc-800 shrink-0">
                   {/* Subtle radial spotlight behind tub */}
                   <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-500/10 via-transparent to-transparent pointer-events-none" />
 
@@ -528,9 +531,9 @@ export default function CoverflowCarousel({
                       src={displayImage}
                       alt={product.name}
                       fill
-                      sizes="(max-width: 640px) 320px, 410px"
+                      sizes="(max-width: 640px) 255px, 305px"
                       priority={isActive}
-                      className="object-cover p-0 transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover object-center w-full h-full transition-transform duration-500 group-hover:scale-105"
                       onError={() => {
                         setImageErrors((prev) => ({ ...prev, [product.id]: true }))
                       }}
@@ -538,64 +541,61 @@ export default function CoverflowCarousel({
                   </div>
 
                   {/* Quick Pill overlay: Stock */}
-                  <div className="absolute bottom-2.5 left-3">
+                  <div className="absolute bottom-1.5 left-2">
                     {displayStock <= 10 && displayStock > 0 ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white shadow-sm">
-                        <AlertCircle className="w-2.5 h-2.5" /> ONLY {displayStock} LEFT
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold bg-amber-500 text-white shadow-sm">
+                        <AlertCircle className="w-2 h-2" /> ONLY {displayStock} LEFT
                       </span>
                     ) : displayStock === 0 ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-600 text-white shadow-sm">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold bg-rose-600 text-white shadow-sm">
                         OUT OF STOCK
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 dark:bg-emerald-500/25 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 backdrop-blur-sm">
-                        <Check className="w-2.5 h-2.5" /> IN STOCK
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold bg-emerald-500/15 dark:bg-emerald-500/25 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 backdrop-blur-sm">
+                        <Check className="w-2 h-2" /> IN STOCK
                       </span>
                     )}
                   </div>
                 </div>
 
                 {/* Supplement Information & Nutrition Specs */}
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-black uppercase tracking-widest text-brand-600 dark:text-brand-400">
+                <div className="mt-2 space-y-1">
+                  <div className="flex items-center justify-between gap-1.5">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-600 dark:text-brand-400">
                       {product.brand || "NUTRATEIN"}
                     </span>
                     {/* Rating stars */}
                     {product.rating !== undefined && (
-                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 border border-amber-200/60 dark:border-amber-800/60">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 border border-amber-200/60 dark:border-amber-800/60">
+                        <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                        <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300">
                           {product.rating.toFixed(1)}
                         </span>
                         {product.reviewCount !== undefined && (
-                          <span className="text-[10px] text-zinc-400">({product.reviewCount})</span>
+                          <span className="text-[9px] text-zinc-400">({product.reviewCount})</span>
                         )}
                       </div>
                     )}
                   </div>
 
-                  <h3 className="font-extrabold text-base sm:text-lg text-zinc-900 dark:text-white line-clamp-1 leading-snug">
+                  <h3 className="font-extrabold text-xs sm:text-sm text-zinc-900 dark:text-white line-clamp-1 leading-snug">
                     {product.name}
                   </h3>
 
                   {/* Flavor & Size Specs */}
-                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-                    {displayFlavor && <span>{displayFlavor}</span>}
+                  <div className="flex items-center gap-1 text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
+                    {displayFlavor && <span className="line-clamp-1">{displayFlavor}</span>}
                     {displayFlavor && displayWeight && <span>•</span>}
-                    {displayWeight && <span className="font-bold text-zinc-700 dark:text-zinc-300">{displayWeight}</span>}
+                    {displayWeight && <span className="font-bold text-zinc-700 dark:text-zinc-300 shrink-0">{displayWeight}</span>}
                   </div>
 
-                  {/* Multi-Variant Selection Pills */}
-                  {product.variants && product.variants.length > 1 && (
-                    <div className="pt-1 pb-0.5">
-                      <div className="text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-1">
-                        Select Variant / Size:
-                      </div>
-                      <div className="flex items-center gap-1.5 flex-wrap">
+                  {/* Multi-Variant Selection Pills / Uniform Height Slot */}
+                  <div className="h-6 flex items-center overflow-x-auto scrollbar-none">
+                    {product.variants && product.variants.length > 1 ? (
+                      <div className="flex items-center gap-1">
                         {product.variants.map((v, idx) => {
                           const isSel = idx === vIdx
-                          const pillLabel = v.weight || v.size || (v.servings ? `${v.servings} Servings` : `Option ${idx + 1}`)
+                          const pillLabel = v.weight || v.size || (v.servings ? `${v.servings} Servings` : `${idx + 1}`)
                           return (
                             <button
                               key={v.id || v.sku || idx}
@@ -604,10 +604,10 @@ export default function CoverflowCarousel({
                                 e.stopPropagation()
                                 setSelectedVariants((prev) => ({ ...prev, [product.id]: idx }))
                               }}
-                              className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all border ${
+                              className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold transition-all border whitespace-nowrap ${
                                 isSel
-                                  ? "bg-brand-600 text-white border-brand-600 shadow-sm shadow-brand-500/30 scale-105 ring-1 ring-brand-500"
-                                  : "bg-zinc-100 dark:bg-zinc-800/90 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:border-brand-500/50"
+                                  ? "bg-brand-600 text-white border-brand-600 shadow-sm"
+                                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:border-brand-500"
                               }`}
                             >
                               {pillLabel}
@@ -615,72 +615,69 @@ export default function CoverflowCarousel({
                           )
                         })}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <span className="text-[10px] text-zinc-400 font-medium tracking-tight">
+                        Standard Authentic Formula
+                      </span>
+                    )}
+                  </div>
 
                   {/* Nutrition Highlights Strip */}
-                  <div className="grid grid-cols-2 gap-2 py-1.5 my-1">
-                    <div className="px-2.5 py-1.5 rounded-xl bg-zinc-100/80 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-center">
-                      <span className="block text-[9px] uppercase font-bold text-zinc-400 dark:text-zinc-500 tracking-wider">
+                  <div className="grid grid-cols-2 gap-1 py-1 my-0.5">
+                    <div className="px-1.5 py-0.5 rounded-lg bg-zinc-100/80 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-center">
+                      <span className="block text-[7px] sm:text-[8px] uppercase font-bold text-zinc-400 dark:text-zinc-500">
                         POTENCY
                       </span>
-                      <span className="text-xs font-black text-zinc-900 dark:text-zinc-100">
+                      <span className="text-[10px] sm:text-[11px] font-black text-zinc-900 dark:text-zinc-100 line-clamp-1">
                         {product.proteinPerServing || "24g Pure Protein"}
                       </span>
                     </div>
-                    <div className="px-2.5 py-1.5 rounded-xl bg-zinc-100/80 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-center">
-                      <span className="block text-[9px] uppercase font-bold text-zinc-400 dark:text-zinc-500 tracking-wider">
+                    <div className="px-1.5 py-0.5 rounded-lg bg-zinc-100/80 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-center">
+                      <span className="block text-[7px] sm:text-[8px] uppercase font-bold text-zinc-400 dark:text-zinc-500">
                         YIELD
                       </span>
-                      <span className="text-xs font-black text-zinc-900 dark:text-zinc-100">
+                      <span className="text-[10px] sm:text-[11px] font-black text-zinc-900 dark:text-zinc-100 line-clamp-1">
                         {displayServings || "60 Servings"}
                       </span>
                     </div>
                   </div>
 
-                  {/* Short Description */}
-                  {product.description && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
-                      {product.description}
-                    </p>
-                  )}
-
-                  {/* Pricing Strip (Dynamic from selected variant) */}
-                  <div className="pt-2 flex items-baseline justify-between border-t border-zinc-100 dark:border-zinc-800">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xl sm:text-2xl font-black text-zinc-950 dark:text-white">
+                  {/* Pricing Strip */}
+                  <div className="pt-1 flex items-baseline justify-between border-t border-zinc-100 dark:border-zinc-800">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-base sm:text-lg font-black text-zinc-950 dark:text-white">
                         {formatPrice(displayPrice)}
                       </span>
                       {displayOriginalPrice && displayOriginalPrice > displayPrice && (
-                        <span className="text-xs text-zinc-400 line-through font-medium">
+                        <span className="text-[10px] text-zinc-400 line-through font-medium">
                           {formatPrice(displayOriginalPrice)}
                         </span>
                       )}
                     </div>
                     <Link
                       href={product.href || `/shop/${product.slug || product.id}`}
-                      className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline inline-flex items-center gap-0.5"
+                      className="text-[10px] font-bold text-brand-600 dark:text-brand-400 hover:underline inline-flex items-center gap-0.5"
                     >
-                      Details <ArrowRight className="w-3 h-3" />
+                      Details <ArrowRight className="w-2.5 h-2.5" />
                     </Link>
                   </div>
 
                   {/* Action Buttons: Add to Cart + Buy Now */}
-                  <div className="pt-2 grid grid-cols-2 gap-2">
+                  <div className="pt-1 grid grid-cols-2 gap-1.5">
                     <button
                       onClick={(e) => handleAddToCart(e, product)}
                       disabled={displayStock === 0}
-                      className="w-full py-2.5 px-3 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-brand-600/20 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-1.5 px-2 rounded-lg bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white text-[10px] sm:text-[11px] font-bold shadow-sm transition-all flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <ShoppingCart className="w-3.5 h-3.5" />
+                      <ShoppingCart className="w-3 h-3" />
                       Add to Cart
                     </button>
                     <button
                       onClick={(e) => handleBuyNow(e, product)}
                       disabled={displayStock === 0}
-                      className="w-full py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                      className="w-full py-1.5 px-2 rounded-lg bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-[10px] sm:text-[11px] font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                     >
-                      <Zap className="w-3.5 h-3.5 fill-current" />
+                      <Zap className="w-3 h-3 fill-current" />
                       Buy Now
                     </button>
                   </div>

@@ -8,7 +8,7 @@ import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/store/cart"
 import { useWishlistStore } from "@/store/wishlist"
 import { useCompareStore } from "@/store/compare"
-import { useLanguageStore } from "@/store/language"
+import { useTranslation } from "@/hooks/useTranslation"
 import { toast } from "sonner"
 import ProductGallery from "./ProductGallery"
 import ReviewForm from "./ReviewForm"
@@ -31,7 +31,11 @@ const FLAVOR_METADATA: Record<string, { color: string; note: string; badge?: str
   "Unflavoured": { color: "#90A4AE", note: "100% pure raw formula, zero sugar, zero additives", badge: "Pure & Raw" },
 }
 
+import { useSession } from "next-auth/react"
+
 export default function ProductDetails({ product }: ProductDetailsProps) {
+  const { data: session, status } = useSession()
+
   // Extract distinct flavors from catalog/product or variants
   const availableFlavors = useMemo(() => {
     const list: string[] = []
@@ -68,7 +72,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   const wishlisted = isWishlisted(product.id)
   const { isInCompare, toggleCompare } = useCompareStore()
   const compared = isInCompare(product.id)
-  const t = useLanguageStore((s) => s.t)
+  const { t } = useTranslation()
 
   const currentPrice = selectedVariant?.price ?? product.basePrice
   const currentStock = selectedVariant?.stock ?? 50
@@ -116,15 +120,10 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   }
 
   const handleAddToCart = () => {
-    // Check authentication before adding to cart
-    if (typeof window !== 'undefined') {
-      const match = document.cookie.match(/(?:^|; )next-auth\.session-token=([^;]*)/) || document.cookie.match(/(?:^|; )__Secure-next-auth\.session-token=([^;]*)/)
-      
-      if (!match) {
-        toast.error("Please login first to add items to cart")
-        window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`
-        return
-      }
+    if (status === "unauthenticated") {
+      toast.error("Please login first to add items to cart")
+      window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`
+      return
     }
 
     const itemFlavor = selectedFlavor || selectedVariant?.flavor || product.flavor || "Standard"

@@ -70,7 +70,7 @@ export default async function FeaturedCoverflowSection() {
 
         if (!dbProducts || dbProducts.length === 0) return fallback
 
-        return dbProducts.map((p) => {
+        const mappedDbProducts = dbProducts.map((p) => {
           const variantList = p.variants || []
           const primaryVariant = variantList[0]
           const catSlug = p.category?.slug || "supplements"
@@ -124,9 +124,12 @@ export default async function FeaturedCoverflowSection() {
             stockStatus,
             badge,
             variants: mappedVariants.length > 0 ? mappedVariants : undefined,
-            href: `/shop/${p.slug}`
+            href: `/shop/${p.slug}`,
           }
         })
+
+        const uniqueDbProducts = Array.from(new Map(mappedDbProducts.map(item => [item.id, item])).values())
+        return uniqueDbProducts.length > 0 ? uniqueDbProducts : fallback
       } catch {
         return fallback
       }

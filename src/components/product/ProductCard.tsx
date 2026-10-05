@@ -10,6 +10,7 @@ import { useCompareStore } from "@/store/compare"
 import { toast } from "sonner"
 import QuickViewModal from "./QuickViewModal"
 import AnimatedButton from "@/components/ui/animated-button"
+import { useTranslation } from "@/hooks/useTranslation"
 
 interface ProductCardProps {
   id: string
@@ -32,6 +33,8 @@ interface ProductCardProps {
   category?: string
 }
 
+import { useSession } from "next-auth/react"
+
 export default function ProductCard({
   id,
   slug,
@@ -52,19 +55,19 @@ export default function ProductCard({
   shortDescription,
   category,
 }: ProductCardProps) {
+  const { t } = useTranslation()
+  const { data: session, status } = useSession()
   const [quickViewOpen, setQuickViewOpen] = useState(false)
   const addItem = useCartStore((s) => s.addItem)
   const { isInWishlist, toggleWishlist } = useWishlistStore()
   const wishlisted = isInWishlist(id)
   const { isInCompare, toggleCompare } = useCompareStore()
   const compared = isInCompare(id)
-
   const cardRef = useRef<HTMLDivElement>(null)
   const [tiltStyle, setTiltStyle] = useState<React.CSSProperties>({})
   const [text3dStyle, setText3dStyle] = useState<React.CSSProperties>({})
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const [isMobile, setIsMobile] = useState(true)
-  // Track touch start Y to distinguish scroll vs tap
   const touchStartY = useRef<number>(0)
   const isTouchScrolling = useRef<boolean>(false)
 
@@ -72,12 +75,10 @@ export default function ProductCard({
     if (typeof window !== "undefined") {
       const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
       setPrefersReducedMotion(mq.matches)
-      // Only enable 3D tilt on non-touch devices (desktops)
       setIsMobile(window.matchMedia("(hover: none) and (pointer: coarse)").matches)
     }
   }, [])
 
-  // Desktop Mouse Tilt & Zoom — desktop only
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current || prefersReducedMotion || isMobile) return
     const { left, top, width, height } = cardRef.current.getBoundingClientRect()
@@ -109,43 +110,29 @@ export default function ProductCard({
     })
   }
 
-  // MOBILE: Completely disabled — let native scroll work uninterrupted
+  // Disable 3D tilt entirely on touch devices to guarantee smooth scrolling
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!e.touches[0]) return
-    touchStartY.current = e.touches[0].clientY
-    isTouchScrolling.current = false
+    // No-op on mobile to prevent scroll lag
   }
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!e.touches[0]) return
-    const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current)
-    // If user moves more than 8px vertically, it's a scroll — mark it
-    if (deltaY > 8) {
-      isTouchScrolling.current = true
-    }
+    // No-op on mobile to prevent scroll lag
   }
 
   const handleTouchEnd = () => {
-    // Reset — nothing to do, scroll was native
-    isTouchScrolling.current = false
+    // No-op on mobile to prevent scroll lag
   }
-
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
-    // Check authentication before adding to cart
-    if (typeof window !== 'undefined') {
-      const match = document.cookie.match(/(?:^|; )next-auth\.session-token=([^;]*)/) || document.cookie.match(/(?:^|; )__Secure-next-auth\.session-token=([^;]*)/)
-      
-      // We do a soft check using cookies to avoid useSession re-rendering every card
-      // If no token exists, force them to login
-      if (!match) {
-        toast.error("Please login first to add items to cart")
-        window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`
-        return
-      }
+    // Mobile testing on IP addresses can sometimes cause NextAuth status to flap or be 'loading'.
+    // Allow adding to cart if status is loading or authenticated.
+    if (status === "unauthenticated") {
+      toast.error("Please login first to add items to cart")
+      window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`
+      return
     }
 
     addItem({
@@ -229,18 +216,18 @@ export default function ProductCard({
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
         style={tiltStyle}
-        className="group card flex flex-col justify-between overflow-hidden bg-white dark:bg-zinc-900 hover:-translate-y-1 hover:shadow-xl hover:shadow-zinc-300/40 dark:hover:shadow-zinc-950/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300 [transform-style:preserve-3d] will-change-transform touch-pan-y"
+        className="group card flex flex-col justify-between overflow-hidden bg-white dark:bg-zinc-900 hover:-translate-y-1 hover:shadow-xl hover:shadow-zinc-300/40 dark:hover:shadow-zinc-950/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300"
       >
         <div>
-          {/* Image container — fixed aspect, fills card edge to edge */}
-          <div className="relative w-full aspect-square bg-zinc-100/70 dark:bg-zinc-800/50 overflow-hidden">
+          {/* Image container — fixed 1:1 aspect, product always fully visible */}
+          <div className="relative w-full aspect-square overflow-hidden bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
             <Link href={`/shop/${slug}`} className="relative w-full h-full block">
               <Image
                 src={image}
                 alt={name}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                className="object-contain object-center transition-transform duration-500 ease-out group-hover:scale-105"
               />
             </Link>
 
@@ -275,7 +262,7 @@ export default function ProductCard({
               onClick={handleQuickView}
               className="absolute bottom-2 inset-x-2 py-1 rounded-lg bg-white/95 text-zinc-800 text-[11px] font-semibold shadow-sm border border-zinc-200/80 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 items-center justify-center gap-1 hidden sm:flex active:scale-[0.97]"
             >
-              <Eye size={12} /> Quick View
+              <Eye size={12} /> {t("product.quickView", undefined) || "Quick View"}
             </button>
           </div>
 
@@ -315,7 +302,7 @@ export default function ProductCard({
             className="w-full py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold justify-center gap-1 bg-gradient-to-r from-brand-600 to-orange-500 text-white border-none shadow-sm hover:border-none rounded-lg sm:rounded-xl"
             innerClassName="gap-1 text-white"
           >
-            <ShoppingBag size={12} /> Add to Cart
+            <ShoppingBag size={12} /> {t("product.addToCart", undefined) || "Add to Cart"}
           </AnimatedButton>
         </div>
       </div>

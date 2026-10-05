@@ -70,6 +70,11 @@ export default function LanguageSwitcher() {
               onClick={() => {
                 setLanguage(l.code)
                 setOpen(false)
+                // Save language cookie for SSR and reload immediately without delay
+                if (typeof window !== "undefined") {
+                  document.cookie = `nutratein-language=${l.code};path=/;max-age=31536000`
+                  window.location.reload()
+                }
               }}
               className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors ${
                 language === l.code

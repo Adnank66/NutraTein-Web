@@ -293,13 +293,13 @@ export default function CustomersManager({ initialCustomers }: { initialCustomer
             </button>
           </div>
         ) : (
-          filteredCustomers.map((u) => {
+          filteredCustomers.map((u, idx) => {
             const defaultAddress = u.addresses[0]
             const lastOrder = u.lastOrder || u.orders[0]
 
             return (
               <div
-                key={u.id}
+                key={`${u.id || "customer"}_${u.email || ""}_${idx}`}
                 className="card bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm"
               >
                 {/* Customer Card Header */}

@@ -11,9 +11,7 @@ export default function NutraTeinLoader() {
   const [phase, setPhase] = useState<"loading" | "complete">("loading")
 
   // Do not run the storefront loading screen on any admin panel pages
-  const isAdmin =
-    pathname?.startsWith("/admin") ||
-    (typeof window !== "undefined" && window.location.pathname.startsWith("/admin"))
+  const isAdmin = pathname?.startsWith("/admin")
 
   if (isAdmin) {
     return null

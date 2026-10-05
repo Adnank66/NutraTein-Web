@@ -10,7 +10,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
-import { useLanguageStore } from "@/store/language"
+import { useTranslation } from "@/hooks/useTranslation"
 import Script from "next/script"
 
 // ── UPI app redirect deep-links ─────────────────────────────────────────────
@@ -93,7 +93,14 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
   const { items, getSubtotal, clearCart } = useCartStore()
-  const t = useLanguageStore((s) => s.t)
+  const { t } = useTranslation()
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsMobile(/android|iphone|ipad/i.test(navigator.userAgent))
+    }
+  }, [])
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -339,7 +346,6 @@ export default function CheckoutPage() {
   }
 
   const upiLink = buildUPILink(paymentSettings.upiId, paymentSettings.upiName, total, placedOrderNumber || "ORDER")
-  const isMobile = typeof window !== "undefined" && /android|iphone|ipad/i.test(navigator.userAgent)
 
   // ── Method card component ─────────────────────────────────────────────────
   const MethodCard = ({
@@ -374,7 +380,7 @@ export default function CheckoutPage() {
       <div className="py-10 bg-dark-50/50 dark:bg-zinc-950 min-h-[85vh]">
         <div className="container-custom">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-dark-900 dark:text-white mb-8">
-            {t("checkout.title") || "Express Checkout"}
+            {t("checkout.title", undefined) || "Express Checkout"}
           </h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -494,9 +500,8 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <MethodCard id="UPI" icon={QrCode} title="UPI / QR Code (Manual)" subtitle="GPay, PhonePe, Paytm — scan & pay" available={paymentSettings.enableUPI} />
-                  <MethodCard id="COD" icon={Banknote} title="Cash on Delivery (COD)" subtitle="Pay ₹ cash when order arrives" available={paymentSettings.enableCOD} />
-                  <MethodCard id="CASH" icon={Wallet} title="Cash on Pickup" subtitle="Pay at our pickup point" available={paymentSettings.enableCash} />
+                  <MethodCard id="COD" icon={Banknote} title="Save Order & Pay Later / COD" subtitle="Save directly to My Orders; pay anytime via UPI or on delivery" available={paymentSettings.enableCOD} />
+                  <MethodCard id="UPI" icon={QrCode} title="Pay Now via UPI QR Code" subtitle="Instant GPay, PhonePe, Paytm — scan & pay" available={paymentSettings.enableUPI} />
                 </div>
 
                 {/* ── UPI Manual Panel ──────────────────────────────────── */}
@@ -648,7 +653,7 @@ export default function CheckoutPage() {
             <div className="lg:col-span-1 space-y-4">
               <div className="card p-6 space-y-4 dark:bg-zinc-900 dark:border-zinc-700">
                 <h2 className="text-base font-bold text-dark-900 dark:text-zinc-100 pb-3 border-b border-dark-100 dark:border-zinc-800">
-                  {t("checkout.orderSummary") || "Order Summary"} ({items.length} items)
+                  {t("checkout.orderSummary", undefined) || "Order Summary"} ({items.length} {items.length === 1 ? t("common.item", undefined) || "item" : t("common.items", undefined) || "items"})
                 </h2>
 
                 <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
@@ -680,7 +685,7 @@ export default function CheckoutPage() {
                         <input type="text" placeholder="Promo Code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="input pl-8 text-xs font-mono font-bold uppercase tracking-wider dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100" />
                       </div>
                       <button type="submit" disabled={isValidatingCoupon || !promoCodeInput.trim()} className="btn-dark text-xs py-2 px-3.5 shrink-0 font-bold">
-                        {isValidatingCoupon ? <Loader2 size={13} className="animate-spin" /> : "Apply"}
+                        {isValidatingCoupon ? <Loader2 size={13} className="animate-spin" /> : (t("checkout.apply", undefined) || "Apply")}
                       </button>
                     </form>
                   ) : (
@@ -715,7 +720,7 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   <div className="flex justify-between text-base font-extrabold text-dark-900 dark:text-zinc-100 pt-2 border-t border-dark-100 dark:border-zinc-800">
-                    <span>Total Payable</span>
+                    <span>{t("checkout.totalPayable", undefined) || "Total Payable"}</span>
                     <span>{formatPrice(total)}</span>
                   </div>
                 </div>

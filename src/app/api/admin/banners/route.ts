@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import fs from "fs"
 import path from "path"
+import { revalidatePath } from "next/cache"
 
 const BANNERS_FILE = path.join(process.cwd(), "src/data/banners.json")
 
@@ -66,6 +67,10 @@ export async function POST(req: Request) {
     }
 
     fs.writeFileSync(BANNERS_FILE, JSON.stringify(updated, null, 2), "utf-8")
+    try {
+      revalidatePath("/")
+      revalidatePath("/admin/banners")
+    } catch {}
     return NextResponse.json({ success: true, message: "Banners updated successfully", ...updated })
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to save banners" }, { status: 500 })
@@ -90,6 +95,10 @@ export async function DELETE(req: Request) {
     }
 
     fs.writeFileSync(BANNERS_FILE, JSON.stringify(current, null, 2), "utf-8")
+    try {
+      revalidatePath("/")
+      revalidatePath("/admin/banners")
+    } catch {}
     return NextResponse.json({ success: true, message: "Banner deleted", ...current })
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to delete banner" }, { status: 500 })

@@ -14,6 +14,7 @@ import {
   Star,
 } from "lucide-react"
 import { toast } from "sonner"
+import { useTranslation } from "@/hooks/useTranslation"
 import { useCartStore } from "@/store/cart"
 import { useWishlistStore } from "@/store/wishlist"
 import RevealText from "@/components/ui/reveal-text"
@@ -170,6 +171,7 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
   const addItem = useCartStore((s) => s.addItem)
   const wishlist = useWishlistStore((s) => s.items)
   const toggleWishlist = useWishlistStore((s) => s.toggleItem)
+  const { t } = useTranslation()
   const isWishlisted = useWishlistStore((s) => s.isWishlisted)
 
   const filteredProducts =
@@ -252,15 +254,15 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 sm:mb-10">
           <div>
             <div className="block mb-3 text-[#9d9ba5] text-[11px] font-[800] tracking-[0.11em] uppercase">
-              Personalised nutrition
+              {t("home.personalisedNutrition")}
             </div>
 
             <h2 className="text-[clamp(2.05rem,4.3vw,3.58rem)] leading-[0.98] tracking-[-0.075em] font-[860] text-[#19191c] max-w-[680px]">
-              Recommended <strong className="text-[#668c00] font-inherit">for your goal.</strong>
+              {t("home.recommended")} <strong className="text-red-600 font-inherit">{t("home.forYou")}</strong>
             </h2>
 
             <p className="mt-3 text-[#777680] text-[clamp(0.86rem,1.2vw,1rem)] leading-[1.6] max-w-[660px]">
-              Choose a product category to find the nutrition that best supports your training, recovery, and next workout.
+              {t("home.recommendedDesc")}
             </p>
           </div>
 
@@ -270,7 +272,7 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
               href="/shop"
               className="text-xs font-[800] text-[#19191c] hover:underline underline-offset-[5px] flex items-center gap-1.5 mr-2"
             >
-              <span>Explore all products</span>
+              <span>{t("home.exploreAllProducts")}</span>
               <ArrowRight size={13} />
             </Link>
 
@@ -348,7 +350,7 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
         {/* Micro Scroll Guidance */}
         <p className="mt-2 text-[11px] text-[#a19fa7] flex items-center gap-2">
           <span className="w-[28px] h-[1px] bg-[#b9b7c0]" />
-          <span>Hover over a product to inspect it · Select a type to bring it into view</span>
+          <span>{t("home.hoverGuidance")}</span>
         </p>
       </motion.div>
     </section>
@@ -368,13 +370,14 @@ function GoalProductCard({
   onAddToCart: (e: React.MouseEvent, p: GoalProduct) => void
   onToggleWishlist: (e: React.MouseEvent, p: GoalProduct) => void
 }) {
+  const { t } = useTranslation()
   return (
     <Link
       href={`/shop/${product.slug}`}
-      className="relative flex flex-col flex-none w-[270px] sm:w-[300px] min-h-[480px] bg-white border border-[#e3e3e8] rounded-[19px] shadow-[0_5px_12px_rgba(27,27,31,0.02)] transition-all duration-[720ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:border-[#d1d1d8] hover:shadow-[0_24px_48px_rgba(34,34,38,0.14)] hover:-translate-y-[10px] group overflow-hidden"
+      className="relative flex flex-col flex-none w-[265px] sm:w-[295px] min-h-[460px] sm:min-h-[480px] bg-white border border-[#e3e3e8] rounded-[19px] shadow-[0_5px_12px_rgba(27,27,31,0.02)] transition-all duration-[720ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:border-[#d1d1d8] hover:shadow-[0_24px_48px_rgba(34,34,38,0.14)] hover:-translate-y-[10px] group overflow-hidden"
     >
       {/* Visual Header */}
-      <div className="relative h-[306px] overflow-hidden bg-[#090909]">
+      <div className="relative h-[290px] sm:h-[320px] overflow-hidden bg-[#090909]">
         {/* Subtle lighting gradient overlay */}
         <div className="absolute inset-0 z-10 bg-[linear-gradient(145deg,rgba(255,255,255,0.08),transparent_42%,rgba(0,0,0,0.16))] pointer-events-none" />
         
@@ -382,8 +385,8 @@ function GoalProductCard({
           src={product.image}
           alt={product.name}
           fill
-          className="object-contain p-[5px] transition-all duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)] origin-center group-hover:scale-[1.065] group-hover:saturate-[1.08] group-hover:contrast-[1.03] z-[1]"
-          sizes="(max-width: 640px) 270px, 300px"
+          className="object-cover object-center origin-center w-full h-full transition-all duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04] group-hover:saturate-[1.08] group-hover:contrast-[1.03] z-[1]"
+          sizes="(max-width: 640px) 265px, 295px"
           priority
           unoptimized
         />
@@ -427,17 +430,17 @@ function GoalProductCard({
       </div>
 
       {/* Product Copy & Metadata */}
-      <div className="flex-1 p-[22px_20px_20px] bg-white transition-all duration-[720ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:bg-[#fefefc] group-hover:-translate-y-[4px]">
-        <span className="block mb-2.5 text-[10px] font-[850] tracking-[0.12em] text-[#9b9aa4] uppercase">
+      <div className="flex-1 p-[18px_18px_18px] bg-white transition-all duration-[720ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:bg-[#fefefc]">
+        <span className="block mb-1.5 text-[10px] font-[850] tracking-[0.12em] text-[#9b9aa4] uppercase">
           {product.brand}
         </span>
 
-        <h3 className="m-0 min-h-[49px] text-[16px] leading-[1.35] tracking-[-0.025em] font-[790] text-[#19191c] transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:text-[#4f7100] group-hover:translate-x-[3px]">
+        <h3 className="m-0 min-h-[44px] text-[15px] sm:text-[16px] leading-[1.3] tracking-[-0.025em] font-[790] text-[#19191c] line-clamp-2 transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:text-red-600">
           {product.name}
         </h3>
 
         {/* Rating Tag */}
-        <div className="inline-flex items-center gap-1.5 mt-[13px] px-2 py-1.5 border border-[#ffd877] rounded text-[11px] font-[800] text-[#d88a00] bg-[#fffaf0]">
+        <div className="inline-flex items-center gap-1.5 mt-2 px-2 py-1 border border-[#ffd877] rounded text-[11px] font-[800] text-[#d88a00] bg-[#fffaf0]">
           <Star size={12} className="fill-[#d88a00]" />
           <span>{product.rating.toFixed(1)}</span>
           <span className="text-[#a9a8af] font-[550]">
@@ -446,10 +449,15 @@ function GoalProductCard({
         </div>
 
         {/* Price & Action Row */}
-        <div className="mt-[25px] flex items-baseline gap-2.5 text-[21px] font-[880] tracking-[-0.04em] text-[#19191c] transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-[3px]">
-          View product
-          <span className="text-[11px] font-[500] text-[#a9a8af] tracking-normal">
-            {product.flavor || "Formula"}
+        <div className="mt-3.5 pt-2.5 border-t border-zinc-100 flex items-center justify-between">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-base sm:text-lg font-black text-[#19191c]">₹{product.price.toLocaleString("en-IN")}</span>
+            {product.mrp && product.mrp > product.price && (
+              <span className="text-xs text-[#9b9aa4] line-through font-medium">₹{product.mrp.toLocaleString("en-IN")}</span>
+            )}
+          </div>
+          <span className="text-xs font-bold text-red-600 group-hover:underline flex items-center gap-1">
+            {t("product.viewProduct")} <ArrowRight size={12} />
           </span>
         </div>
       </div>

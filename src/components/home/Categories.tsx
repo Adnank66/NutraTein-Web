@@ -1,5 +1,7 @@
+"use client"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
+import { useTranslation } from "@/hooks/useTranslation"
 import RevealText from "@/components/ui/reveal-text"
 
 const categories = [
@@ -14,24 +16,25 @@ const categories = [
 ]
 
 export default function Categories() {
+  const { t } = useTranslation()
   return (
     <section className="py-16 bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-800">
       <div className="container-custom">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">Explore Catalog</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">{t("home.exploreCatalog")}</span>
             <RevealText
-              text="Shop by Category"
+              text={t("home.shopByCategory")}
               as="h2"
               size="custom"
               duration={0.35}
               stagger={0.02}
               className="section-title mt-1 !justify-start !text-left !px-0 text-zinc-900 dark:text-white"
             />
-            <p className="section-subtitle">Find the targeted nutrition formulas designed for your fitness goals.</p>
+            <p className="section-subtitle">{t("home.shopByCategoryDesc")}</p>
           </div>
           <Link href="/shop" className="text-xs font-bold text-zinc-900 dark:text-zinc-100 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-1 mt-3 sm:mt-0 transition-colors">
-            View All Categories <ArrowRight size={13} />
+            {t("home.viewAllCategories")} <ArrowRight size={13} />
           </Link>
         </div>
 

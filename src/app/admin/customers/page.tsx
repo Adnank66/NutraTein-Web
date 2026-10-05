@@ -68,8 +68,9 @@ export default async function AdminCustomersPage() {
     if (!email) continue
 
     if (!customersMap.has(email)) {
+      const uniqueCustId = b.userId || `cust_${b.orderNumber || ""}_${Math.random().toString(36).slice(2, 9)}`
       customersMap.set(email, {
-        id: b.userId || `cust_${Date.now()}`,
+        id: uniqueCustId,
         name: b.customer?.name || b.address?.name || "Guest Customer",
         email,
         phone: b.customer?.phone || b.address?.phone || null,

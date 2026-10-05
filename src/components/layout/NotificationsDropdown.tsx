@@ -41,7 +41,7 @@ const DEFAULT_NOTIFICATIONS: NotificationItem[] = [
   },
 ]
 
-export default function NotificationsDropdown() {
+export default function NotificationsDropdown({ showLabel = false, label = "Updates" }: { showLabel?: boolean; label?: string } = {}) {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<NotificationItem[]>(DEFAULT_NOTIFICATIONS)
   const [unreadCount, setUnreadCount] = useState(2)
@@ -85,16 +85,29 @@ export default function NotificationsDropdown() {
   }
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className={showLabel ? "w-full relative" : "relative"} ref={menuRef}>
       <button
         onClick={handleOpen}
-        className="btn-ghost p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white relative"
-        aria-label="Offers & Notifications"
-        title="Live Offers & Updates"
+        className={
+          showLabel
+            ? "flex items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl w-full text-left"
+            : "btn-ghost p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white relative"
+        }
+        aria-label="Update System"
+        title="Update System"
       >
-        <Bell size={19} />
+        <span className="flex items-center gap-2">
+          <Bell size={showLabel ? 14 : 19} />
+          {showLabel && <span>{label}</span>}
+        </span>
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center animate-scale-in">
+          <span
+            className={
+              showLabel
+                ? "w-4 h-4 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0"
+                : "absolute top-1 right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center animate-scale-in"
+            }
+          >
             {unreadCount}
           </span>
         )}
@@ -108,7 +121,7 @@ export default function NotificationsDropdown() {
                 <Sparkles size={14} />
               </div>
               <h3 className="font-bold text-xs text-zinc-900 dark:text-white uppercase tracking-wider">
-                Store Updates & Offers
+                Update System
               </h3>
             </div>
             <button

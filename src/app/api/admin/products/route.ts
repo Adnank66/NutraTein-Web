@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { revalidatePath } from "next/cache"
 
 // GET all products (admin)
 export async function GET() {
@@ -88,6 +89,12 @@ export async function POST(req: Request) {
       },
       include: { images: true, variants: true, category: true },
     })
+
+    try {
+      revalidatePath("/")
+      revalidatePath("/shop")
+      revalidatePath("/admin/products")
+    } catch {}
 
     return NextResponse.json({ success: true, product })
   } catch (err: any) {

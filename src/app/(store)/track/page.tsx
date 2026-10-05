@@ -8,7 +8,7 @@ import {
   ArrowRight, AlertCircle, Phone, Sparkles
 } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
-import { useLanguageStore } from "@/store/language"
+import { useTranslation } from "@/hooks/useTranslation"
 import PackagingVideoPlayer from "@/components/order/PackagingVideoPlayer"
 
 const STEPS = [
@@ -34,7 +34,7 @@ export default function OrderTrackingPage() {
   const [orders, setOrders] = useState<any[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const { language, t } = useLanguageStore()
+  const { language, t } = useTranslation()
   const isTa = language === "ta"
 
   const handleTrack = async (e: React.FormEvent) => {

@@ -1,7 +1,10 @@
 // @ts-check
+const path = require('path')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Fix: silence "multiple lockfiles" workspace root warning from Next.js
+  outputFileTracingRoot: path.join(__dirname),
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
@@ -11,6 +14,8 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.googleusercontent.com' },
     ],
     unoptimized: true,
+    // Declare quality values used in <Image quality={...}> to avoid Next.js 16 warning
+    qualities: [75, 85, 90, 95, 100],
     localPatterns: [
       { pathname: '/uploads/**' },
       { pathname: '/assets/**' },

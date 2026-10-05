@@ -6,7 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import CartRecommendations from "./CartRecommendations"
-import { useLanguageStore } from "@/store/language"
+import { useTranslation } from "@/hooks/useTranslation"
 import { toast } from "sonner"
 
 export default function CartDrawer() {
@@ -24,7 +24,7 @@ export default function CartDrawer() {
     lastClearedItems,
     lastRemovedItem,
   } = useCartStore()
-  const t = useLanguageStore((s) => s.t)
+  const { t } = useTranslation()
 
   if (!isOpen) return null
 
@@ -64,7 +64,7 @@ export default function CartDrawer() {
                 title="Clear all items in cart"
               >
                 <Trash2 size={12} />
-                <span>Clear All</span>
+                <span>{t("common.clearAll", undefined) || "Clear All"}</span>
               </button>
             )}
             {(lastClearedItems?.length > 0 || lastRemovedItem) && (
@@ -83,7 +83,7 @@ export default function CartDrawer() {
                 title="Recover cleared items back to cart"
               >
                 <RotateCcw size={12} />
-                <span>Recover</span>
+                <span>{t("common.recover", undefined) || "Recover"}</span>
               </button>
             )}
             <button
@@ -126,7 +126,7 @@ export default function CartDrawer() {
                     className="btn-secondary text-xs flex items-center justify-center gap-1.5 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100"
                   >
                     <RotateCcw size={13} />
-                    <span>Recover ({lastClearedItems?.length || 1})</span>
+                    <span>{t("common.recover", undefined) || "Recover"} ({lastClearedItems?.length || 1})</span>
                   </button>
                 )}
               </div>
@@ -142,7 +142,7 @@ export default function CartDrawer() {
                     src={item.image}
                     alt={item.name}
                     fill
-                    className="object-cover"
+                    className="object-cover object-center"
                   />
                 </div>
                 <div className="flex-1 min-w-0">

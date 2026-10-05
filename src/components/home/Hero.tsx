@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Eye, ShieldCheck, Tag 
 import RevealText from "@/components/ui/reveal-text"
 import AnimatedButton from "@/components/ui/animated-button"
 import { motion, AnimatePresence } from "framer-motion"
+import { useTranslation } from "@/hooks/useTranslation"
 
 interface BannerItem {
   id: string
@@ -78,15 +79,16 @@ const FALLBACK_BANNERS: BannerItem[] = [
     ctaText: "Shop L-Carnitine",
     ctaLink: "/shop/l-carnitine-3000-liquid",
     imageUrl: "/assets/banners/l-carnitine-widescreen-banner.png",
-    objectFit: "cover",
+    objectFit: "contain",
     isActive: true,
     sortOrder: 5,
   },
 ]
 
 export default function Hero() {
+  const { t } = useTranslation()
   const [banners, setBanners] = useState<BannerItem[]>(FALLBACK_BANNERS)
-  const [globalFitMode, setGlobalFitMode] = useState<"contain" | "cover">("cover")
+  const [globalFitMode, setGlobalFitMode] = useState<"contain" | "cover">("contain")
   const [bannerWidthMode, setBannerWidthMode] = useState<string>("1600")
   const [bannerHeightMode, setBannerHeightMode] = useState<string>("xl")
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -193,24 +195,21 @@ export default function Hero() {
       <div className="relative z-10 w-full transition-all">
         {/* Banner Frame (Arranged to fit & fill properly based on screen) */}
         <div className="relative w-full overflow-hidden bg-black/90 group">
-          {/* Main Visual Slide Container with dynamic larger height options */}
-          <div
-            className={`relative w-full flex items-center justify-center overflow-hidden ${
-              bannerHeightMode === "xl"
-                ? "h-[450px] sm:h-[460px] md:h-[560px] lg:h-[660px] xl:h-[760px] 2xl:h-[820px]"
-                : bannerHeightMode === "lg"
-                ? "h-[400px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[680px]"
-                : "h-[320px] sm:h-[320px] md:h-[400px] lg:h-[480px] xl:h-[540px]"
-            }`}
-          >
-            {/* Ambient blurred backdrop so any aspect ratio renders seamlessly without black voids */}
+          {/* Main Visual Slide Container:
+               - Mobile (< sm): 16:9 aspect ratio capped at 260px to be readable without being huge
+               - sm+: full 16:9 aspect capped at 640px
+               The banner images are 2752×1536 which is 16:9. Maintaining this ratio on all devices
+               ensures the full graphic text is always visible and the banner fills its container
+               without cropping or letterboxing gaps. */}
+          <div className="relative w-full aspect-[16/9] max-h-[260px] sm:max-h-[640px] flex items-center justify-center overflow-hidden">
+            {/* Ambient blurred backdrop so any space around the image fills beautifully */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
               <Image
                 src={currentBanner.imageUrl}
                 alt=""
                 fill
                 unoptimized
-                className="object-cover object-center scale-115 blur-3xl opacity-45 brightness-75"
+                className="object-cover object-center scale-110 blur-2xl opacity-50 brightness-75"
               />
             </div>
 
@@ -221,9 +220,9 @@ export default function Hero() {
             >
               <motion.div
                 key={currentBanner.id}
-                initial={{ scale: 1.15, clipPath: "inset(100% 0 0 0)" }}
-                animate={{ scale: 1, clipPath: "inset(0% 0 0 0)" }}
-                transition={{ duration: 1.2, ease: [0.77, 0, 0.175, 1] }}
+                initial={{ scale: 1.05 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.8, ease: [0.77, 0, 0.175, 1] }}
                 className="w-full h-full"
               >
                 <Image
@@ -233,99 +232,42 @@ export default function Hero() {
                   priority
                   quality={100}
                   unoptimized
-                  className={`w-full h-full transition-all duration-700 ease-out group-hover:scale-[1.015] group-hover:brightness-105 ${
-                    effectiveFit === "contain"
-                      ? "object-contain object-center"
-                      : "object-cover object-center"
-                  }`}
+                  className={`w-full h-full object-center transition-all duration-700 ease-out group-hover:scale-[1.005] ${effectiveFit === "cover" ? "object-cover" : "object-contain"}`}
                   sizes="(max-width: 768px) 100vw, 1920px"
                 />
               </motion.div>
             </Link>
 
-            {/* Subtle bottom edge gradient to ensure CTA & title contrast without darkening the 4K banner graphic */}
-            <div
-              className="hidden sm:block absolute inset-x-0 bottom-0 h-24 sm:h-32 pointer-events-none bg-gradient-to-t from-black/75 via-black/30 to-transparent"
-              aria-hidden="true"
-            />
-            {/* Top Bar: Slide Badge & 4K Indicator */}
-            <div className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 z-20 flex items-center justify-between pointer-events-none">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/70 backdrop-blur-md border border-white/20 text-white shadow-lg pointer-events-auto">
-                <Sparkles size={12} className="text-amber-400" />
-                {currentBanner.badgeText || "EXCLUSIVE FORMULA"}
-              </span>
-
-              <div className="flex items-center gap-2 pointer-events-auto">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setIsZoomOpen(true)
-                  }}
-                  className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-black/70 backdrop-blur-md border border-white/20 text-zinc-300 hover:text-white transition-colors flex items-center gap-1"
-                  title="Inspect Banner in 4K"
-                >
-                  <Eye size={12} />
-                  <span className="hidden sm:inline">4K Preview</span>
-                </button>
-                <span className="px-2.5 py-1 rounded-full text-[9px] font-mono font-bold bg-red-600 text-white shadow-md">
-                  NUTRA TEIN 4K
-                </span>
-              </div>
-            </div>
             {/* Previous & Next Navigation Arrows */}
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-80 hover:opacity-100 hover:scale-110 transition-all shadow-xl"
+              className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-75 hover:opacity-100 hover:scale-110 transition-all shadow-xl"
               aria-label="Previous Banner"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             </button>
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-80 hover:opacity-100 hover:scale-110 transition-all shadow-xl"
+              className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-75 hover:opacity-100 hover:scale-110 transition-all shadow-xl"
               aria-label="Next Banner"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={18} />
             </button>
-          </div>
 
-          {/* Bottom Overlay: Text & Quick Action CTA (Stacked below on mobile, overlay on sm+) */}
-          <div className="sm:absolute relative bottom-0 sm:bottom-5 left-0 sm:left-6 right-0 sm:right-6 z-20 flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:pointer-events-none p-4 sm:p-0 bg-zinc-950 sm:bg-transparent border-t border-zinc-800 sm:border-none">
-              <motion.div 
-                key={`text-${currentBanner.id}`}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="max-w-lg space-y-1 pointer-events-auto sm:bg-black/50 sm:backdrop-blur-md px-1 sm:px-4 py-1 sm:py-2.5 rounded-none sm:rounded-2xl border-none sm:border sm:border-white/15 sm:shadow-xl flex-1"
+            {/* Quick Action CTA: Visible on tablet and desktop, unobtrusive so mobile graphic text is 100% visible */}
+            <div className="hidden sm:block absolute bottom-2.5 sm:bottom-4 right-3 sm:right-6 z-20 pointer-events-auto">
+              <AnimatedButton
+                href={currentBanner.ctaLink || "/shop"}
+                accentColor="bg-red-600"
+                className="bg-red-600 hover:bg-red-700 text-white font-black text-xs py-1.5 sm:py-2 px-3 sm:px-4 shadow-xl rounded-xl"
               >
-                <h2 className="text-sm sm:text-base md:text-lg font-black uppercase tracking-tight text-white drop-shadow-sm line-clamp-2 sm:line-clamp-1">
-                  {currentBanner.title}
-                </h2>
-                <p className="text-xs font-medium text-zinc-400 sm:text-zinc-300 drop-shadow line-clamp-2 sm:line-clamp-1">
-                  {currentBanner.subtitle}
-                </p>
-              </motion.div>
-
-              <motion.div 
-                key={`btn-${currentBanner.id}`}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="flex items-center gap-2 shrink-0 pointer-events-auto w-full sm:w-auto mt-2 sm:mt-0"
-              >
-                <AnimatedButton
-                  href={currentBanner.ctaLink || "/shop"}
-                  accentColor="bg-red-600"
-                  className="bg-red-600 hover:bg-red-700 text-white font-black text-xs py-2 sm:py-2.5 px-4 sm:px-5 shadow-xl rounded-xl"
-                >
-                  <span>{currentBanner.ctaText || "Shop Now"}</span>
-                  <ArrowRight size={13} className="ml-1" />
-                </AnimatedButton>
-              </motion.div>
+                <span>{currentBanner.ctaText && currentBanner.ctaText.includes("Shop ") ? currentBanner.ctaText : t("hero.shopNow")}</span>
+                <ArrowRight size={12} className="ml-1" />
+              </AnimatedButton>
             </div>
+          </div>
 
           {/* Bottom Thumbnails / Pagination Dots Strip */}
           <div className="bg-black/90 border-t border-zinc-800 px-3 py-2 flex items-center justify-between gap-2 overflow-hidden">
@@ -358,7 +300,7 @@ export default function Hero() {
                 <strong className="text-white">{currentIndex + 1}</strong> / {banners.length}
               </span>
               <span className="hidden md:inline text-[10px] text-zinc-500">
-                {isPaused ? "❚❚ Paused" : "▶ Auto"}
+                {isPaused ? t("hero.paused") : t("hero.auto")}
               </span>
             </div>
           </div>
@@ -377,13 +319,13 @@ export default function Hero() {
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <h3 className="font-black text-white text-sm sm:text-base">
-                {currentBanner.title} • 4K Master Graphic
+                {currentBanner.title} • {t("hero.masterGraphic")}
               </h3>
               <button
                 onClick={() => setIsZoomOpen(false)}
                 className="px-3 py-1 rounded-xl text-xs bg-zinc-800 text-zinc-300 hover:text-white font-bold"
               >
-                Close ✕
+                {t("common.close")} ✕
               </button>
             </div>
             <div className="relative w-full h-[60vh] sm:h-[70vh] my-2">

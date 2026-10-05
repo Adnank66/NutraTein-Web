@@ -7,6 +7,7 @@ import { getBackupOrders } from "@/lib/orders-store"
 import { withFastTimeout } from "@/lib/fast-data"
 import { cookies } from "next/headers"
 import { getEffectiveDeliveryDisplay } from "@/lib/delivery-estimate"
+import OrderPayAndModifyActions from "@/components/account/OrderPayAndModifyActions"
 
 export const dynamic = "force-dynamic"
 
@@ -225,6 +226,14 @@ export default async function OrdersListPage() {
                   </span>
                   
                   <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
+                    <OrderPayAndModifyActions
+                      orderNumber={order.orderNumber}
+                      orderId={order.id}
+                      totalAmount={order.totalAmount}
+                      paymentStatus={order.paymentStatus || "PENDING"}
+                      deliveryStatus={curDeliveryStatus}
+                      customerPhone={order.customerPhone || order.address?.phone || ""}
+                    />
                     {order.packagingVideoUrl && (
                       <Link
                         href={`/account/orders/${order.id || order.orderNumber}#video`}

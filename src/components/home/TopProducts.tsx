@@ -10,7 +10,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Check,
-  Play,
   Film,
   Sparkles,
   ShoppingBag,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { useCartStore } from "@/store/cart"
+import { useTranslation } from "@/hooks/useTranslation"
 import RevealText from "@/components/ui/reveal-text"
 import AnimatedButton from "@/components/ui/animated-button"
 import { formatPrice } from "@/lib/utils"
@@ -55,7 +55,7 @@ const DEFAULT_TOP_SELLERS: TopProductItem[] = [
     badgeVariant: "gold",
     image: "/assets/top-sellers/shredtein-lean-protein.png",
     videoUrl: "/assets/video/shredtein-ani-video.mp4",
-    videoName: "shredtein ani video",
+    videoName: "ShredTein",
     videoLabel: "ShredTein 4K",
     poster: "/assets/top-sellers/shredtein-lean-protein.png",
     price: 2699,
@@ -73,37 +73,17 @@ const DEFAULT_TOP_SELLERS: TopProductItem[] = [
     description: "Tangy Orange · Citrulline Malate, Beta-Alanine & Caffeine for Heavy Lifts",
     badge: "PUMP &\nFOCUS",
     badgeVariant: "red",
-    image: "/assets/recommendations/titan.jpg",
+    image: "/assets/top-sellers/nitrotein-performance-whey.png",
     videoUrl: "/assets/video/pre-ani-4k.mp4",
-    videoName: "pre ani 4k",
-    videoLabel: "Pre Ani 4K",
-    poster: "/assets/recommendations/titan.jpg",
+    videoName: "Pre-Workout",
+    videoLabel: "Pre-Workout 4K",
+    poster: "/assets/top-sellers/nitrotein-performance-whey.png",
     price: 2999,
     mrp: 3699,
     rating: 5.0,
     reviewsCount: 114,
     servings: "30 Servings",
     bgGradient: "bg-[#1a0808]",
-  },
-  {
-    id: "nitro-tein-whey-isolate",
-    slug: "nitro-tein-whey-isolate",
-    name: "NitroTein Performance Whey",
-    kicker: "PERFORMANCE WHEY",
-    description: "Swiss Chocolate · 30 g pure protein per serving with zero amino spiking",
-    badge: "30G\nPROTEIN",
-    badgeVariant: "red",
-    image: "/assets/top-sellers/nitrotein-performance-whey.png",
-    videoUrl: "/assets/video/shreded-ani-4k.mp4",
-    videoName: "shreded ani 4k",
-    videoLabel: "NitroTein 4K",
-    poster: "/assets/top-sellers/nitrotein-performance-whey.png",
-    price: 2499,
-    mrp: 2899,
-    rating: 5.0,
-    reviewsCount: 128,
-    servings: "30 Servings",
-    bgGradient: "bg-[#1d0808]",
   },
 ]
 
@@ -115,12 +95,15 @@ function resolveVideoUrl(url?: string, name?: string): string {
   }
   const probe = (cleanUrl + " " + (name || "")).toLowerCase()
   if (probe.includes("pre")) return "/assets/video/pre-ani-4k.mp4"
-  if (probe.includes("nitro")) return "/assets/video/shreded-ani-4k.mp4"
+  // NitroTein: use pre-ani-4k.mp4 (the only other distinct video file available).
+  // To show a real NitroTein video, upload /public/assets/video/nitrotein-ani.mp4
+  if (probe.includes("nitro")) return "/assets/video/pre-ani-4k.mp4"
   if (probe.includes("shred")) return "/assets/video/shredtein-ani-video.mp4"
   return "/assets/video/shredtein-ani-video.mp4"
 }
 
 export default function TopProducts() {
+  const { t } = useTranslation()
   const router = useRouter()
   const addItem = useCartStore((s) => s.addItem)
   const openCart = useCartStore((s) => s.openCart)
@@ -129,7 +112,6 @@ export default function TopProducts() {
   const [activeVideoIdx, setActiveVideoIdx] = useState<number>(0)
   const [addedMap, setAddedMap] = useState<Record<string, boolean>>({})
   const [liveRatings, setLiveRatings] = useState<Record<string, { rating: number; count: number }>>({})
-
   const cardRef = useRef<HTMLElement>(null)
   const [cardTiltStyle, setCardTiltStyle] = useState<React.CSSProperties>({})
   const [cardText3dStyle, setCardText3dStyle] = useState<React.CSSProperties>({})
@@ -272,7 +254,8 @@ export default function TopProducts() {
               bgGradient: "bg-[#180a0a]",
             }))
           if (dynamicItems.length > 0) {
-            setItems(dynamicItems.slice(0, 4))
+            const uniqueItems = Array.from(new Map(dynamicItems.map(item => [item.id, item])).values())
+            setItems(uniqueItems.slice(0, 4))
           }
         }
       })
@@ -359,10 +342,10 @@ export default function TopProducts() {
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider mb-2">
               <Sparkles size={13} />
-              <span>ATHLETES CHOICE • 4K SHOWCASE</span>
+              <span>{t("home.athletesChoice")}</span>
             </div>
             <RevealText
-              text="Our Top Sellers"
+              text={t("home.topProducts")}
               as="h2"
               size="custom"
               duration={0.35}
@@ -370,14 +353,14 @@ export default function TopProducts() {
               className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-zinc-950 dark:text-white uppercase !justify-start !text-left !px-0"
             />
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-2 max-w-xl leading-relaxed">
-              Experience the raw power of our flagship formulas in full 4K. Switch videos to inspect each formula with its live interactive cart on the right.
+              {t("home.topProductsDesc")}
             </p>
           </div>
 
           {/* Video Selector Tabs Bar */}
           <div className="flex items-center gap-2 flex-wrap bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800">
             <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 px-2 uppercase tracking-wider hidden sm:inline">
-              SELECT VIDEO:
+              {t("home.selectVideo")}
             </span>
             {items.map((item, idx) => {
               const isCurrent = activeVideoIdx === idx
@@ -403,15 +386,27 @@ export default function TopProducts() {
         {/* ── Main Showcase Grid (Arranged dynamically based on screen) ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
           {/* ============================================================= */}
-          {/* Left Column: 4K Video Player (Arranged size based on screen)   */}
+          {/* Left Column: 4K Video Player (Clean Unobstructed Video)       */}
           {/* ============================================================= */}
-          <div className="lg:col-span-7 relative w-full h-[360px] sm:h-[420px] md:h-[480px] lg:h-[580px] xl:h-[620px] rounded-3xl overflow-hidden bg-black border border-zinc-800/80 shadow-2xl p-5 sm:p-7 flex flex-col justify-between group">
-            {/* The 4K Video Element: Strictly Noiseless (muted, volume 0) */}
+          <div className="lg:col-span-7 relative w-full aspect-video lg:aspect-auto lg:h-[580px] xl:h-[620px] rounded-2xl sm:rounded-3xl overflow-hidden bg-black border border-zinc-800/80 shadow-2xl flex flex-col justify-between group transition-all duration-500">
+            {/* Dynamic Ambient Background Blur Video: fills any empty letterbox voids seamlessly with live glowing colors */}
+            <video
+              key={`ambient-${activeItem.videoUrl}`}
+              src={activeItem.videoUrl}
+              className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 brightness-50 scale-110 pointer-events-none"
+              autoPlay
+              loop
+              muted
+              playsInline
+              aria-hidden="true"
+            />
+
+            {/* Keep the active video behind its controls so it always fills the player. */}
             <video
               ref={videoRef}
               key={activeItem.videoUrl}
               src={activeItem.videoUrl}
-              className="ts-bg-video absolute inset-0 w-full h-full object-contain sm:object-cover object-center transition-opacity duration-700 pointer-events-none"
+              className="ts-bg-video absolute inset-0 z-10 w-full h-full object-cover object-center transition-opacity duration-700 cursor-pointer"
               autoPlay
               loop
               muted
@@ -432,63 +427,36 @@ export default function TopProducts() {
               Your browser does not support HTML video.
             </video>
 
-            {/* Stronger Gradient Scrim Overlay for Text Contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-            <div className="absolute inset-0 bg-black/20 pointer-events-none" />
-
             {/* Top Row: Current Playing Pill & 4K Quality Seal */}
-            <div className="relative z-10 flex items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-[0.15em] text-white uppercase bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-md">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-                PLAYING: {activeItem.videoName.toUpperCase()}
+            <div className="relative z-10 flex items-center justify-between gap-2 pointer-events-none px-2.5 pt-2.5 sm:px-4 sm:pt-4">
+              <span className="inline-flex items-center gap-1.5 font-mono text-[9px] sm:text-[10px] font-bold tracking-[0.12em] text-white uppercase bg-black/70 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/10 shadow-md">
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500 animate-ping" />
+                {t("home.playing")}: {activeItem.videoName.toUpperCase()}
               </span>
 
               <div
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-white/20 flex flex-col items-center justify-center text-center bg-black/80 backdrop-blur-md rotate-6 shadow-lg shrink-0 pointer-events-none"
+                className="w-9 h-9 sm:w-13 sm:h-13 rounded-full border border-white/20 flex flex-col items-center justify-center text-center bg-black/70 backdrop-blur-md rotate-6 shadow-lg shrink-0"
                 aria-hidden="true"
               >
-                <span className="text-[6px] font-mono tracking-widest text-zinc-300">ULTRA HD</span>
-                <strong className="text-xs sm:text-sm font-black text-white leading-none my-0.5">4K</strong>
-                <small className="text-[6px] font-mono tracking-wider text-red-400 font-bold uppercase">PREMIER</small>
+                <span className="text-[5px] sm:text-[6px] font-mono tracking-widest text-zinc-300">{t("home.ultraHd")}</span>
+                <strong className="text-[10px] sm:text-sm font-black text-white leading-none my-0.5">4K</strong>
+                <small className="text-[5px] sm:text-[6px] font-mono tracking-wider text-red-400 font-bold uppercase">{t("home.premier")}</small>
               </div>
             </div>
 
-            {/* Bottom Overlay: Video Title, Tagline & Direct Explorer */}
-            <div className="relative z-10 max-w-lg space-y-2 pt-6 mb-2">
-              <span className="inline-block px-2 py-1 bg-red-600/90 text-[10px] sm:text-xs font-black tracking-widest text-white uppercase rounded shadow-sm">
-                {activeItem.kicker}
-              </span>
-
-              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black italic tracking-tight text-white uppercase leading-tight drop-shadow-lg">
-                {activeItem.name}
-              </h3>
-
-              <p className="text-xs sm:text-sm text-zinc-100 leading-relaxed font-medium line-clamp-2 drop-shadow-md max-w-md">
-                {activeItem.description}
-              </p>
-
-              <div className="pt-2 flex items-center gap-3">
-                <AnimatedButton
-                  href={`/shop/${activeItem.slug}`}
-                  accentColor="bg-red-600"
-                  className="bg-red-600 hover:bg-red-700 text-white font-black text-xs py-2.5 px-5 shadow-xl"
-                >
-                  <span className="tracking-widest uppercase">Inspect Formula</span>
-                  <span className="text-sm ml-1" aria-hidden="true">↗</span>
-                </AnimatedButton>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const nextIdx = (activeVideoIdx + 1) % items.length
-                    setActiveVideoIdx(nextIdx)
-                  }}
-                  className="text-[10px] font-bold uppercase tracking-wider text-zinc-200 hover:text-white bg-black/60 backdrop-blur-md border border-white/20 py-2.5 px-3.5 rounded-xl transition-colors flex items-center gap-1.5"
-                >
-                  <span>Next Video ({items[(activeVideoIdx + 1) % items.length]?.videoName})</span>
-                  <ArrowRight size={12} />
-                </button>
-              </div>
+            {/* The video remains muted and autoplaying; only the video switcher is interactive. */}
+            <div className="relative z-10 flex justify-end pointer-events-none px-2.5 pb-2.5 sm:px-4 sm:pb-4 pt-2 sm:pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  const nextIdx = (activeVideoIdx + 1) % items.length
+                  setActiveVideoIdx(nextIdx)
+                }}
+                className="pointer-events-auto text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-zinc-200 hover:text-white bg-black/75 hover:bg-black/95 backdrop-blur-md border border-white/20 py-1.5 sm:py-2 px-2.5 sm:px-3.5 rounded-full transition-all flex items-center gap-1 shadow-lg active:scale-95"
+              >
+                <span>{t("home.nextVideo")}</span>
+                <ArrowRight size={11} />
+              </button>
             </div>
           </div>
 
@@ -530,10 +498,10 @@ export default function TopProducts() {
                   {/* Active Video Sync Tag */}
                   <span className="absolute top-3.5 right-3.5 z-20 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-[9px] font-bold uppercase tracking-wider text-zinc-200 flex items-center gap-1">
                     <Film size={10} className="text-red-400" />
-                    <span>SYNCED TO VIDEO</span>
+                    <span>{t("home.syncedToVideo")}</span>
                   </span>
 
-                  {/* Product Bottle / Tub Image with Smooth Slow Zoom - Fits based on card size with zero side gaps */}
+                  {/* Product artwork fills the visual frame at every breakpoint. */}
                   <div className="relative w-full h-full">
                     <Image
                       src={activeItem.image}
@@ -558,12 +526,12 @@ export default function TopProducts() {
                       {displayRating.toFixed(1)}
                     </span>
                     <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
-                      ({displayCount} reviews)
+                      ({displayCount} {t("product.reviews").toLowerCase()})
                     </span>
                   </div>
 
                   <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                    <ShieldCheck size={12} /> 100% Authentic
+                    <ShieldCheck size={12} /> {t("home.authentic")}
                   </span>
                 </div>
 
@@ -615,12 +583,12 @@ export default function TopProducts() {
                     {isAdded ? (
                       <>
                         <Check size={14} className="stroke-[3]" />
-                        <span>Added to Cart!</span>
+                        <span>{t("product.addedToCart")}</span>
                       </>
                     ) : (
                       <>
                         <ShoppingBag size={14} />
-                        <span>Add to Cart</span>
+                        <span>{t("product.addToCart")}</span>
                       </>
                     )}
                   </button>
@@ -631,7 +599,7 @@ export default function TopProducts() {
                     className="py-3 px-4 rounded-xl text-xs font-black bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors flex items-center justify-center gap-1.5 shadow-md"
                   >
                     <Zap size={14} className="text-amber-400 dark:text-amber-600 fill-current" />
-                    <span>Buy Now</span>
+                    <span>{t("product.buyNow")}</span>
                   </button>
                 </div>
               </div>

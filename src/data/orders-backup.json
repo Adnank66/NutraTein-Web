@@ -1,5 +1,47 @@
 [
   {
+    "id": "6ac02992443b58ce70d7ca31",
+    "orderNumber": "PX-MURIBSWC-C0RB",
+    "status": "CONFIRMED",
+    "paymentMethod": "UPI",
+    "paymentStatus": "PAID",
+    "subtotal": 299,
+    "discountAmount": 0,
+    "couponCode": null,
+    "shippingAmount": 99,
+    "totalAmount": 398,
+    "items": [
+      {
+        "id": "item_1790978450743_0",
+        "productId": "prod-shaker-pro",
+        "variantId": null,
+        "quantity": 1,
+        "price": 299,
+        "productName": "NUTRATEIN Pro Shaker Bottle",
+        "flavor": "Black / Red",
+        "size": "700ml"
+      }
+    ],
+    "customer": {
+      "name": "adnan",
+      "email": "k90859379@gmail.com",
+      "phone": "9321598094"
+    },
+    "address": {
+      "name": "adnan",
+      "phone": "9321598094",
+      "houseFlat": "kon gaon ",
+      "street": "Kalyan City",
+      "city": "Thane",
+      "state": "Maharashtra",
+      "pincode": "421311",
+      "country": "India"
+    },
+    "estimatedDeliveryDate": "2026-10-07T22:00:50.700Z",
+    "deliveryStatus": "ORDER_PLACED",
+    "createdAt": "2026-10-02T22:00:50.743Z"
+  },
+  {
     "id": "6abe93067a812fed0d2db94e",
     "orderNumber": "PX-MUPSD3CA-81KT",
     "status": "CONFIRMED",

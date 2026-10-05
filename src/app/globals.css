@@ -938,7 +938,9 @@ img {
 
 .gn-visual {
   position: relative;
-  height: 306px;
+  /* Responsive: min-height so content is always visible, grows with content */
+  min-height: 240px;
+  height: clamp(240px, 35vw, 320px);
   overflow: hidden;
   display: block;
 }
@@ -959,6 +961,7 @@ img {
   transform: scale(1.18);
 }
 
+/* Recommendation artwork is a full-bleed composition, so it should fill its card. */
 .gn-product-img {
   position: absolute;
   inset: 0;
@@ -1066,11 +1069,7 @@ button, a, input, select, textarea {
     font-size: 1.25rem;
     line-height: 1.4;
   }
-
-  /* Stack grids on small phones */
-  .grid-cols-2 {
-    grid-template-columns: 1fr !important;
-  }
+  /* NOTE: Do NOT override grid-cols-2 globally here — components manage their own responsive stacking */
 }
 
 /* Tablet adjustments */

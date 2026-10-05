@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { revalidatePath } from "next/cache"
 
 export const dynamic = "force-dynamic"
 
@@ -122,6 +123,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       }
     }
 
+    try {
+      revalidatePath("/")
+      revalidatePath("/shop")
+      revalidatePath("/admin/products")
+    } catch {}
+
     return NextResponse.json({ success: true, message: "Product updated successfully", product: updatedProduct })
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to update product" }, { status: 500 })
@@ -139,6 +146,12 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     await prisma.productVariant.deleteMany({ where: { productId: id } })
     await prisma.productImage.deleteMany({ where: { productId: id } })
     await prisma.product.delete({ where: { id } })
+
+    try {
+      revalidatePath("/")
+      revalidatePath("/shop")
+      revalidatePath("/admin/products")
+    } catch {}
 
     return NextResponse.json({ success: true, message: "Product deleted permanently" })
   } catch (err: any) {

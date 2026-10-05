@@ -17,6 +17,8 @@ import {
 import { useCartStore } from "@/store/cart"
 import { toast } from "sonner"
 
+import { useTranslation } from "@/hooks/useTranslation"
+
 interface ChatMessage {
   id: string
   sender: "user" | "ai"
@@ -67,18 +69,39 @@ const DEFAULT_SUGGESTIONS = {
 }
 
 export default function AiWhatsAppChatWidget() {
+  const { language: siteLanguage, t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const [language, setLanguage] = useState<"en" | "hi" | "mr" | "ta">("en")
+  const language = siteLanguage as "en" | "hi" | "mr" | "ta"
   const [inputMessage, setInputMessage] = useState("")
   const [loading, setLoading] = useState(false)
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "msg-welcome",
-      sender: "ai",
-      text: GREETINGS.en,
-      suggestions: DEFAULT_SUGGESTIONS.en,
-    },
-  ])
+  
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+
+  // Update welcome message when language changes
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([
+        {
+          id: "msg-welcome",
+          sender: "ai",
+          text: GREETINGS[language],
+          suggestions: DEFAULT_SUGGESTIONS[language],
+        },
+      ])
+    } else {
+      // Just update the last welcome message if they haven't chatted yet
+      if (messages.length === 1 && messages[0].id === "msg-welcome") {
+        setMessages([
+          {
+            id: "msg-welcome",
+            sender: "ai",
+            text: GREETINGS[language],
+            suggestions: DEFAULT_SUGGESTIONS[language],
+          },
+        ])
+      }
+    }
+  }, [language])
 
   const chatBodyRef = useRef<HTMLDivElement>(null)
   const { addItem } = useCartStore()
@@ -90,18 +113,6 @@ export default function AiWhatsAppChatWidget() {
     }
   }, [messages, loading])
 
-  const handleLanguageChange = (lang: "en" | "hi" | "mr" | "ta") => {
-    setLanguage(lang)
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: "msg-lang-" + Date.now(),
-        sender: "ai",
-        text: GREETINGS[lang],
-        suggestions: DEFAULT_SUGGESTIONS[lang],
-      },
-    ])
-  }
 
   const openWhatsApp = (customMsg?: string) => {
     const text = customMsg || "Hello Nutratein, I need assistance with product recommendations."
@@ -250,7 +261,7 @@ export default function AiWhatsAppChatWidget() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                 </span>
                 <Sparkles size={14} className="text-amber-400" />
-                <span>Need Help? Chat!</span>
+                <span>{t("chat.needHelp", undefined) || "Need Help? Chat!"}</span>
               </span>
               <button
                 onClick={(e) => {
@@ -259,7 +270,7 @@ export default function AiWhatsAppChatWidget() {
                   setTimeout(() => setShowTooltip(false), 300)
                 }}
                 className="text-zinc-400 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full p-1 cursor-pointer"
-                title="Dismiss"
+                title={t("chat.dismiss", undefined) || "Dismiss"}
               >
                 <X size={11} />
               </button>
@@ -276,7 +287,7 @@ export default function AiWhatsAppChatWidget() {
               onClick={() => openWhatsApp()}
               className="group relative flex items-center justify-center bg-[#25D366] hover:bg-[#20ba59] text-white w-10 h-10 rounded-full shadow-[0_6px_20px_rgb(37,211,102,0.35)] transition-all duration-300 hover:scale-110 active:scale-95 border border-white/40 animate-fade-in-up"
               title={`Chat with us on WhatsApp (${WHATSAPP_DISPLAY})`}
-              aria-label="WhatsApp Support"
+              aria-label={t("chat.whatsappSupport", undefined) || "WhatsApp Support"}
             >
               {/* Animated Ping Ring */}
               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
@@ -303,12 +314,12 @@ export default function AiWhatsAppChatWidget() {
             {isOpen ? (
               <>
                 <X size={16} />
-                <span className="font-bold text-xs hidden sm:block">Close</span>
+                <span className="font-bold text-xs hidden sm:block">{t("chat.close", undefined) || "Close"}</span>
               </>
             ) : (
               <>
                 <Sparkles size={15} className="animate-spin text-amber-200" style={{ animationDuration: "8s" }} />
-                <span className="font-bold text-xs tracking-wide">AI Chat</span>
+                <span className="font-bold text-xs tracking-wide">{t("chat.aiChat", undefined) || "AI Chat"}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               </>
             )}
@@ -341,26 +352,10 @@ export default function AiWhatsAppChatWidget() {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Language Pills */}
-              <div className="flex bg-zinc-900 border border-zinc-800 rounded-xl p-0.5">
-                {(["en", "hi", "mr", "ta"] as const).map((lang) => (
-                  <button
-                    key={lang}
-                    onClick={() => handleLanguageChange(lang)}
-                    className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all ${
-                      language === lang
-                        ? "bg-brand-600 text-white shadow-sm"
-                        : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    {lang === "en" ? "EN" : lang === "hi" ? "हिन्दी" : lang === "mr" ? "मराठी" : "தமிழ்"}
-                  </button>
-                ))}
-              </div>
-
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-900 transition-colors"
+                title={t("common.close")}
               >
                 <X size={18} />
               </button>

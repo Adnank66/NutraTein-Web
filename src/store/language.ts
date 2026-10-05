@@ -17,7 +17,7 @@ const translations: Record<SupportedLanguage, any> = {
 interface LanguageStore {
   language: SupportedLanguage
   setLanguage: (lang: SupportedLanguage) => void
-  t: (keyPath: string, replacements?: Record<string, string | number>) => string
+  t: (keyPath: string, replacements?: Record<string, string | number>, overrideLang?: SupportedLanguage) => string
 }
 
 export const useLanguageStore = create<LanguageStore>()(
@@ -29,8 +29,8 @@ export const useLanguageStore = create<LanguageStore>()(
         set({ language: lang })
       },
 
-      t: (keyPath, replacements) => {
-        const lang = get().language || "en"
+      t: (keyPath, replacements, overrideLang) => {
+        const lang = overrideLang || get().language || "en"
         const dict = translations[lang] || translations.en
 
         const keys = keyPath.split(".")

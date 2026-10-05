@@ -1,5 +1,7 @@
+"use client"
 import Link from "next/link"
 import { Zap, Mail, Phone, MapPin } from "lucide-react"
+import { useTranslation } from "@/hooks/useTranslation"
 
 const SOCIAL_LINKS = [
   {
@@ -59,6 +61,7 @@ const footerSections = {
 }
 
 export default function Footer() {
+  const { t } = useTranslation()
   return (
     <footer className="bg-zinc-950 text-zinc-300 border-t border-zinc-900">
       <div className="container-custom py-16">
@@ -73,13 +76,13 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-xs text-zinc-400 leading-relaxed max-w-sm">
-              India's clean fitness nutrition brand. Engineered with pure ingredients, certified purity, and 100% label transparency to fuel your athletic potential.
+              {t("footer.description")}
             </p>
 
             {/* Social Media Handles */}
             <div className="pt-1">
               <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
-                Follow NUTRA TEIN
+                {t("footer.followUs")}
               </p>
               <div className="flex items-center gap-2">
                 {SOCIAL_LINKS.map((s) => (
@@ -114,7 +117,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Shop Formulas</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("footer.shopFormulas")}</h3>
             <ul className="space-y-2">
               {footerSections.shop.map((l) => (
                 <li key={l.label}>
@@ -127,7 +130,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Customer Support</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("footer.customerSupport")}</h3>
             <ul className="space-y-2">
               {footerSections.support.map((l) => (
                 <li key={l.label}>
@@ -140,7 +143,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Company</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("footer.company")}</h3>
             <ul className="space-y-2">
               {footerSections.company.map((l) => (
                 <li key={l.label}>
@@ -158,7 +161,7 @@ export default function Footer() {
         <div className="container-custom py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
           <p>&copy; {new Date().getFullYear()} NUTRA TEIN Nutrition Pvt Ltd. All rights reserved.</p>
           <div className="flex items-center gap-3">
-            <span className="text-[11px]">100% Secure Checkout:</span>
+            <span className="text-[11px]">{t("footer.secureCheckout")}</span>
             {["UPI", "RuPay", "Visa", "MasterCard", "COD"].map((p) => (
               <span key={p} className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-semibold text-zinc-400">
                 {p}

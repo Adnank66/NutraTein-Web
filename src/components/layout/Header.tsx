@@ -16,7 +16,7 @@ import ThemeToggle from "@/components/layout/ThemeToggle"
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher"
 import StorefrontAnnouncementBar from "@/components/layout/StorefrontAnnouncementBar"
 import NotificationsDropdown from "@/components/layout/NotificationsDropdown"
-import { useLanguageStore } from "@/store/language"
+import { useTranslation } from "@/hooks/useTranslation"
 
 const navLinks = [
   { key: "nav.home", label: "Home", href: "/" },
@@ -57,7 +57,7 @@ export default function Header() {
   const cartCount = useCartStore((s) => s.getTotalItems())
   const wishlistCount = useWishlistStore((s) => s.items.length)
   const openCart = useCartStore((s) => s.openCart)
-  const t = useLanguageStore((s) => s.t)
+  const { t } = useTranslation()
 
   useEffect(() => {
     setMounted(true)
@@ -177,9 +177,6 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center gap-1 sm:gap-2">
-              <LanguageSwitcher />
-              <ThemeToggle />
-
               <button
                 onClick={() => setSearchOpen(true)}
                 className="btn-ghost p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white"
@@ -202,82 +199,116 @@ export default function Header() {
               </button>
 
               {session ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                <>
+                  <Link
+                    href="/account/wishlist"
+                    className="btn-ghost p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white relative hidden sm:flex"
+                    aria-label="Wishlist"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 font-bold text-xs flex items-center justify-center">
-                      {session.user?.name?.charAt(0).toUpperCase() || "U"}
-                    </div>
-                  </button>
+                    <Heart size={18} />
+                    {mounted && wishlistCount > 0 && (
+                      <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center animate-scale-in">
+                        {wishlistCount > 9 ? "9+" : wishlistCount}
+                      </span>
+                    )}
+                  </Link>
 
-                  {userMenuOpen && (
-                    <>
-                      <div className="fixed inset-0 z-20" onClick={() => setUserMenuOpen(false)} />
-                      <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-2 z-30 animate-scale-in">
-                        <div className="px-3 py-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
-                          <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{session.user?.name}</p>
-                          <p className="text-[11px] text-zinc-400 truncate">{session.user?.email}</p>
-                        </div>
-                        {(session.user as any)?.role === "ADMIN" && (
+                  <div className="hidden sm:block">
+                    <NotificationsDropdown />
+                  </div>
+
+                  <div className="hidden sm:block">
+                    <LanguageSwitcher />
+                  </div>
+                  
+                  <ThemeToggle />
+
+                  <div className="relative">
+                    <button
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 font-bold text-xs flex items-center justify-center">
+                        {session.user?.name?.charAt(0).toUpperCase() || "U"}
+                      </div>
+                    </button>
+
+                    {userMenuOpen && (
+                      <>
+                        <div className="fixed inset-0 z-20" onClick={() => setUserMenuOpen(false)} />
+                        <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-2 z-30 animate-scale-in">
+                          <div className="px-3 py-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
+                            <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{session.user?.name}</p>
+                            <p className="text-[11px] text-zinc-400 truncate">{session.user?.email}</p>
+                          </div>
+                          {(session.user as any)?.role === "ADMIN" && (
+                            <Link
+                              href="/admin"
+                              className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-purple-700 bg-purple-50 dark:bg-purple-950/40 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-xl mb-1"
+                              onClick={() => setUserMenuOpen(false)}
+                            >
+                              <LayoutDashboard size={14} /> Admin Dashboard
+                            </Link>
+                          )}
                           <Link
-                            href="/admin"
-                            className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-purple-700 bg-purple-50 dark:bg-purple-950/40 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-xl mb-1"
+                            href="/account"
+                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
                             onClick={() => setUserMenuOpen(false)}
                           >
-                            <LayoutDashboard size={14} /> Admin Dashboard
+                            <User size={14} /> Dashboard
                           </Link>
-                        )}
-                        <Link
-                          href="/account"
-                          className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          <User size={14} /> Dashboard
-                        </Link>
-                        <Link
-                          href="/account/orders"
-                          className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          <Package size={14} /> My Orders
-                        </Link>
-                        {/* Wishlist & Notifications in dropdown when logged in */}
-                        <Link
-                          href="/account/wishlist"
-                          className="flex items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          <span className="flex items-center gap-2"><Heart size={14} /> Wishlist</span>
-                          {mounted && wishlistCount > 0 && (
-                            <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">
-                              {wishlistCount > 9 ? "9+" : wishlistCount}
-                            </span>
-                          )}
-                        </Link>
-                        <div className="px-1 py-1" onClick={() => setUserMenuOpen(false)}>
-                          <NotificationsDropdown />
+                          <Link
+                            href="/account/orders"
+                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            <Package size={14} /> My Orders
+                          </Link>
+                          
+                          {/* Show these in dropdown ONLY on mobile */}
+                          <div className="sm:hidden border-t border-zinc-100 dark:border-zinc-800 my-1 pt-1">
+                            <Link
+                              href="/account/wishlist"
+                              className="flex items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
+                              onClick={() => setUserMenuOpen(false)}
+                            >
+                              <span className="flex items-center gap-2"><Heart size={14} /> Wishlist</span>
+                              {mounted && wishlistCount > 0 && (
+                                <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                  {wishlistCount}
+                                </span>
+                              )}
+                            </Link>
+                            <div className="w-full">
+                              <NotificationsDropdown showLabel label="Updates" />
+                            </div>
+                            <div className="px-2 py-1">
+                              <LanguageSwitcher />
+                            </div>
+                          </div>
+
+                          <Link
+                            href="/account/settings"
+                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            <Settings size={14} /> Settings
+                          </Link>
+                          <button
+                            onClick={() => { signOut(); setUserMenuOpen(false) }}
+                            className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl w-full text-left mt-1"
+                          >
+                            <LogOut size={14} /> Sign Out
+                          </button>
                         </div>
-                        <Link
-                          href="/account/settings"
-                          className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          <Settings size={14} /> Settings
-                        </Link>
-                        <button
-                          onClick={() => { signOut(); setUserMenuOpen(false) }}
-                          className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl w-full text-left mt-1"
-                        >
-                          <LogOut size={14} /> Sign Out
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
+                      </>
+                    )}
+                  </div>
+                </>
               ) : (
                 <div className="flex items-center gap-1.5">
+                  <LanguageSwitcher />
+                  <ThemeToggle />
                   <Link
                     href="/login"
                     className="btn-secondary py-1.5 px-3 text-xs font-semibold"
