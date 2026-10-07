@@ -167,6 +167,11 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
   const [activeTab, setActiveTab] = useState<string>("all")
   const [addedMap, setAddedMap] = useState<Record<string, boolean>>({})
   const rowRef = useRef<HTMLDivElement>(null)
+  
+  const [viewMode, setViewMode] = useState<"GOAL" | "PRODUCT">("GOAL")
+  const [goalTabs, setGoalTabs] = useState<any[]>([{ id: "all", label: "For You", icon: "✦" }])
+  const [productTabs, setProductTabs] = useState<any[]>([{ id: "all", label: "For You", icon: "✦" }])
+  const [allProducts, setAllProducts] = useState<any[]>([])
 
   const addItem = useCartStore((s) => s.addItem)
   const wishlist = useWishlistStore((s) => s.items)
@@ -174,11 +179,118 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
   const { t } = useTranslation()
   const isWishlisted = useWishlistStore((s) => s.isWishlisted)
 
-  const filteredProducts =
-    (activeTab === "all"
-      ? GOAL_PRODUCTS
-      : GOAL_PRODUCTS.filter((p) => p.type === activeTab)
-    ).slice(0, 3)
+  React.useEffect(() => {
+    // Fetch Categories
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(d => {
+        if (d.categories) {
+          const goals = d.categories.filter((c: any) => c.type === 'GOAL')
+          const products = d.categories.filter((c: any) => c.type !== 'GOAL')
+          
+          setGoalTabs([
+            { id: "all", label: "For You", icon: "✦", linkedSlug: "all" },
+            ...goals.map((g: any) => ({
+              id: g.slug, 
+              linkedSlug: g.linkedCategorySlug || g.slug,
+              label: g.name, 
+              icon: g.icon || "✦"
+            }))
+          ])
+
+          setProductTabs([
+            { id: "all", label: "All Products", icon: "✦", linkedSlug: "all" },
+            ...products.map((p: any) => ({
+              id: p.slug, 
+              linkedSlug: p.slug,
+              label: p.name, 
+              icon: p.icon || "◒"
+            }))
+          ])
+        }
+      })
+      .catch(console.error)
+
+    fetch('/api/products?limit=12')
+      .then(r => r.json())
+      .then(d => {
+        if (d.data) {
+          setAllProducts(d.data)
+        }
+      })
+      .catch(console.error)
+  }, [])
+
+  React.useEffect(() => {
+    setActiveTab("all")
+  }, [viewMode])
+
+  const mapToGoalProduct = (p: any, idx: number): GoalProduct => {
+    const gradients = [
+      "from-[#050507] to-[#3e1710]",
+      "from-[#1c1204] to-[#593d11]",
+      "from-[#271005] to-[#dc5e08]",
+      "from-[#090b14] to-[#142345]",
+      "from-[#061413] to-[#123936]",
+    ]
+    const glows = [
+      "rgba(255, 80, 31, 0.62)",
+      "rgba(244, 194, 45, 0.6)",
+      "rgba(255, 210, 99, 0.75)",
+      "rgba(70, 130, 255, 0.6)",
+      "rgba(40, 200, 160, 0.6)",
+    ]
+    return {
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      type: p.category?.slug || "all", 
+      brand: p.brand || "NUTRATEIN",
+      badge: p.category?.name?.toUpperCase() || "SUPPLEMENT",
+      badgeVariant: "offer",
+      image: p.images?.[0]?.url || p.image || "/assets/recommendations/nitrotein.png",
+      rating: p.rating || 5.0,
+      servingsInfo: p.flavor || "Multiple flavors",
+      price: p.basePrice || p.price,
+      mrp: p.mrp,
+      flavor: p.flavor || p.shortDesc || "Unflavored",
+      size: p.size || "Standard",
+      gradient: gradients[idx % gradients.length],
+      glowColor: glows[idx % glows.length],
+    }
+  }
+
+  const filteredProducts = React.useMemo(() => {
+    if (allProducts.length === 0) {
+      return (activeTab === "all"
+        ? GOAL_PRODUCTS
+        : GOAL_PRODUCTS.filter((p) => p.type === activeTab)).slice(0, 3)
+    }
+    
+    if (activeTab === "all") {
+      return allProducts.slice(0, 4).map((p, idx) => mapToGoalProduct(p, idx))
+    }
+
+    let targetCategorySlug = activeTab
+    if (viewMode === "GOAL") {
+      const currentGoal = goalTabs.find((g) => g.id === activeTab)
+      if (currentGoal?.linkedSlug && currentGoal.linkedSlug !== "all") {
+        targetCategorySlug = currentGoal.linkedSlug
+      }
+    } else {
+      const currentProduct = productTabs.find((p) => p.id === activeTab)
+      if (currentProduct?.linkedSlug && currentProduct.linkedSlug !== "all") {
+        targetCategorySlug = currentProduct.linkedSlug
+      }
+    }
+
+    let filtered = allProducts.filter(p => p.category?.slug === targetCategorySlug)
+    if (filtered.length === 0) {
+      filtered = allProducts // fallback
+    }
+    
+    return filtered.slice(0, 4).map((p, idx) => mapToGoalProduct(p, idx))
+  }, [allProducts, activeTab, viewMode, goalTabs, productTabs])
 
   const handleAddToCart = (e: React.MouseEvent, product: GoalProduct) => {
     e.preventDefault()
@@ -266,34 +378,23 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
             </p>
           </div>
 
-          {/* Quick Explore Link & Scroll Arrows */}
-          <div className="flex items-center gap-3 shrink-0">
-            <Link
-              href="/shop"
-              className="text-xs font-[800] text-[#19191c] hover:underline underline-offset-[5px] flex items-center gap-1.5 mr-2"
-            >
-              <span>{t("home.exploreAllProducts")}</span>
-              <ArrowRight size={13} />
-            </Link>
 
-            <button
-              type="button"
-              onClick={() => scrollTrack("left")}
-              aria-label="Previous products"
-              className="w-10 h-10 rounded-full border border-[#e3e3e8] bg-white text-[#19191c] flex items-center justify-center hover:border-[#19191c] hover:bg-[#d8ff54] shadow-sm active:scale-95 transition-all"
-            >
-              <ChevronLeft size={16} />
-            </button>
+        </div>
 
-            <button
-              type="button"
-              onClick={() => scrollTrack("right")}
-              aria-label="Next products"
-              className="w-10 h-10 rounded-full border border-[#e3e3e8] bg-white text-[#19191c] flex items-center justify-center hover:border-[#19191c] hover:bg-[#d8ff54] shadow-sm active:scale-95 transition-all"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
+        {/* Toggle View Mode */}
+        <div className="flex items-center gap-2 mb-5 bg-[#f0f0f4] p-1.5 rounded-full w-fit border border-[#e3e3e8]">
+          <button
+            onClick={() => setViewMode("GOAL")}
+            className={`px-5 py-2 rounded-full text-[13px] font-[800] transition-all ${viewMode === "GOAL" ? "bg-white text-[#19191c] shadow-sm" : "text-[#777680] hover:text-[#19191c]"}`}
+          >
+            Shop by Category
+          </button>
+          <button
+            onClick={() => setViewMode("PRODUCT")}
+            className={`px-5 py-2 rounded-full text-[13px] font-[800] transition-all ${viewMode === "PRODUCT" ? "bg-white text-[#19191c] shadow-sm" : "text-[#777680] hover:text-[#19191c]"}`}
+          >
+            Shop by Product
+          </button>
         </div>
 
         {/* Category Filter Tabs */}
@@ -301,7 +402,7 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
           className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pb-2 mb-8 sm:mb-10"
           aria-label="Supplement categories"
         >
-          {CATEGORY_TABS.map((tab) => {
+          {(viewMode === "GOAL" ? goalTabs : productTabs).map((tab) => {
             const isActive = activeTab === tab.id
             return (
               <button

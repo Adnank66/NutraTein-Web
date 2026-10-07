@@ -1,5 +1,47 @@
 [
   {
+    "id": "6ac6b1db2b8851cfc4de11ec",
+    "orderNumber": "PX-MUYL7KAR-CNE8",
+    "status": "PENDING",
+    "paymentMethod": "UPI",
+    "paymentStatus": "PENDING",
+    "subtotal": 2999,
+    "discountAmount": 0,
+    "couponCode": null,
+    "shippingAmount": 0,
+    "totalAmount": 2999,
+    "items": [
+      {
+        "id": "item_1791406555012_0",
+        "productId": "prod-pre-workout",
+        "variantId": null,
+        "quantity": 1,
+        "price": 2999,
+        "productName": "Titan Loaded Pre-Workout (Pump & Focus)",
+        "flavor": "Tangy Orange",
+        "size": "450g"
+      }
+    ],
+    "customer": {
+      "name": "ayan",
+      "email": "k90859379@gmail.com",
+      "phone": "5557778944"
+    },
+    "address": {
+      "name": "ayan",
+      "phone": "5557778944",
+      "houseFlat": "kon",
+      "street": "Kon",
+      "city": "Thane",
+      "state": "Maharashtra",
+      "pincode": "421311",
+      "country": "India"
+    },
+    "estimatedDeliveryDate": "2026-10-12T20:55:55.011Z",
+    "deliveryStatus": "ORDER_PLACED",
+    "createdAt": "2026-10-07T20:55:55.012Z"
+  },
+  {
     "id": "6ac02992443b58ce70d7ca31",
     "orderNumber": "PX-MURIBSWC-C0RB",
     "status": "CONFIRMED",

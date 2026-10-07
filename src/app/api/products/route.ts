@@ -8,7 +8,15 @@ export async function GET(req: Request) {
     const search = searchParams.get("search")
 
     const where: any = { isActive: true }
-    if (category) where.category = { slug: category }
+    if (category) {
+      const catObj = await prisma.category.findUnique({ where: { slug: category } })
+      if (catObj && catObj.type === "GOAL" && catObj.linkedCategorySlug) {
+        where.category = { slug: catObj.linkedCategorySlug }
+      } else {
+        where.category = { slug: category }
+      }
+    }
+    
     if (search) {
       where.OR = [
         { name: { contains: search } },

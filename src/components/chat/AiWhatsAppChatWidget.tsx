@@ -144,7 +144,7 @@ export default function AiWhatsAppChatWidget() {
       const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, language }),
+        body: JSON.stringify({ messages: newMessages, language }),
       })
 
       const data = await res.json()

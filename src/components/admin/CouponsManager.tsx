@@ -141,12 +141,69 @@ export default function CouponsManager({ initialCoupons }: { initialCoupons: Cou
         </div>
 
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn-primary text-xs flex items-center gap-1.5 self-start sm:self-auto py-2 px-4 shadow-sm"
+          onClick={() => setIsModalOpen(!isModalOpen)}
+          className={`text-xs flex items-center gap-1.5 self-start sm:self-auto py-2 px-4 shadow-sm rounded-xl font-bold transition-all ${isModalOpen ? 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' : 'bg-brand-600 text-white hover:bg-brand-700'}`}
         >
-          <Plus size={15} /> Create Promo Code
+          {isModalOpen ? <X size={15} /> : <Plus size={15} />}
+          {isModalOpen ? "Close Form" : "Create Promo Code"}
         </button>
       </div>
+
+      {isModalOpen && (
+        <div className="bg-gradient-to-br from-white to-zinc-50 border border-zinc-200/60 shadow-lg rounded-2xl p-5 md:p-6 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center">
+              <Tag size={14} className="text-brand-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-zinc-900 text-sm">New Promo Code</h3>
+              <p className="text-[10px] text-zinc-500">Configure discount details below</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-600 mb-1">Code Name *</label>
+                <input type="text" placeholder="e.g. SUMMER25" value={form.code} onChange={e => setForm({...form, code: e.target.value.toUpperCase()})} className="w-full text-xs font-mono font-bold tracking-wider px-3 py-2 rounded-xl border border-zinc-200 bg-white" required />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-600 mb-1">Discount Type</label>
+                <select value={form.discountType} onChange={e => setForm({...form, discountType: e.target.value})} className="w-full text-xs px-3 py-2 rounded-xl border border-zinc-200 bg-white">
+                  <option value="PERCENT">Percentage (%)</option>
+                  <option value="FIXED">Flat Amount (₹)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-600 mb-1">Discount Value *</label>
+                <input type="number" placeholder={form.discountType === "PERCENT" ? "20" : "300"} value={form.discountValue} onChange={e => setForm({...form, discountValue: e.target.value})} className="w-full text-xs px-3 py-2 rounded-xl border border-zinc-200 bg-white" required />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-600 mb-1">Min Order Value (₹)</label>
+                <input type="number" placeholder="0" value={form.minOrderValue} onChange={e => setForm({...form, minOrderValue: e.target.value})} className="w-full text-xs px-3 py-2 rounded-xl border border-zinc-200 bg-white" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-[10px] font-bold text-zinc-600 mb-1">Description</label>
+                <input type="text" placeholder="e.g. 25% off on all whey protein" value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full text-xs px-3 py-2 rounded-xl border border-zinc-200 bg-white" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-600 mb-1">Usage Limit</label>
+                <input type="number" placeholder="e.g. 100" value={form.usageLimit} onChange={e => setForm({...form, usageLimit: e.target.value})} className="w-full text-xs px-3 py-2 rounded-xl border border-zinc-200 bg-white" />
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button type="submit" disabled={isSubmitting} className="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md disabled:opacity-50 flex items-center gap-2">
+                {isSubmitting ? "Creating..." : "Save Promo Code"}
+                {!isSubmitting && <CheckCircle size={14} />}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="flex items-center gap-2">
@@ -237,192 +294,8 @@ export default function CouponsManager({ initialCoupons }: { initialCoupons: Cou
         </div>
       </div>
 
-      {/* Create Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-scale-in">
-            <div className="flex items-center justify-between pb-3 border-b border-dark-100">
-              <h3 className="font-bold text-dark-900 text-base flex items-center gap-2">
-                <Tag size={16} className="text-brand-600" /> Create New Promo Code
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 text-dark-400 hover:text-dark-700 rounded-lg"
-              >
-                <X size={18} />
-              </button>
-            </div>
 
-            <form onSubmit={handleCreate} className="space-y-3.5 text-xs">
-              <div>
-                <label className="label">Promo Code *</label>
-                <input
-                  type="text"
-                  placeholder="e.g. SUMMER25"
-                  value={form.code}
-                  onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-                  className="input font-mono font-bold tracking-wider"
-                  required
-                />
-              </div>
 
-              <div>
-                <label className="label">Description</label>
-                <input
-                  type="text"
-                  placeholder="e.g. 25% off on all whey protein orders"
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="input"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label">Discount Type</label>
-                  <select
-                    value={form.discountType}
-                    onChange={(e) => setForm({ ...form, discountType: e.target.value })}
-                    className="input"
-                  >
-                    <option value="PERCENT">Percentage (%)</option>
-                    <option value="FIXED">Flat Amount (₹)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="label">Discount Value *</label>
-                  <input
-                    type="number"
-                    placeholder={form.discountType === "PERCENT" ? "e.g. 20 (%)" : "e.g. 300 (₹)"}
-                    value={form.discountValue}
-                    onChange={(e) => setForm({ ...form, discountValue: e.target.value })}
-                    className="input"
-                    required
-                    min={1}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label">Min Order Value (₹)</label>
-                  <input
-                    type="number"
-                    placeholder="0"
-                    value={form.minOrderValue}
-                    onChange={(e) => setForm({ ...form, minOrderValue: e.target.value })}
-                    className="input"
-                    min={0}
-                  />
-                </div>
-
-                <div>
-                  <label className="label">Max Discount Cap (₹)</label>
-                  <input
-                    type="number"
-                    placeholder="Optional"
-                    value={form.maxDiscount}
-                    onChange={(e) => setForm({ ...form, maxDiscount: e.target.value })}
-                    className="input"
-                    min={0}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label">Expiry Date</label>
-                  <input
-                    type="date"
-                    value={form.expiresAt}
-                    onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
-                    className="input"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">Usage Limit</label>
-                  <input
-                    type="number"
-                    placeholder="Unlimited"
-                    value={form.usageLimit}
-                    onChange={(e) => setForm({ ...form, usageLimit: e.target.value })}
-                    className="input"
-                    min={1}
-                  />
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-dark-100">
-                <h4 className="text-sm font-semibold text-dark-900 mb-2">Featured Supplement Deal (Optional)</h4>
-                <div className="space-y-3">
-                  <div>
-                    <label className="label">Product ID (Object ID)</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 64a7b..."
-                      value={form.productId}
-                      onChange={(e) => setForm({ ...form, productId: e.target.value })}
-                      className="input"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Product Name</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 100% Whey Protein"
-                      value={form.productName}
-                      onChange={(e) => setForm({ ...form, productName: e.target.value })}
-                      className="input"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Product Image URL</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. https://example.com/image.jpg"
-                      value={form.productImage}
-                      onChange={(e) => setForm({ ...form, productImage: e.target.value })}
-                      className="input"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={form.isActive}
-                  onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                  className="rounded border-dark-300 text-brand-600 focus:ring-brand-500"
-                />
-                <label htmlFor="isActive" className="text-xs font-semibold text-dark-800">
-                  Activate immediately
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4 border-t border-dark-100">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="btn-secondary text-xs py-2 px-4"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="btn-primary text-xs py-2 px-4 font-bold"
-                >
-                  {isSubmitting ? "Creating..." : "Save Promo Code"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

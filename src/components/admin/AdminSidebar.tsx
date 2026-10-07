@@ -34,9 +34,11 @@ import {
   Database,
   HelpCircle,
   Shield,
+  Type,
+  RefreshCw,
+  Gift,
 } from "lucide-react"
 import { useState } from "react"
-import AdminThemeControls from "@/components/admin/AdminThemeControls"
 
 import { useLanguageStore } from "@/store/language"
 
@@ -183,9 +185,11 @@ const navGroups = [
     items: [
       { label: "Products & Live Stock", href: "/admin/products", icon: Package, exact: false },
       { label: "Categories Manager", href: "/admin/categories", icon: Layers, exact: false },
+      { label: "Product Bundles", href: "/admin/bundles", icon: Package, exact: false },
       { label: "Customer Reviews Control", href: "/admin/reviews", icon: Star, exact: false },
       { label: "FAQ Manager", href: "/admin/faq", icon: HelpCircle, exact: false },
       { label: "Media Assets Library", href: "/admin/media", icon: ImageIcon, exact: false },
+      { label: "Loyalty & Rewards", href: "/admin/loyalty", icon: Gift, exact: false },
     ],
   },
   {
@@ -196,6 +200,8 @@ const navGroups = [
       { label: "Combo Stacks CMS", href: "/admin/combos", icon: Layers, exact: false },
       { label: "Athlete Video Showcase", href: "/admin/videos", icon: Film, exact: false },
       { label: "Free Shipping & Announcements", href: "/admin/announcements", icon: Megaphone, exact: false },
+      { label: "Legal Pages CMS", href: "/admin/legal", icon: FileText, exact: false },
+      { label: "Subscriptions", href: "/admin/subscriptions", icon: RefreshCw, exact: false },
     ],
   },
   {
@@ -206,7 +212,7 @@ const navGroups = [
       { label: "Database Backups & Export", href: "/admin/backups", icon: Database, exact: false },
       { label: "Store Settings & Legal", href: "/admin/settings", icon: Settings, exact: false },
       { label: "UPI & QR Payouts", href: "/admin/payment-settings", icon: QrCode, exact: false },
-      { label: "Activity Audit Logs", href: "/admin/activity-log", icon: Activity, exact: false },
+      { label: "Audit Logs", href: "/admin/audit-log", icon: Shield, exact: false },
       { label: "Login History", href: "/admin/login-history", icon: Shield, exact: false },
       { label: "Social Media Links", href: "/admin/social", icon: Globe, exact: false },
     ],
@@ -312,10 +318,6 @@ export default function AdminSidebar({ adminName, adminEmail, adminRole }: Admin
 
       {/* Footer Area */}
       <div className="px-3 pb-4 pt-3 border-t border-zinc-200 dark:border-zinc-800/80 space-y-1 shrink-0">
-        <div className="px-2 py-1 mb-1 flex items-center justify-between">
-          <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">{tr("Theme")}</span>
-          <AdminThemeControls compact />
-        </div>
         <a
           href="/"
           target="_blank"

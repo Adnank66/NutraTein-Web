@@ -1,50 +1,59 @@
 {
   "ribbons": [
     {
-      "id": "ribbon-free-shipping-first10",
-      "text": "FREE EXPRESS SHIPPING ON ORDERS OVER ₹999 | Use code FIRST10 for 10% off",
-      "badge": "FREE SHIPPING",
-      "link": "/shop",
-      "bgColor": "bg-red-600",
-      "textColor": "text-white",
-      "enabled": false
-    },
-    {
       "id": "ribbon-2",
       "text": "🛡️ 100% AUTHENTIC INDIAN BATCH LAB CERTIFIED | NO AMINO SPIKING | HASSLE-FREE 7-DAY REPLACEMENTS",
       "badge": "LAB CERTIFIED",
       "link": "/about",
       "bgColor": "bg-zinc-950",
       "textColor": "text-white",
-      "enabled": false
+      "enabled": true
+    },
+    {
+      "id": "ribbon-1791226532174",
+      "text": "🛡️ 100% AUTHENTIC DIRECT LAB CERTIFIED BATCHES | ZERO AMINO SPIKING | 7-DAY REPLACEMENTS",
+      "badge": "100% PURE",
+      "link": "/about",
+      "bgColor": "bg-red-600",
+      "textColor": "text-white",
+      "enabled": true
+    },
+    {
+      "id": "ribbon-3",
+      "text": "NEW LAUNCH | NITROTEIN WHEY ISOLATE NOW AVAILABLE | Shop Now",
+      "badge": "NEW",
+      "link": "/shop",
+      "bgColor": "bg-amber-600",
+      "textColor": "text-white",
+      "enabled": true
     }
   ],
   "announcement": {
-    "id": "ribbon-free-shipping-first10",
-    "text": "FREE EXPRESS SHIPPING ON ORDERS OVER ₹999 | Use code FIRST10 for 10% off",
-    "badge": "FREE SHIPPING",
-    "link": "/shop",
-    "bgColor": "bg-red-600",
-    "textColor": "text-white",
-    "enabled": false
-  },
-  "announcementPrimary": {
-    "id": "ribbon-free-shipping-first10",
-    "text": "FREE EXPRESS SHIPPING ON ORDERS OVER ₹999 | Use code FIRST10 for 10% off",
-    "badge": "FREE SHIPPING",
-    "link": "/shop",
-    "bgColor": "bg-red-600",
-    "textColor": "text-white",
-    "enabled": false
-  },
-  "announcementSecondary": {
     "id": "ribbon-2",
     "text": "🛡️ 100% AUTHENTIC INDIAN BATCH LAB CERTIFIED | NO AMINO SPIKING | HASSLE-FREE 7-DAY REPLACEMENTS",
     "badge": "LAB CERTIFIED",
     "link": "/about",
     "bgColor": "bg-zinc-950",
     "textColor": "text-white",
-    "enabled": false
+    "enabled": true
+  },
+  "announcementPrimary": {
+    "id": "ribbon-2",
+    "text": "🛡️ 100% AUTHENTIC INDIAN BATCH LAB CERTIFIED | NO AMINO SPIKING | HASSLE-FREE 7-DAY REPLACEMENTS",
+    "badge": "LAB CERTIFIED",
+    "link": "/about",
+    "bgColor": "bg-zinc-950",
+    "textColor": "text-white",
+    "enabled": true
+  },
+  "announcementSecondary": {
+    "id": "ribbon-1791226532174",
+    "text": "🛡️ 100% AUTHENTIC DIRECT LAB CERTIFIED BATCHES | ZERO AMINO SPIKING | 7-DAY REPLACEMENTS",
+    "badge": "100% PURE",
+    "link": "/about",
+    "bgColor": "bg-red-600",
+    "textColor": "text-white",
+    "enabled": true
   },
   "supportPhone": "+91 9321598094",
   "supportEmail": "adnankazi275@gmail.com",
@@ -54,5 +63,13 @@
     "youtube": "https://www.youtube.com/@nutratein",
     "facebook": "https://www.facebook.com/nutratein"
   },
-  "updatedAt": "2026-10-01T07:46:28.017Z"
+  "updatedAt": "2026-10-05T21:28:10.842Z",
+  "ribbon": {
+    "id": "ribbon-1791226532174",
+    "text": "🛡️ 100% AUTHENTIC DIRECT LAB CERTIFIED BATCHES | ZERO AMINO SPIKING | 7-DAY REPLACEMENTS",
+    "badge": "100% PURE",
+    "link": "/about",
+    "bgColor": "bg-red-600",
+    "enabled": true
+  }
 }

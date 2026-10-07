@@ -38,7 +38,7 @@ export default function StorefrontAnnouncementBar() {
   const [dismissedIds, setDismissedIds] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
-    fetch("/api/admin/announcement")
+    fetch("/api/admin/announcement", { cache: "no-store" })
       .then((res) => res.json())
       .then((resData) => {
         if (resData.ribbons && Array.isArray(resData.ribbons) && resData.ribbons.length > 0) {

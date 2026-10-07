@@ -36,6 +36,15 @@ const DEFAULT_RIBBONS: RibbonItem[] = [
     textColor: "text-zinc-200",
     enabled: true,
   },
+  {
+    id: "ribbon-3",
+    text: "NEW LAUNCH | NITROTEIN WHEY ISOLATE NOW AVAILABLE | Shop Now",
+    badge: "NEW",
+    link: "/shop",
+    bgColor: "bg-amber-600",
+    textColor: "text-white",
+    enabled: false,
+  },
 ]
 
 function getSettings() {
@@ -58,7 +67,7 @@ function getSettings() {
     }
     const data = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"))
 
-    // Ensure ribbons array exists
+    // Ensure ribbons array exists with all 3 defaults
     if (!data.ribbons || !Array.isArray(data.ribbons) || data.ribbons.length === 0) {
       data.ribbons = [
         {
@@ -77,8 +86,13 @@ function getSettings() {
           bgColor: data.announcementSecondary?.bgColor || "bg-zinc-950",
           enabled: data.announcementSecondary?.enabled ?? true,
         },
+        { ...DEFAULT_RIBBONS[2] },
       ]
+    } else if (!data.ribbons.find((r: RibbonItem) => r.id === "ribbon-3")) {
+      // Existing data missing ribbon-3 — add it
+      data.ribbons.push({ ...DEFAULT_RIBBONS[2] })
     }
+
 
     return data
   } catch (err) {

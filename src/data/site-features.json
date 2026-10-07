@@ -1,0 +1,30 @@
+[
+  {
+    "id": "f1",
+    "icon": "🧪",
+    "title": "100% Lab Tested",
+    "desc": "Every batch third-party certified",
+    "enabled": true
+  },
+  {
+    "id": "f2",
+    "icon": "🚚",
+    "title": "Free Express Shipping",
+    "desc": "On orders above ₹999",
+    "enabled": true
+  },
+  {
+    "id": "f3",
+    "icon": "🔄",
+    "title": "7-Day Returns",
+    "desc": "Hassle-free replacement guarantee",
+    "enabled": true
+  },
+  {
+    "id": "f4",
+    "icon": "🛡️",
+    "title": "FSSAI Certified",
+    "desc": "Indian food safety compliant",
+    "enabled": true
+  }
+]

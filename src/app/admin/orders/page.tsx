@@ -100,6 +100,10 @@ export default async function AdminOrdersPage() {
           <span className="badge bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold py-1 px-3">
             ● Real-Time Connected ({formattedOrders.length} Orders)
           </span>
+          <a href="/api/admin/export/orders?format=csv" download
+             className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-4 rounded-xl text-xs">
+            Export Orders CSV
+          </a>
         </div>
       </div>
 

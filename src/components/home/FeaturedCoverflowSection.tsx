@@ -128,7 +128,15 @@ export default async function FeaturedCoverflowSection() {
           }
         })
 
-        const uniqueDbProducts = Array.from(new Map(mappedDbProducts.map(item => [item.id, item])).values())
+        const seenCoverflow = new Set<string>()
+        const uniqueDbProducts = mappedDbProducts.filter((item) => {
+          const sKey = (item.slug || "").toLowerCase().trim()
+          const nKey = (item.name || "").toLowerCase().trim().replace(/[^a-z0-9]/g, "")
+          if (!sKey || seenCoverflow.has(sKey) || seenCoverflow.has(nKey)) return false
+          seenCoverflow.add(sKey)
+          seenCoverflow.add(nKey)
+          return true
+        })
         return uniqueDbProducts.length > 0 ? uniqueDbProducts : fallback
       } catch {
         return fallback

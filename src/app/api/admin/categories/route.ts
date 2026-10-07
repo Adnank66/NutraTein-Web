@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { name, slug, description, image, icon, sortOrder } = await req.json()
+    const { name, slug, type, linkedCategorySlug, description, image, icon, sortOrder } = await req.json()
 
     if (!name?.trim()) {
       return NextResponse.json({ error: "Category name is required" }, { status: 400 })
@@ -41,6 +41,8 @@ export async function POST(req: Request) {
       data: {
         name: name.trim(),
         slug: cleanSlug,
+        type: type === "GOAL" ? "GOAL" : "PRODUCT",
+        linkedCategorySlug: linkedCategorySlug?.trim() || null,
         description: description?.trim() || null,
         image: image?.trim() || null,
         icon: icon?.trim() || null,
@@ -61,7 +63,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id, name, slug, description, image, icon, sortOrder } = await req.json()
+    const { id, name, slug, type, linkedCategorySlug, description, image, icon, sortOrder } = await req.json()
 
     if (!id) {
       return NextResponse.json({ error: "Category ID is required" }, { status: 400 })
@@ -69,6 +71,8 @@ export async function PATCH(req: Request) {
 
     const updateData: any = {}
     if (name !== undefined) updateData.name = name.trim()
+    if (type !== undefined) updateData.type = type === "GOAL" ? "GOAL" : "PRODUCT"
+    if (linkedCategorySlug !== undefined) updateData.linkedCategorySlug = linkedCategorySlug?.trim() || null
     if (slug !== undefined) {
       updateData.slug = slug.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
     }

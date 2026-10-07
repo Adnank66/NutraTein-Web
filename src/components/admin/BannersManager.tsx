@@ -16,6 +16,7 @@ import {
   Maximize2,
   Check,
   RefreshCw,
+  X,
 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -28,6 +29,7 @@ interface BannerItem {
   ctaText: string
   ctaLink: string
   imageUrl: string
+  mobileImageUrl?: string
   objectFit?: "contain" | "cover"
   isActive: boolean
   sortOrder: number
@@ -43,10 +45,12 @@ export default function BannersManager() {
   const [editingBanner, setEditingBanner] = useState<BannerItem | null>(null)
   const [isNew, setIsNew] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [galleryTarget, setGalleryTarget] = useState<"imageUrl" | "mobileImageUrl" | null>(null)
+  const [galleryAssets, setGalleryAssets] = useState<any[]>([])
 
   const fetchBanners = async () => {
     try {
-      const res = await fetch("/api/admin/banners")
+      const res = await fetch("/api/admin/banners", { cache: "no-store" })
       const data = await res.json()
       if (data.banners) {
         setBanners(data.banners)
@@ -59,6 +63,22 @@ export default function BannersManager() {
       toast.error("Failed to load banners")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "imageUrl" | "mobileImageUrl") => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const formData = new FormData()
+    formData.append("file", file)
+    try {
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setEditingBanner(prev => prev ? { ...prev, [field]: data.url } : null)
+      toast.success("Image uploaded!")
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed")
     }
   }
 
@@ -120,6 +140,16 @@ export default function BannersManager() {
     } catch {
       toast.error("Failed to update banner height")
     }
+  }
+
+  const openGallery = (target: "imageUrl" | "mobileImageUrl") => {
+    try {
+      const saved = localStorage.getItem("nutratein_media_assets")
+      if (saved) {
+        setGalleryAssets(JSON.parse(saved))
+      }
+    } catch {}
+    setGalleryTarget(target)
   }
 
   const handleToggleActive = async (id: string) => {
@@ -429,21 +459,49 @@ export default function BannersManager() {
               />
             </div>
 
+              <div>
+              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                Desktop Banner Image URL
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={editingBanner.imageUrl}
+                  onChange={(e) => setEditingBanner({ ...editingBanner, imageUrl: e.target.value })}
+                  className="flex-1 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                  placeholder="/assets/banners/..."
+                  required
+                />
+                <button type="button" onClick={() => openGallery("imageUrl")} className="bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-3 py-2 rounded-xl text-xs font-medium">
+                  Gallery
+                </button>
+                <label className="cursor-pointer bg-brand-600 hover:bg-brand-700 text-white px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-center">
+                  Upload
+                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUpload(e, "imageUrl")} />
+                </label>
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                Banner Image URL / File Path
+                Mobile Banner Image URL (Optional)
               </label>
-              <input
-                type="text"
-                value={editingBanner.imageUrl}
-                onChange={(e) => setEditingBanner({ ...editingBanner, imageUrl: e.target.value })}
-                className="w-full text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                placeholder="e.g. /assets/banners/whey-red-banner.png"
-                required
-              />
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
-                Recommended: 16:9 widescreen format (e.g. 2752×1536px or 1920×1080px). Auto-fills edge-to-edge with zero side gaps.
-              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={editingBanner.mobileImageUrl || ""}
+                  onChange={(e) => setEditingBanner({ ...editingBanner, mobileImageUrl: e.target.value })}
+                  className="flex-1 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                  placeholder="/assets/banners/mobile-..."
+                />
+                <button type="button" onClick={() => openGallery("mobileImageUrl")} className="bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-3 py-2 rounded-xl text-xs font-medium">
+                  Gallery
+                </button>
+                <label className="cursor-pointer bg-brand-600 hover:bg-brand-700 text-white px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-center">
+                  Upload
+                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUpload(e, "mobileImageUrl")} />
+                </label>
+              </div>
             </div>
 
             <div>
@@ -627,6 +685,50 @@ export default function BannersManager() {
               </div>
             )
           })}
+        </div>
+      )}
+      {galleryTarget && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-scale-in">
+            <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+              <h3 className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2 text-sm">
+                <ImageIcon size={16} className="text-brand-500" /> Select Media from Gallery
+              </h3>
+              <button onClick={() => setGalleryTarget(null)} className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 transition">
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="p-4 overflow-y-auto flex-1 bg-zinc-100/50 dark:bg-zinc-950/50">
+              {galleryAssets.length === 0 ? (
+                <div className="text-center py-12 text-zinc-400">
+                  <p>No media found in your gallery.</p>
+                  <p className="text-xs mt-1">Upload images via the Media Manager first.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {galleryAssets.map((asset) => (
+                    <div
+                      key={asset.id}
+                      onClick={() => {
+                        if (editingBanner) {
+                          setEditingBanner({ ...editingBanner, [galleryTarget]: asset.url })
+                        }
+                        setGalleryTarget(null)
+                      }}
+                      className="group relative aspect-square bg-white dark:bg-zinc-900 rounded-2xl border-2 border-transparent hover:border-brand-500 cursor-pointer overflow-hidden shadow-sm transition-all hover:shadow-md"
+                    >
+                      <img src={asset.url} alt={asset.name} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2 text-white">
+                        <p className="text-[9px] font-bold truncate">{asset.name}</p>
+                        <p className="text-[8px] opacity-75">{asset.category}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

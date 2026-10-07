@@ -1,6 +1,6 @@
 import StoreLayout from "@/components/layout/StoreLayout"
 import Link from "next/link"
-import { User, Package, Heart, MapPin, Settings, LayoutDashboard } from "lucide-react"
+import { User, Package, Heart, MapPin, Settings, LayoutDashboard, RefreshCw, Gift } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
@@ -13,6 +13,8 @@ export default async function AccountLayout({ children }: { children: React.Reac
   const navItems = [
     { label: "Dashboard", href: "/account", icon: User },
     { label: "My Orders", href: "/account/orders", icon: Package },
+    { label: "My Subscriptions", href: "/account/subscriptions", icon: RefreshCw },
+    { label: "My Rewards", href: "/account/rewards", icon: Gift },
     { label: "Wishlist", href: "/account/wishlist", icon: Heart },
     { label: "Saved Addresses", href: "/account/addresses", icon: MapPin },
     { label: "Settings", href: "/account/settings", icon: Settings },

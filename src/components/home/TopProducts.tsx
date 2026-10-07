@@ -401,18 +401,20 @@ export default function TopProducts() {
               aria-hidden="true"
             />
 
-            {/* Keep the active video behind its controls so it always fills the player. */}
+            {/* Keep the active video behind its controls so it always fits the player. */}
             <video
               ref={videoRef}
               key={activeItem.videoUrl}
               src={activeItem.videoUrl}
-              className="ts-bg-video absolute inset-0 z-10 w-full h-full object-cover object-center transition-opacity duration-700 cursor-pointer"
+              className={`ts-bg-video absolute inset-0 z-10 w-full h-full object-center transition-opacity duration-700 cursor-pointer ${activeItem.objectFit === "contain" ? "object-contain" : "object-cover"}`}
               autoPlay
-              loop
               muted
               playsInline
               preload="auto"
               poster={activeItem.poster}
+              onEnded={() => {
+                setActiveVideoIdx((prev) => (prev + 1) % items.length)
+              }}
               onError={(e) => {
                 const target = e.currentTarget
                 if (!target.src.endsWith("shredtein-ani-video.mp4")) {

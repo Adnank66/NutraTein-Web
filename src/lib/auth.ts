@@ -50,15 +50,63 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
         otp: { label: "OTP", type: "text" },
+        phone: { label: "Phone", type: "text" },
+        phoneOtp: { label: "Phone OTP", type: "text" },
         whatsappOptIn: { label: "WhatsApp Opt-In", type: "text" },
       },
       async authorize(credentials) {
         try {
-          if (!credentials?.email) return null
-          const cleanEmail = (credentials.email as string).toLowerCase().trim()
           const whatsappOptIn = credentials.whatsappOptIn === "true" || credentials.whatsappOptIn === true
 
-          // Option A: Instant Verification Code (Email OTP Login)
+          // Option A: Phone OTP Login (Does not require email)
+          if (credentials?.phone && credentials?.phoneOtp) {
+            const cleanPhone = (credentials.phone as string).replace(/[^0-9]/g, "").slice(-10)
+            const otp = (credentials.phoneOtp as string).trim()
+            const record = await prisma.phoneOTP.findFirst({
+              where: {
+                phone: { contains: cleanPhone },
+                code: otp,
+              },
+              orderBy: { createdAt: "desc" },
+            })
+            if (!record || new Date() > record.expiresAt) return null
+            await prisma.phoneOTP.delete({ where: { id: record.id } }).catch(() => {})
+            let dbUser = await prisma.user.findFirst({
+              where: {
+                OR: [
+                  { phone: { contains: cleanPhone } },
+                  { email: `phone_${cleanPhone}@nutratein.com` },
+                ],
+              },
+            })
+            if (!dbUser) {
+              dbUser = await prisma.user.create({
+                data: {
+                  email: `phone_${cleanPhone}@nutratein.com`,
+                  phone: cleanPhone,
+                  name: `Athlete ${cleanPhone.slice(-4)}`,
+                  whatsappOptIn,
+                  role: "USER",
+                },
+              })
+            } else if (whatsappOptIn && !dbUser.whatsappOptIn) {
+              await prisma.user.update({
+                where: { id: dbUser.id },
+                data: { whatsappOptIn: true },
+              }).catch(() => {})
+            }
+            return {
+              id: dbUser.id,
+              email: dbUser.email,
+              name: dbUser.name,
+              role: dbUser.role || "USER",
+            }
+          }
+
+          if (!credentials?.email) return null
+          const cleanEmail = (credentials.email as string).toLowerCase().trim()
+
+          // Option B: Instant Verification Code (Email OTP Login)
           if (credentials.otp) {
             const cleanOtp = (credentials.otp as string).trim()
             const otpRecord = await prisma.emailOTP.findFirst({
@@ -108,7 +156,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
           }
 
-          // Option B: Password Login
+          // Option C: Password Login
           const password = credentials.password as string
           if (!password) return null
 

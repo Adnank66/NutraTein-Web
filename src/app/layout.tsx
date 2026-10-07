@@ -3,6 +3,7 @@ import "./globals.css"
 import SessionProvider from "@/components/providers/SessionProvider"
 import { Toaster } from "sonner"
 import NutraTeinLoader from "@/components/ui/NutraTeinLoader"
+import CookieConsentBanner from "@/components/CookieConsentBanner"
 
 export const metadata: Metadata = {
   title: {
@@ -51,9 +52,11 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased text-dark-900 bg-white selection:bg-brand-500 selection:text-white transition-colors duration-150">
         <NutraTeinLoader />
+        <CookieConsentBanner />
         <SessionProvider>
           {children}
           <Toaster 
+
             richColors 
             position="top-right" 
             toastOptions={{

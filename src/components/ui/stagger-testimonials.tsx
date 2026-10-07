@@ -596,12 +596,8 @@ export default function StaggerTestimonials({
                                   {review.customerName}
                                 </h4>
                                 {review.isVerified && (
-                                  <span
-                                    title="Verified Buyer"
-                                    className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/60"
-                                  >
-                                    <BadgeCheck size={11} className="text-emerald-600 dark:text-emerald-400" />
-                                    <span>Verified</span>
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
+                                    <ShieldCheck size={10} /> Verified Purchase
                                   </span>
                                 )}
                               </div>

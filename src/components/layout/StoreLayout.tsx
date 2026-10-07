@@ -1,4 +1,3 @@
-import AnnouncementBar from "./AnnouncementBar"
 import Header from "./Header"
 import Footer from "./Footer"
 import AiWhatsAppChatWidget from "@/components/chat/AiWhatsAppChatWidget"
@@ -9,7 +8,6 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
       <ScrollToTop />
-      <AnnouncementBar />
       <Header />
       <main className="flex-1 w-full overflow-x-hidden">{children}</main>
       <Footer />

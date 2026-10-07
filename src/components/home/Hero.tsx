@@ -17,6 +17,7 @@ interface BannerItem {
   ctaText: string
   ctaLink: string
   imageUrl: string
+  mobileImageUrl?: string
   objectFit: "contain" | "cover"
   isActive: boolean
   sortOrder: number
@@ -97,7 +98,7 @@ export default function Hero() {
 
   // Fetch dynamic banners from Admin API
   useEffect(() => {
-    fetch("/api/admin/banners")
+    fetch("/api/admin/banners", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.banners && data.banners.length > 0) {
@@ -134,14 +135,53 @@ export default function Hero() {
     setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length)
   }, [banners.length])
 
-  // Auto-play timer
+  // Touch & Touchpad swipe tracking
+  const touchStartX = useRef<number | null>(null)
+  const touchEndX = useRef<number | null>(null)
+  const lastWheelTime = useRef<number>(0)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return
+    const diff = touchStartX.current - touchEndX.current
+    if (diff > 35) {
+      handleNext()
+    } else if (diff < -35) {
+      handlePrev()
+    }
+    touchStartX.current = null
+    touchEndX.current = null
+  }
+
+  const handleWheel = (e: React.WheelEvent) => {
+    const now = Date.now()
+    if (now - lastWheelTime.current < 600) return
+    if (Math.abs(e.deltaX) > 25) {
+      if (e.deltaX > 25) {
+        handleNext()
+        lastWheelTime.current = now
+      } else if (e.deltaX < -25) {
+        handlePrev()
+        lastWheelTime.current = now
+      }
+    }
+  }
+
+  // Auto-play timer: Slow, elegant auto-scroll to the right
   useEffect(() => {
-    if (isPaused || banners.length <= 1) return
+    if (banners.length <= 1) return
     const timer = setInterval(() => {
       handleNext()
-    }, 5500)
+    }, 6500)
     return () => clearInterval(timer)
-  }, [isPaused, banners.length, handleNext])
+  }, [banners.length, handleNext])
 
   // Keyboard navigation
   useEffect(() => {
@@ -164,9 +204,11 @@ export default function Hero() {
   return (
     <section
       id="hero-banner"
-      className="relative w-full bg-zinc-950 text-white overflow-hidden select-none border-b border-zinc-800"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      className="relative w-full bg-zinc-950 text-white overflow-hidden select-none border-b border-zinc-800 touch-pan-y"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onWheel={handleWheel}
       aria-label="Nutra Tein Promotional Banners"
     >
       {/* Dynamic Ambient Background Blur */}
@@ -225,36 +267,45 @@ export default function Hero() {
                 transition={{ duration: 0.8, ease: [0.77, 0, 0.175, 1] }}
                 className="w-full h-full"
               >
-                <Image
-                  src={currentBanner.imageUrl}
-                  alt={currentBanner.title}
-                  fill
-                  priority
-                  quality={100}
-                  unoptimized
-                  className={`w-full h-full object-center transition-all duration-700 ease-out group-hover:scale-[1.005] ${effectiveFit === "cover" ? "object-cover" : "object-contain"}`}
-                  sizes="(max-width: 768px) 100vw, 1920px"
-                />
+                {currentBanner.mobileImageUrl ? (
+                  <>
+                    <Image
+                      src={currentBanner.imageUrl}
+                      alt={currentBanner.title}
+                      fill
+                      priority
+                      quality={100}
+                      unoptimized
+                      className={`hidden md:block w-full h-full object-center transition-all duration-700 ease-out group-hover:scale-[1.005] ${effectiveFit === "cover" ? "object-cover" : "object-contain"}`}
+                      sizes="100vw"
+                    />
+                    <Image
+                      src={currentBanner.mobileImageUrl}
+                      alt={currentBanner.title}
+                      fill
+                      priority
+                      quality={100}
+                      unoptimized
+                      className={`md:hidden w-full h-full object-center transition-all duration-700 ease-out group-hover:scale-[1.005] ${effectiveFit === "cover" ? "object-cover" : "object-contain"}`}
+                      sizes="100vw"
+                    />
+                  </>
+                ) : (
+                  <Image
+                    src={currentBanner.imageUrl}
+                    alt={currentBanner.title}
+                    fill
+                    priority
+                    quality={100}
+                    unoptimized
+                    className={`w-full h-full object-center transition-all duration-700 ease-out group-hover:scale-[1.005] ${effectiveFit === "cover" ? "object-cover" : "object-contain"}`}
+                    sizes="(max-width: 768px) 100vw, 1920px"
+                  />
+                )}
               </motion.div>
             </Link>
 
-            {/* Previous & Next Navigation Arrows */}
-            <button
-              type="button"
-              onClick={handlePrev}
-              className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-75 hover:opacity-100 hover:scale-110 transition-all shadow-xl"
-              aria-label="Previous Banner"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-75 hover:opacity-100 hover:scale-110 transition-all shadow-xl"
-              aria-label="Next Banner"
-            >
-              <ChevronRight size={18} />
-            </button>
+            {/* Touch and touchpad scrollable directly without arrows */}
 
             {/* Quick Action CTA: Visible on tablet and desktop, unobtrusive so mobile graphic text is 100% visible */}
             <div className="hidden sm:block absolute bottom-2.5 sm:bottom-4 right-3 sm:right-6 z-20 pointer-events-auto">

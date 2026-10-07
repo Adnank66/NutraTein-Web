@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const orderNumber = generateOrderNumber()
-    const validMethod = paymentMethod === "COD" ? "COD" : "UPI"
+    const validMethod = paymentMethod || "UPI"
     const deliveryEstimate = calculateDeliveryEstimate(customer?.pincode)
 
     const resolvedItems = items.map((i: any, index: number) => ({
@@ -48,9 +48,9 @@ export async function POST(req: Request) {
 
     const orderPayload = {
       orderNumber,
-      status: "CONFIRMED",
+      status: validMethod === "COD" ? "CONFIRMED" : "PENDING",
       paymentMethod: validMethod,
-      paymentStatus: validMethod === "COD" ? "PENDING" : "PAID",
+      paymentStatus: "PENDING",
       subtotal: Number(subtotal),
       discountAmount: Number(discountAmount || 0),
       couponCode: couponCode || null,

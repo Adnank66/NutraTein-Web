@@ -16,6 +16,8 @@ import {
   RefreshCw,
   Save,
   Check,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 import { formatPrice } from "@/lib/utils"
@@ -39,6 +41,7 @@ export interface VideoItem {
   servings?: string
   isTopSeller?: boolean
   isActive: boolean
+  objectFit?: "cover" | "contain"
 }
 
 export default function VideosManager() {
@@ -48,6 +51,38 @@ export default function VideosManager() {
   const [editingVideo, setEditingVideo] = useState<VideoItem | null>(null)
   const [previewVideo, setPreviewVideo] = useState<VideoItem | null>(null)
   const [saving, setSaving] = useState(false)
+  const [galleryTarget, setGalleryTarget] = useState<"videoUrl" | "productImage" | null>(null)
+  const [galleryAssets, setGalleryAssets] = useState<any[]>([])
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "videoUrl" | "productImage") => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const fData = new FormData()
+    fData.append("file", file)
+    try {
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setFormData((prev) => ({
+        ...prev,
+        [field]: data.url,
+        ...(field === "productImage" ? { poster: data.url } : {}),
+      }))
+      toast.success(`${field === "videoUrl" ? "Video" : "Image"} uploaded successfully!`)
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed")
+    }
+  }
+
+  const openGallery = (target: "videoUrl" | "productImage") => {
+    try {
+      const saved = localStorage.getItem("nutratein_media_assets")
+      if (saved) {
+        setGalleryAssets(JSON.parse(saved))
+      }
+    } catch {}
+    setGalleryTarget(target)
+  }
 
   // Quick inline title editing state
   const [inlineEditingId, setInlineEditingId] = useState<string | null>(null)
@@ -70,6 +105,7 @@ export default function VideosManager() {
     servings: "30 Servings",
     isTopSeller: true,
     isActive: true,
+    objectFit: "cover",
   })
 
   const fetchVideos = async () => {
@@ -229,6 +265,7 @@ export default function VideosManager() {
               servings: "30 Servings",
               isTopSeller: true,
               isActive: true,
+              objectFit: "cover",
             })
             setIsAdding(true)
           }}
@@ -276,14 +313,32 @@ export default function VideosManager() {
               <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                 Video File Path or Stream URL (.mp4) *
               </label>
-              <input
-                type="text"
-                value={formData.videoUrl || ""}
-                onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                placeholder="e.g. /assets/video/pre-ani-4k.mp4 or /assets/video/shreded-ani-4k.mp4"
-                className="w-full text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                required
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={formData.videoUrl || ""}
+                  onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                  placeholder="e.g. /assets/video/pre-ani-4k.mp4 or stream URL"
+                  className="flex-1 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => openGallery("videoUrl")}
+                  className="bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-3 py-2 rounded-xl text-xs font-bold transition-colors"
+                >
+                  Gallery
+                </button>
+                <label className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 transition-colors">
+                  <Upload size={12} /> Upload
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="video/*"
+                    onChange={(e) => handleUpload(e, "videoUrl")}
+                  />
+                </label>
+              </div>
               <div className="flex flex-wrap gap-1 mt-1.5">
                 <span className="text-[10px] text-zinc-400 font-bold self-center">Quick Select:</span>
                 {[
@@ -335,16 +390,34 @@ export default function VideosManager() {
               <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                 Product Image for Right-Side Cart *
               </label>
-              <input
-                type="text"
-                value={formData.productImage || formData.poster || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, productImage: e.target.value, poster: e.target.value })
-                }
-                placeholder="e.g. /assets/recommendations/titan.jpg or /assets/top-sellers/shredtein-lean-protein.png"
-                className="w-full text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                required
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={formData.productImage || formData.poster || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, productImage: e.target.value, poster: e.target.value })
+                  }
+                  placeholder="e.g. /assets/recommendations/titan.jpg"
+                  className="flex-1 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => openGallery("productImage")}
+                  className="bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-3 py-2 rounded-xl text-xs font-bold transition-colors"
+                >
+                  Gallery
+                </button>
+                <label className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 transition-colors">
+                  <Upload size={12} /> Upload
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => handleUpload(e, "productImage")}
+                  />
+                </label>
+              </div>
             </div>
 
             <div>
@@ -358,6 +431,20 @@ export default function VideosManager() {
                 placeholder="e.g. PUMP & FOCUS or LEAN MATRIX"
                 className="w-full text-xs px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                Video Display Mode
+              </label>
+              <select
+                value={formData.objectFit || "cover"}
+                onChange={(e) => setFormData({ ...formData, objectFit: e.target.value as "cover" | "contain" })}
+                className="w-full text-xs px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+              >
+                <option value="cover">Fill Area (Cover)</option>
+                <option value="contain">Fit Inside (Contain)</option>
+              </select>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -614,7 +701,7 @@ export default function VideosManager() {
                   <button
                     onClick={() => {
                       setEditingVideo(vid)
-                      setFormData(vid)
+                      setFormData({ ...vid, objectFit: vid.objectFit || "cover" })
                       setIsAdding(true)
                     }}
                     className="py-1.5 px-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-bold flex items-center gap-1"
@@ -633,6 +720,65 @@ export default function VideosManager() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Media Gallery Selection Modal */}
+      {galleryTarget && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-scale-in border border-zinc-200 dark:border-zinc-800">
+            <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+              <h3 className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2 text-sm">
+                <ImageIcon size={16} className="text-red-500" /> Select Media from Gallery
+              </h3>
+              <button
+                onClick={() => setGalleryTarget(null)}
+                className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-4 overflow-y-auto flex-1 bg-zinc-100/50 dark:bg-zinc-950/50">
+              {galleryAssets.length === 0 ? (
+                <div className="text-center py-12 text-zinc-400">
+                  <p className="font-semibold text-sm">No media found in your gallery.</p>
+                  <p className="text-xs mt-1">Upload images or videos via the Media Manager first, or use the Upload button.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {galleryAssets.map((asset) => (
+                    <div
+                      key={asset.id}
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          [galleryTarget]: asset.url,
+                          ...(galleryTarget === "productImage" ? { poster: asset.url } : {}),
+                        }))
+                        setGalleryTarget(null)
+                        toast.success("Media selected from gallery!")
+                      }}
+                      className="group relative aspect-square bg-white dark:bg-zinc-900 rounded-2xl border-2 border-transparent hover:border-red-500 cursor-pointer overflow-hidden shadow-sm transition-all hover:shadow-md"
+                    >
+                      {asset.type === "video" || asset.url?.endsWith(".mp4") ? (
+                        <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center text-zinc-400 p-2">
+                          <Film size={28} className="text-red-500 mb-1" />
+                          <span className="text-[9px] font-mono truncate max-w-full">{asset.name || "Video"}</span>
+                        </div>
+                      ) : (
+                        <img src={asset.url} alt={asset.name} className="w-full h-full object-cover" />
+                      )}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2 text-white">
+                        <p className="text-[9px] font-bold truncate">{asset.name}</p>
+                        <p className="text-[8px] opacity-75">{asset.category || asset.type}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

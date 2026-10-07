@@ -29,6 +29,7 @@ const DEFAULT_SETTINGS = {
   enableCOD: true,
   enableUPI: true,
   enableCash: false,
+  customMethods: [] as any[],
 }
 
 const cleanImagePath = (path: string | undefined | null): string => {
@@ -46,7 +47,7 @@ export default function AdminPaymentSettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    fetch("/api/payment-settings")
+    fetch("/api/payment-settings", { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => {
         if (data.success && data.settings) {
@@ -366,6 +367,68 @@ export default function AdminPaymentSettingsPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* ── SECTION 4: Custom Methods (e.g. Bank Transfer) ──────────────────────── */}
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl p-6 space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
+            <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">
+              Custom Payment Methods (Bank Transfer, etc.)
+            </h2>
+            <button
+              type="button"
+              onClick={() => setSettings({
+                ...settings,
+                customMethods: [...(settings.customMethods || []), { id: `custom_${Date.now()}`, name: "Bank Transfer", description: "Direct bank transfer", details: "Account: \nIFSC: ", enabled: true }]
+              })}
+              className="text-xs bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 transition-colors"
+            >
+              <Plus size={14} /> Add Method
+            </button>
+          </div>
+          
+          {(!settings.customMethods || settings.customMethods.length === 0) ? (
+            <p className="text-xs text-zinc-400">No custom methods added. Click 'Add Method' to create one like Bank Transfer.</p>
+          ) : (
+            <div className="space-y-4">
+              {settings.customMethods.map((cm, idx) => (
+                <div key={cm.id} className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 space-y-3 relative group">
+                  <button type="button" onClick={() => {
+                    const next = [...settings.customMethods]; next.splice(idx, 1);
+                    setSettings({...settings, customMethods: next})
+                  }} className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Trash2 size={16} />
+                  </button>
+                  <div className="grid grid-cols-2 gap-3 pr-8">
+                    <div>
+                      <label className="text-[10px] font-bold text-zinc-500 block mb-1">Method Name</label>
+                      <input type="text" value={cm.name} onChange={e => {
+                        const next = [...settings.customMethods]; next[idx].name = e.target.value; setSettings({...settings, customMethods: next})
+                      }} className="w-full border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-zinc-500 block mb-1">Short Description</label>
+                      <input type="text" value={cm.description} onChange={e => {
+                        const next = [...settings.customMethods]; next[idx].description = e.target.value; setSettings({...settings, customMethods: next})
+                      }} className="w-full border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-500 block mb-1">Payment Details / Instructions (Account No, IFSC, etc.)</label>
+                    <textarea rows={3} value={cm.details} onChange={e => {
+                      const next = [...settings.customMethods]; next[idx].details = e.target.value; setSettings({...settings, customMethods: next})
+                    }} className="w-full border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 resize-none" />
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id={`cm_en_${cm.id}`} checked={cm.enabled} onChange={e => {
+                      const next = [...settings.customMethods]; next[idx].enabled = e.target.checked; setSettings({...settings, customMethods: next})
+                    }} className="rounded border-zinc-300 text-brand-600" />
+                    <label htmlFor={`cm_en_${cm.id}`} className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Enable this method on checkout</label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Save Button */}

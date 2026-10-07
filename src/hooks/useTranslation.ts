@@ -11,17 +11,12 @@ export function useTranslation() {
   }, [])
 
   const t = (keyPath: string, replacements?: Record<string, string | number>) => {
-    // To prevent hydration errors, always return English during SSR and initial hydration.
-    // Once mounted, return the user's selected language.
-    if (!mounted) {
-      return store.t(keyPath, replacements, "en")
-    }
     return store.t(keyPath, replacements)
   }
 
   return {
     t,
-    language: mounted ? store.language : "en",
+    language: store.language,
     setLanguage: store.setLanguage,
     mounted
   }

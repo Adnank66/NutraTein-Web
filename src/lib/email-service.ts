@@ -2,7 +2,17 @@ import nodemailer from "nodemailer"
 import fs from "fs"
 import path from "path"
 
-const TARGET_EMAIL = process.env.ALERT_EMAIL || "adnankazi275@gmail.com"
+const SETTINGS_FILE = path.join(process.cwd(), "data", "email-settings.json")
+
+function getTargetEmail() {
+  try {
+    if (fs.existsSync(SETTINGS_FILE)) {
+      const settings = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"))
+      if (settings.primaryEmail) return settings.primaryEmail
+    }
+  } catch {}
+  return process.env.ALERT_EMAIL || "adnankazi275@gmail.com"
+}
 
 function getTransporter() {
   const host = process.env.SMTP_HOST || "smtp.gmail.com"
@@ -30,9 +40,9 @@ function logAlertFallback(type: string, data: any) {
     const logDir = path.join(process.cwd(), "logs")
     if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true })
     const logFile = path.join(logDir, "email-alerts.log")
-    const entry = `[${new Date().toISOString()}] [${type}] To: ${TARGET_EMAIL}\n${JSON.stringify(data, null, 2)}\n\n`
+    const entry = `[${new Date().toISOString()}] [${type}] To: ${getTargetEmail()}\n${JSON.stringify(data, null, 2)}\n\n`
     fs.appendFileSync(logFile, entry, "utf8")
-    console.log(`📧 [EMAIL ALERT: ${type}] Saved to logs/email-alerts.log -> To: ${TARGET_EMAIL}`)
+    console.log(`📧 [EMAIL ALERT: ${type}] Saved to logs/email-alerts.log -> To: ${getTargetEmail()}`)
   } catch (err) {
     console.error("Failed to write email alert log:", err)
   }
@@ -108,11 +118,11 @@ export async function sendOrderAlertEmail(order: {
     try {
       await transporter.sendMail({
         from: `"NUTRA TEIN Store" <${process.env.SMTP_USER || "orders@nutratein.in"}>`,
-        to: TARGET_EMAIL,
+        to: getTargetEmail(),
         subject: `🚨 [New Order #${order.orderNumber}] ₹${order.totalAmount} from ${order.customer.name}`,
         html,
       })
-      console.log(`✅ [ORDER EMAIL ALERT SENT] To: ${TARGET_EMAIL}`)
+      console.log(`✅ [ORDER EMAIL ALERT SENT] To: ${getTargetEmail()}`)
     } catch (err: any) {
       console.error("Failed to send order email alert via SMTP:", err.message)
     }
@@ -155,12 +165,12 @@ export async function sendContactAlertEmail(contact: {
     try {
       await transporter.sendMail({
         from: `"NUTRA TEIN Inquiries" <${process.env.SMTP_USER || "inquiries@nutratein.in"}>`,
-        to: TARGET_EMAIL,
+        to: getTargetEmail(),
         replyTo: contact.email,
         subject: `📩 [Contact Inquiry] From ${contact.name}: ${contact.subject || "Customer Message"}`,
         html,
       })
-      console.log(`✅ [CONTACT EMAIL ALERT SENT] To: ${TARGET_EMAIL}`)
+      console.log(`✅ [CONTACT EMAIL ALERT SENT] To: ${getTargetEmail()}`)
     } catch (err: any) {
       console.error("Failed to send contact email alert via SMTP:", err.message)
     }

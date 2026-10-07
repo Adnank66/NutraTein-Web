@@ -1,0 +1,12 @@
+{
+  "email": { "enabled": true },
+  "whatsapp": { "enabled": false, "provider": null, "note": "WhatsApp provider integration required. Supported: Twilio, WBiz, Interakt" },
+  "sms": { "enabled": false, "provider": null, "note": "SMS provider integration required. Supported: Twilio, MSG91, Fast2SMS" },
+  "templates": {
+    "ORDER_PLACED": "Hello {{name}}, your order #{{orderNumber}} has been placed! Total: ₹{{total}}",
+    "ORDER_CONFIRMED": "Order #{{orderNumber}} confirmed and being processed.",
+    "ORDER_SHIPPED": "Order #{{orderNumber}} shipped! Tracking: {{trackingNumber}}",
+    "ORDER_DELIVERED": "Order #{{orderNumber}} delivered. Thank you! 💪",
+    "ORDER_CANCELLED": "Order #{{orderNumber}} cancelled."
+  }
+}

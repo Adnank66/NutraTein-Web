@@ -146,13 +146,10 @@ export default function CustomersManager({ initialCustomers }: { initialCustomer
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleExportCustomers}
-            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
-            title="Download CSV of customer list"
-          >
-            <Download size={13} /> Export CSV
-          </button>
+          <a href="/api/admin/export/customers?format=csv" download
+             className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-4 rounded-xl text-xs">
+            <Download size={13} /> Export Customers CSV
+          </a>
         </div>
       </div>
 

@@ -18,27 +18,13 @@ import StorefrontAnnouncementBar from "@/components/layout/StorefrontAnnouncemen
 import NotificationsDropdown from "@/components/layout/NotificationsDropdown"
 import { useTranslation } from "@/hooks/useTranslation"
 
-const navLinks = [
+const baseNavLinks = [
   { key: "nav.home", label: "Home", href: "/" },
-  {
-    key: "nav.shop",
-    label: "Shop",
-    href: "/shop",
-    children: [
-      { key: "nav.allProducts", label: "All Products", href: "/shop" },
-      { key: "nav.wheyProtein", label: "Whey Protein", href: "/shop?category=whey-protein" },
-      { key: "nav.plantProtein", label: "Plant Protein", href: "/shop?category=plant-protein" },
-      { key: "nav.massGainers", label: "Mass Gainers", href: "/shop?category=mass-gainers" },
-      { key: "nav.creatine", label: "Creatine", href: "/shop?category=creatine" },
-      { key: "nav.preWorkout", label: "Pre-Workout", href: "/shop?category=pre-workout" },
-      { key: "nav.bcaa", label: "BCAA / EAA", href: "/shop?category=bcaa-eaa" },
-      { label: "Gear & Accessories", href: "/shop?category=gear" },
-    ],
-  },
-  { label: "Supplements", href: "/shop" },
+  // Category link will be injected here dynamically
   { key: "nav.deals", label: "Deals", href: "/deals" },
   { key: "nav.about", label: "About", href: "/about" },
   { key: "nav.contact", label: "Contact", href: "/contact" },
+  { label: "Write Review", href: "/write-review" },
 ]
 
 export default function Header() {
@@ -49,6 +35,7 @@ export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [activeNavTab, setActiveNavTab] = useState<"PRODUCT" | "GOAL">("PRODUCT")
   // Scroll-hide / scroll-show state
   const [visible, setVisible] = useState(true)
   const [mounted, setMounted] = useState(false)
@@ -59,8 +46,34 @@ export default function Header() {
   const openCart = useCartStore((s) => s.openCart)
   const { t } = useTranslation()
 
+  const [navLinks, setNavLinks] = useState<any[]>(baseNavLinks)
+
   useEffect(() => {
     setMounted(true)
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => {
+        if (data.categories) {
+          const productCats = data.categories.filter((c: any) => c.type !== 'GOAL')
+          const goalCats = data.categories.filter((c: any) => c.type === 'GOAL')
+          
+          const categoriesLink = {
+            key: "nav.categories",
+            label: "Shop",
+            href: "/shop",
+            isMegaMenu: true,
+            goalCats: goalCats.map((c: any) => ({ label: c.name, href: `/shop?category=${c.slug}` })),
+            productCats: productCats.map((c: any) => ({ label: c.name, href: `/shop?category=${c.slug}` }))
+          }
+          
+          setNavLinks([
+            baseNavLinks[0],
+            categoriesLink,
+            ...baseNavLinks.slice(1)
+          ])
+        }
+      })
+      .catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -116,7 +129,7 @@ export default function Header() {
                 const label = (mounted && link.key) ? t(link.key) || link.label : link.label
                 return (
                   <div key={link.label} className="relative group">
-                    {link.children ? (
+                    {link.isMegaMenu || link.children ? (
                       <div
                         onMouseEnter={() => setDropdownOpen(true)}
                         onMouseLeave={() => setDropdownOpen(false)}
@@ -135,15 +148,56 @@ export default function Header() {
                           <ChevronDown size={13} className="text-zinc-400 group-hover:rotate-180 transition-transform duration-200" />
                         </Link>
 
-                        {dropdownOpen && (
+                        {dropdownOpen && link.isMegaMenu && (
+                          <div className="absolute top-full left-0 pt-2 w-64 animate-scale-in">
+                            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                              <div className="flex border-b border-zinc-100 dark:border-zinc-800">
+                                <button
+                                  className={cn("flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-colors", activeNavTab === "PRODUCT" ? "bg-brand-50 dark:bg-brand-950/40 text-brand-600" : "text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800/50")}
+                                  onClick={() => setActiveNavTab("PRODUCT")}
+                                >
+                                  Shop by Product
+                                </button>
+                                <button
+                                  className={cn("flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-colors border-l border-zinc-100 dark:border-zinc-800", activeNavTab === "GOAL" ? "bg-brand-50 dark:bg-brand-950/40 text-brand-600" : "text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800/50")}
+                                  onClick={() => setActiveNavTab("GOAL")}
+                                >
+                                  Shop by Goal
+                                </button>
+                              </div>
+                              <div className="p-2 space-y-0.5">
+                                {(activeNavTab === "PRODUCT" ? link.productCats : link.goalCats).map((child: any, idx: number) => (
+                                  <Link
+                                    key={`${child.href}-${idx}`}
+                                    href={child.href}
+                                    onClick={() => setDropdownOpen(false)}
+                                    className="block px-3 py-2 rounded-xl text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
+                                  >
+                                    {child.label}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {dropdownOpen && link.children && (
                           <div className="absolute top-full left-0 pt-2 w-52 animate-scale-in">
                             <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-2 space-y-0.5">
-                              {link.children.map((child) => {
+                              {link.children.map((child: any, idx: number) => {
                                 const childLabel = (mounted && child.key) ? t(child.key) || child.label : child.label
+                                if (child.isHeader) {
+                                  return (
+                                    <div key={`header-${idx}`} className="px-3 pt-3 pb-1 text-[10px] uppercase tracking-wider font-bold text-zinc-400">
+                                      {childLabel}
+                                    </div>
+                                  )
+                                }
                                 return (
                                   <Link
-                                    key={child.href}
+                                    key={`${child.href}-${idx}`}
                                     href={child.href}
+                                    onClick={() => setDropdownOpen(false)}
                                     className="block px-3 py-2 rounded-xl text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
                                   >
                                     {childLabel}
@@ -334,19 +388,72 @@ export default function Header() {
           <div className="lg:hidden border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 animate-slide-down">
             <div className="container-custom py-4 space-y-1">
               {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className={cn(
-                    "block px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors",
-                    pathname === link.href
-                      ? "text-brand-600 bg-brand-50 dark:bg-brand-950/40"
-                      : "text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-brand-600 dark:hover:text-brand-400"
+                <div key={link.label}>
+                  <Link
+                    href={link.href}
+                    className={cn(
+                      "block px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors",
+                      pathname === link.href
+                        ? "text-brand-600 bg-brand-50 dark:bg-brand-950/40"
+                        : "text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-brand-600 dark:hover:text-brand-400"
+                    )}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    {mounted && link.key ? t(link.key) || link.label : link.label}
+                  </Link>
+
+                  {link.isMegaMenu && (
+                    <div className="pl-4 border-l border-zinc-100 dark:border-zinc-800 ml-3 mt-1 mb-2">
+                      <div className="flex border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden mb-2 w-full max-w-[240px]">
+                        <button
+                          className={cn("flex-1 py-1.5 text-[10px] font-bold uppercase", activeNavTab === "PRODUCT" ? "bg-brand-50 dark:bg-brand-900/30 text-brand-600" : "text-zinc-500")}
+                          onClick={() => setActiveNavTab("PRODUCT")}
+                        >
+                          Shop by Product
+                        </button>
+                        <button
+                          className={cn("flex-1 py-1.5 text-[10px] font-bold uppercase border-l border-zinc-200 dark:border-zinc-800", activeNavTab === "GOAL" ? "bg-brand-50 dark:bg-brand-900/30 text-brand-600" : "text-zinc-500")}
+                          onClick={() => setActiveNavTab("GOAL")}
+                        >
+                          Shop by Goal
+                        </button>
+                      </div>
+                      <div className="space-y-1">
+                        {(activeNavTab === "PRODUCT" ? link.productCats : link.goalCats).map((child: any, idx: number) => (
+                          <Link
+                            key={`mob-mega-${idx}`}
+                            href={child.href}
+                            className="block px-3 py-2 rounded-xl text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {mounted && link.key ? t(link.key) || link.label : link.label}
-                </Link>
+
+                  {link.children && !link.isMegaMenu && (
+                    <div className="pl-4 border-l border-zinc-100 dark:border-zinc-800 ml-3 mt-1 space-y-1">
+                      {link.children.map((child: any, idx: number) => {
+                        const childLabel = (mounted && child.key) ? t(child.key) || child.label : child.label
+                        if (child.isHeader) {
+                          return <div key={`mob-head-${idx}`} className="px-3 pt-2 pb-1 text-[10px] font-bold text-zinc-400 uppercase">{childLabel}</div>
+                        }
+                        return (
+                          <Link
+                            key={`mob-child-${idx}`}
+                            href={child.href}
+                            className="block px-3 py-2 rounded-xl text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            {childLabel}
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
               ))}
               {!session && (
                 <div className="pt-3 flex gap-2 border-t border-zinc-100 dark:border-zinc-800">

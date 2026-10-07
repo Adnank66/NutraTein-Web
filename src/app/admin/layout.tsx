@@ -1,8 +1,9 @@
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import AdminSidebar from "@/components/admin/AdminSidebar"
-import AdminThemeControls from "@/components/admin/AdminThemeControls"
 import AdminDirectLogin from "@/components/admin/AdminDirectLogin"
+import AdminReloadGuard from "@/components/admin/AdminReloadGuard"
+import ThemeToggle from "@/components/layout/ThemeToggle"
 
 export const dynamic = "force-dynamic"
 
@@ -20,6 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col lg:flex-row relative">
+      <AdminReloadGuard />
       {/* Self-contained Client Component Sidebar */}
       <AdminSidebar
         adminName={adminName}
@@ -38,7 +40,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <span className="font-bold text-purple-600 dark:text-purple-400">Super Administrator</span>
           </div>
           <div className="flex items-center gap-3">
-            <AdminThemeControls />
+            <ThemeToggle />
             <Link
               href="/"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-brand-600 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-colors"

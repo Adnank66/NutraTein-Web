@@ -29,6 +29,8 @@ export default function AdminCategoriesPage() {
   // Form state for Add/Edit
   const [formName, setFormName] = useState("")
   const [formSlug, setFormSlug] = useState("")
+  const [formType, setFormType] = useState("PRODUCT")
+  const [formLinkedSlug, setFormLinkedSlug] = useState("")
   const [formDesc, setFormDesc] = useState("")
   const [formIcon, setFormIcon] = useState("")
   const [formSortOrder, setFormSortOrder] = useState(10)
@@ -56,6 +58,8 @@ export default function AdminCategoriesPage() {
     setEditingCategory(null)
     setFormName("")
     setFormSlug("")
+    setFormType("PRODUCT")
+    setFormLinkedSlug("")
     setFormDesc("")
     setFormIcon("⚡")
     setFormSortOrder(categories.length + 1)
@@ -66,6 +70,8 @@ export default function AdminCategoriesPage() {
     setEditingCategory(cat)
     setFormName(cat.name)
     setFormSlug(cat.slug)
+    setFormType((cat as any).type || "PRODUCT")
+    setFormLinkedSlug((cat as any).linkedCategorySlug || "")
     setFormDesc(cat.description || "")
     setFormIcon(cat.icon || "⚡")
     setFormSortOrder(cat.sortOrder || 1)
@@ -101,6 +107,8 @@ export default function AdminCategoriesPage() {
             id: editingCategory.id,
             name: formName.trim(),
             slug: formSlug.trim(),
+            type: formType,
+            linkedCategorySlug: formType === "GOAL" ? formLinkedSlug : null,
             description: formDesc.trim() || null,
             icon: formIcon.trim() || null,
             sortOrder: Number(formSortOrder) || 1,
@@ -117,6 +125,8 @@ export default function AdminCategoriesPage() {
           body: JSON.stringify({
             name: formName.trim(),
             slug: formSlug.trim(),
+            type: formType,
+            linkedCategorySlug: formType === "GOAL" ? formLinkedSlug : null,
             description: formDesc.trim() || null,
             icon: formIcon.trim() || null,
             sortOrder: Number(formSortOrder) || 1,
@@ -217,9 +227,14 @@ export default function AdminCategoriesPage() {
                     </div>
                   </div>
 
-                  <span className="badge text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                    Order: #{c.sortOrder}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="badge text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                      Order: #{c.sortOrder}
+                    </span>
+                    <span className={`badge text-[10px] font-bold px-2 py-0.5 rounded-full ${(c as any).type === "GOAL" ? "bg-purple-100 text-purple-600" : "bg-blue-100 text-blue-600"}`}>
+                      {(c as any).type === "GOAL" ? "Goal" : "Product"}
+                    </span>
+                  </div>
                 </div>
 
                 {c.description && (
@@ -316,6 +331,39 @@ export default function AdminCategoriesPage() {
                   className="w-full px-3.5 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 font-mono text-xs text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                  Category Type *
+                </label>
+                <select
+                  value={formType}
+                  onChange={(e) => setFormType(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500"
+                >
+                  <option value="PRODUCT">Shop by Product (e.g. Pre-workout)</option>
+                  <option value="GOAL">Shop by Goal (e.g. Muscle Growth)</option>
+                </select>
+              </div>
+
+              {formType === "GOAL" && (
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                    Linked Product Category Slug (Suggests products from here) *
+                  </label>
+                  <select
+                    value={formLinkedSlug}
+                    onChange={(e) => setFormLinkedSlug(e.target.value)}
+                    required
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500"
+                  >
+                    <option value="" disabled>Select a product category...</option>
+                    {categories.filter(c => (c as any).type !== "GOAL").map(c => (
+                      <option key={c.id} value={c.slug}>{c.name} (/{c.slug})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>

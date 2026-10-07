@@ -1,17 +1,18 @@
 "use client"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useCartStore } from "@/store/cart"
 import { formatPrice } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import {
   ShieldCheck, Banknote, QrCode, Copy, Check, Info, Tag, X,
-  Loader2, CreditCard, Smartphone, Wallet, CheckCircle2, ExternalLink,
+  Loader2, CreditCard, Smartphone, Wallet, CheckCircle2, ExternalLink, ChevronDown, ChevronUp,
 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
 import { useTranslation } from "@/hooks/useTranslation"
 import Script from "next/script"
+import TrustBadges from "@/components/TrustBadges"
 
 // ── UPI app redirect deep-links ─────────────────────────────────────────────
 function buildUPILink(upiId: string, name: string, amount: number, orderRef: string) {
@@ -38,6 +39,7 @@ interface PaymentSettings {
   enableCOD: boolean
   enableUPI: boolean
   enableCash: boolean
+  customMethods?: Array<{ id: string; name: string; description: string; details: string; enabled: boolean }>
 }
 
 const INDIAN_STATES = [
@@ -136,6 +138,23 @@ export default function CheckoutPage() {
   const [placedOrderNumber, setPlacedOrderNumber] = useState<string | null>(null)
   const [postOffices, setPostOffices] = useState<string[]>([])
   const [isLoadingPincode, setIsLoadingPincode] = useState(false)
+  const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (placedOrderNumber && redirectCountdown === null) {
+      setRedirectCountdown(4)
+    }
+  }, [placedOrderNumber, redirectCountdown])
+
+  useEffect(() => {
+    if (redirectCountdown === null) return
+    if (redirectCountdown === 0) {
+      router.push('/')
+      return
+    }
+    const timer = setTimeout(() => setRedirectCountdown(redirectCountdown - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [redirectCountdown, router])
 
   // Auto-fetch city and state based on pincode
   useEffect(() => {
@@ -375,13 +394,74 @@ export default function CheckoutPage() {
     )
   }
 
+  const [mobileOrderOpen, setMobileOrderOpen] = useState(false)
+
   return (
     <>
       <div className="py-10 bg-dark-50/50 dark:bg-zinc-950 min-h-[85vh]">
         <div className="container-custom">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-dark-900 dark:text-white mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-dark-900 dark:text-white mb-6">
             {t("checkout.title", undefined) || "Express Checkout"}
           </h1>
+
+          {/* ── Mobile Sticky Order Summary Accordion ─────────────── */}
+          <div className="lg:hidden mb-5 card dark:bg-zinc-900 dark:border-zinc-700 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setMobileOrderOpen(!mobileOrderOpen)}
+              className="w-full flex items-center justify-between p-4 text-sm font-bold text-dark-900 dark:text-zinc-100 hover:bg-dark-50 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                🛒 Order Summary
+                <span className="bg-brand-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                  {items.length} {items.length === 1 ? "item" : "items"}
+                </span>
+              </span>
+              <span className="flex items-center gap-2 text-brand-600 dark:text-brand-400">
+                <span className="font-extrabold text-base">{formatPrice(total)}</span>
+                {mobileOrderOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </span>
+            </button>
+            {mobileOrderOpen && (
+              <div className="px-4 pb-4 space-y-3 border-t border-dark-100 dark:border-zinc-800 pt-3">
+                {items.map((i) => (
+                  <div key={`mob-${i.id || i.productId}-${i.flavor || ""}-${i.size || ""}`} className="flex gap-3 text-xs">
+                    <div className="relative w-10 h-10 rounded-lg bg-white dark:bg-zinc-800 border border-dark-100 dark:border-zinc-700 overflow-hidden shrink-0">
+                      <Image src={i.image} alt={i.name} fill className="object-contain p-1" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-dark-900 dark:text-zinc-100 truncate">{i.name}</p>
+                      {(i.flavor || i.size) && (
+                        <p className="text-[10px] text-brand-600 dark:text-brand-400">{[i.flavor, i.size].filter(Boolean).join(" • ")}</p>
+                      )}
+                      <p className="text-dark-400 dark:text-zinc-500 text-[11px]">{i.quantity} × {formatPrice(i.price)}</p>
+                    </div>
+                    <span className="font-bold text-dark-900 dark:text-zinc-100 shrink-0">{formatPrice(i.price * i.quantity)}</span>
+                  </div>
+                ))}
+                <div className="border-t border-dark-100 dark:border-zinc-800 pt-3 space-y-1.5 text-xs">
+                  <div className="flex justify-between text-dark-600 dark:text-zinc-400">
+                    <span>Subtotal</span><span className="font-semibold text-dark-900 dark:text-zinc-100">{formatPrice(subtotal)}</span>
+                  </div>
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-emerald-600 font-bold">
+                      <span>Discount ({appliedCoupon.code})</span>
+                      <span>-{formatPrice(appliedCoupon.discountAmount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-dark-600 dark:text-zinc-400">
+                    <span>Shipping</span>
+                    <span className={shipping === 0 ? "text-emerald-600 font-bold" : "font-semibold text-dark-900 dark:text-zinc-100"}>
+                      {shipping === 0 ? "FREE" : formatPrice(shipping)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between font-extrabold text-sm text-dark-900 dark:text-zinc-100 pt-2 border-t border-dark-100 dark:border-zinc-800">
+                    <span>Total Payable</span><span>{formatPrice(total)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
@@ -502,6 +582,9 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <MethodCard id="COD" icon={Banknote} title="Save Order & Pay Later / COD" subtitle="Save directly to My Orders; pay anytime via UPI or on delivery" available={paymentSettings.enableCOD} />
                   <MethodCard id="UPI" icon={QrCode} title="Pay Now via UPI QR Code" subtitle="Instant GPay, PhonePe, Paytm — scan & pay" available={paymentSettings.enableUPI} />
+                  {paymentSettings.customMethods?.filter((c: any) => c.enabled).map((cm: any) => (
+                    <MethodCard key={cm.id} id={cm.id} icon={CreditCard} title={cm.name} subtitle={cm.description} available={true} />
+                  ))}
                 </div>
 
                 {/* ── UPI Manual Panel ──────────────────────────────────── */}
@@ -586,6 +669,18 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {/* ── Custom Methods Panel ──────────────────────────────────── */}
+                {paymentSettings.customMethods?.some((c: any) => c.id === paymentMethod && c.enabled) && (
+                  <div className="mt-4 p-5 rounded-2xl bg-gradient-to-br from-brand-50/60 via-white to-dark-50 dark:from-brand-950/20 dark:via-zinc-900 dark:to-zinc-900 border border-brand-200 dark:border-brand-800 space-y-4 animate-fade-in">
+                    <h3 className="font-extrabold text-sm text-dark-900 dark:text-zinc-100">
+                      {paymentSettings.customMethods.find((c: any) => c.id === paymentMethod)?.name} Instructions
+                    </h3>
+                    <div className="whitespace-pre-wrap text-xs text-dark-600 dark:text-zinc-400 p-4 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 font-mono">
+                      {paymentSettings.customMethods.find((c: any) => c.id === paymentMethod)?.details}
+                    </div>
+                  </div>
+                )}
+
                 {/* ── UPI: After order placed — show "I've Paid" ────────── */}
                 {paymentMethod === "UPI" && placedOrderNumber && (
                   <div className="mt-4 p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-700 space-y-4 animate-fade-in">
@@ -596,6 +691,11 @@ export default function CheckoutPage() {
                       <div>
                         <p className="font-bold text-sm text-emerald-900 dark:text-emerald-200">Order Created! Complete your payment</p>
                         <p className="text-xs text-emerald-700 dark:text-emerald-400">Order #{placedOrderNumber} is saved. Scan QR or tap a button below to pay.</p>
+                        {redirectCountdown !== null && (
+                          <p className="text-xs font-bold text-red-600 mt-1">
+                            Redirecting to home in {redirectCountdown}...
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -700,6 +800,8 @@ export default function CheckoutPage() {
                     </div>
                   )}
                 </div>
+                
+                <TrustBadges variant="compact" className="mt-3" />
 
                 {/* Totals */}
                 <div className="space-y-2 text-xs text-dark-600 dark:text-zinc-400 pt-3 border-t border-dark-100 dark:border-zinc-800">
@@ -746,6 +848,11 @@ export default function CheckoutPage() {
                   <div className="text-center py-2">
                     <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">✅ Order #{placedOrderNumber} created</p>
                     <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Complete UPI payment using the options above</p>
+                    {redirectCountdown !== null && (
+                      <p className="text-[11px] font-bold text-red-600 mt-2">
+                        Redirecting to home in {redirectCountdown}...
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

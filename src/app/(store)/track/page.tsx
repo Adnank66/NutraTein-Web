@@ -215,6 +215,21 @@ export default function OrderTrackingPage() {
                     </a>
                   </div>
 
+                  {order.paymentMethod !== "COD" && order.paymentStatus === "PENDING" && (
+                    <div className="p-4 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-between gap-3 text-xs">
+                      <div>
+                        <p className="font-bold text-orange-800">Awaiting Payment</p>
+                        <p className="text-orange-700 text-[11px]">Your order is confirmed but payment is pending.</p>
+                      </div>
+                      <Link 
+                        href={`/checkout/pay?order=${order.orderNumber || order.id}`}
+                        className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-xl shadow-md transition-all whitespace-nowrap"
+                      >
+                        Pay Now
+                      </Link>
+                    </div>
+                  )}
+
                   {/* Packaging Video if available */}
                   {order.packagingVideoUrl && (
                     <PackagingVideoPlayer

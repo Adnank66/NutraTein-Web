@@ -14,6 +14,21 @@ const translations: Record<SupportedLanguage, any> = {
   ta,
 }
 
+function getInitialLanguage(): SupportedLanguage {
+  if (typeof window !== "undefined") {
+    try {
+      const match = document.cookie.match(/nutratein-language=(en|hi|mr|ta)/)
+      if (match && match[1]) return match[1] as SupportedLanguage
+      const saved = localStorage.getItem("nutratein-language")
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed?.state?.language) return parsed.state.language as SupportedLanguage
+      }
+    } catch {}
+  }
+  return "en"
+}
+
 interface LanguageStore {
   language: SupportedLanguage
   setLanguage: (lang: SupportedLanguage) => void
@@ -23,9 +38,12 @@ interface LanguageStore {
 export const useLanguageStore = create<LanguageStore>()(
   persist(
     (set, get) => ({
-      language: "en",
+      language: getInitialLanguage(),
 
       setLanguage: (lang) => {
+        if (typeof window !== "undefined") {
+          document.cookie = `nutratein-language=${lang};path=/;max-age=31536000`
+        }
         set({ language: lang })
       },
 

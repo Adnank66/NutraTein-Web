@@ -69,15 +69,17 @@ model VerificationToken {
 }
 
 model Category {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  name        String    @unique
-  slug        String    @unique
-  description String?
-  image       String?
-  icon        String?
-  sortOrder   Int       @default(0)
-  createdAt   DateTime  @default(now())
-  products    Product[]
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  slug               String    @unique
+  type               String    @default("PRODUCT") // PRODUCT | GOAL
+  linkedCategorySlug String?   // If type=GOAL, this maps to a Product category slug
+  description        String?
+  image              String?
+  icon               String?
+  sortOrder          Int       @default(0)
+  createdAt          DateTime  @default(now())
+  products           Product[]
 }
 
 model Product {
@@ -88,6 +90,7 @@ model Product {
   description     String
   shortDesc       String?
   categoryId      String   @db.ObjectId
+  goalCategoryIds String[] @db.ObjectId
   basePrice       Float
   mrp             Float
   discountPercent Int      @default(0)
@@ -337,3 +340,125 @@ model SiteNotification {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model PhoneOTP {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  phone     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
+
+model LoyaltyAccount {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String   @unique @db.ObjectId
+  points         Int      @default(0)
+  totalEarned    Int      @default(0)
+  totalRedeemed  Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model LoyaltyTransaction {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  orderId     String?  @db.ObjectId
+  points      Int
+  type        String   // EARNED | REDEEMED | ADJUSTED | EXPIRED | REVERSED
+  reason      String?
+  adminId     String?  @db.ObjectId
+  balanceBefore Int    @default(0)
+  balanceAfter  Int    @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([orderId])
+}
+
+model Subscription {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String    @db.ObjectId
+  productId         String    @db.ObjectId
+  variantId         String?   @db.ObjectId
+  quantity          Int       @default(1)
+  frequency         String    // BIWEEKLY | MONTHLY | BIMONTHLY | QUARTERLY
+  discountPercent   Float     @default(10)
+  basePrice         Float
+  status            String    @default("ACTIVE") // ACTIVE | PAUSED | CANCELLED
+  nextDeliveryDate  DateTime?
+  lastDeliveryDate  DateTime?
+  addressId         String?   @db.ObjectId
+  notes             String?
+  cancelReason      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([nextDeliveryDate])
+}
+
+model AuditLog {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  adminId      String?
+  adminEmail   String?
+  adminName    String?
+  action       String
+  resource     String
+  resourceId   String?
+  oldValue     String?
+  newValue     String?
+  reason       String?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([adminId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+}
+
+model NotificationLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @db.ObjectId
+  orderId   String?  @db.ObjectId
+  channel   String   // EMAIL | WHATSAPP | SMS
+  event     String   // ORDER_PLACED | PAYMENT_SUCCESS | SHIPPED | DELIVERED | etc.
+  status    String   @default("PENDING") // PENDING | SENT | FAILED
+  message   String?
+  phone     String?
+  email     String?
+  errorMsg  String?
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([status])
+}
+
+model Bundle {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId       String   @db.ObjectId
+  relatedIds      String[] @db.ObjectId
+  discountPercent Float    @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([productId])
+}
+
+model LegalPage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug      String   @unique // terms | privacy | refund-policy | shipping-policy | cookie-policy
+  title     String
+  content   String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
+
+

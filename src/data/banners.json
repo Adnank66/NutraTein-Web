@@ -1,6 +1,6 @@
 {
   "activeBannerId": "ban-creatine",
-  "fitMode": "contain",
+  "fitMode": "cover",
   "bannerWidth": "full",
   "bannerHeight": "xl",
   "banners": [

@@ -15,11 +15,15 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.9.1",
     "@paper-design/shaders": "^0.0.81",
     "@prisma/client": "5.22.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.3",
     "@types/node": "^26.4.1",
     "@types/nodemailer": "^8.0.2",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "autoprefixer": "10.4.20",
@@ -35,6 +39,7 @@
     "next": "^15.5.25",
     "next-auth": "^5.0.0-beta.25",
     "nodemailer": "^6.10.1",
+    "papaparse": "^5.7.0",
     "postcss": "8.4.49",
     "prisma": "5.22.0",
     "react": "^19.2.8",

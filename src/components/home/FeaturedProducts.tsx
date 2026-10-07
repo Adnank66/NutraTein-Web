@@ -29,6 +29,17 @@ export default async function FeaturedProducts() {
     200
   )
 
+  // Deduplicate products by normalized name and slug so duplicate cards never appear
+  const seenKeys = new Set<string>()
+  const uniqueProducts = products.filter((product) => {
+    const slugKey = (product.slug || "").toLowerCase().trim()
+    const nameKey = (product.name || "").toLowerCase().trim().replace(/[^a-z0-9]/g, "")
+    if (!slugKey || seenKeys.has(slugKey) || seenKeys.has(nameKey)) return false
+    seenKeys.add(slugKey)
+    seenKeys.add(nameKey)
+    return true
+  })
+
   return (
     <section className="py-16">
       <div className="container-custom">
@@ -44,8 +55,8 @@ export default async function FeaturedProducts() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product) => {
-            const variant = product.variants[0]
+          {uniqueProducts.map((product) => {
+            const variant = product.variants?.[0]
             const image = product.images[0]?.url || "/assets/products/whey.jpg"
             return (
               <ProductCard

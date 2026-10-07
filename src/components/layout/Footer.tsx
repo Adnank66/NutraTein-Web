@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { Zap, Mail, Phone, MapPin } from "lucide-react"
 import { useTranslation } from "@/hooks/useTranslation"
+import TrustBadges from "@/components/TrustBadges"
 
 const SOCIAL_LINKS = [
   {
@@ -57,6 +58,7 @@ const footerSections = {
     { label: "Quality Standard", href: "/about#standards" },
     { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "Terms & Conditions", href: "/terms" },
+    { label: "Write a Review", href: "/write-review" },
   ],
 }
 
@@ -64,7 +66,10 @@ export default function Footer() {
   const { t } = useTranslation()
   return (
     <footer className="bg-zinc-950 text-zinc-300 border-t border-zinc-900">
-      <div className="container-custom py-16">
+      <div className="container-custom py-10">
+        <div className="mb-12 border-b border-zinc-900 pb-8">
+          <TrustBadges variant="horizontal" />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2">

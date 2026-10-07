@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "pointsPerRupee": 1,
+  "minOrderAmount": 500,
+  "maxPointsPerOrder": 500,
+  "redeemRate": 100,
+  "redeemValue": 10,
+  "expirationDays": 365,
+  "expirationEnabled": false
+}

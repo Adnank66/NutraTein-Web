@@ -1240,3 +1240,25 @@ html.dark textarea,
 html.dark select {
   color-scheme: dark;
 }
+
+/* =========================================================
+   CUSTOM SCROLLBAR
+   ========================================================= */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #ef4444; /* red-500 */
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #dc2626; /* red-600 */
+}
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #ef4444 #000000;
+}

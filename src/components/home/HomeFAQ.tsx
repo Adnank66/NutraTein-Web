@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { ChevronDown, HelpCircle } from "lucide-react"
 import RevealText from "@/components/ui/reveal-text"
+import { useTranslation } from "@/hooks/useTranslation"
 
 const FALLBACK_FAQS = [
   {
@@ -49,6 +50,7 @@ interface FAQ {
 }
 
 export default function HomeFAQ() {
+  const { t } = useTranslation()
   const [openIndex, setOpenIndex] = useState<number | null>(0)
   const [faqs, setFaqs] = useState<FAQ[]>(FALLBACK_FAQS)
 
@@ -75,7 +77,7 @@ export default function HomeFAQ() {
             <span>FREQUENTLY ASKED QUESTIONS</span>
           </div>
           <RevealText
-            text="Got Questions? We Have Answers"
+            text={t("home.faq")}
             as="h2"
             size="custom"
             duration={0.35}

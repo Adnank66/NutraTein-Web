@@ -10,6 +10,8 @@ import Link from "next/link"
 import { withFastTimeout } from "@/lib/fast-data"
 import { getAllCatalogProducts } from "@/data/products-catalog"
 import FrequentlyBoughtTogether from "@/components/product/FrequentlyBoughtTogether"
+import TrustBadges from "@/components/TrustBadges"
+import NutritionFacts from "@/components/product/NutritionFacts"
 
 export const dynamic = "force-dynamic"
 
@@ -110,13 +112,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Related products
   let relatedProducts: any[] = []
   try {
+    const isObjectId = product.categoryId && /^[0-9a-fA-F]{24}$/.test(product.categoryId)
+    const isProdObjectId = product.id && /^[0-9a-fA-F]{24}$/.test(product.id)
+
+    const whereClause: any = {
+      isActive: true,
+    }
+    if (isProdObjectId) {
+      whereClause.id = { not: product.id }
+    } else {
+      whereClause.slug = { not: slug }
+    }
+    if (isObjectId) {
+      whereClause.categoryId = product.categoryId
+    }
+
     relatedProducts = await withFastTimeout(
       prisma.product.findMany({
-        where: {
-          categoryId: product.categoryId,
-          id: { not: product.id },
-          isActive: true,
-        },
+        where: whereClause,
         include: {
           images: { where: { isPrimary: true }, take: 1 },
           variants: { where: { isActive: true }, take: 1, orderBy: { price: "asc" } },
@@ -190,6 +203,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         <div className="mb-8 sm:mb-16">
           <ProductDetails product={product} />
+          <TrustBadges variant="horizontal" className="mt-8 border-t border-dark-100 pt-8" />
         </div>
 
         <div className="border-t border-dark-100 pt-12 space-y-12">
@@ -222,23 +236,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             <div className="lg:col-span-1">
               <div className="card p-6 border-2 border-dark-900 space-y-4">
-                <div className="border-b-4 border-dark-900 pb-2">
-                  <h3 className="font-display text-2xl font-black text-dark-900 uppercase">Nutrition Facts</h3>
-                  <p className="text-xs text-dark-500">Per typical serving</p>
-                </div>
-
-                {nutritionTable.length > 0 ? (
-                  <div className="divide-y divide-dark-100 text-xs">
-                    {nutritionTable.map((item, idx) => (
-                      <div key={idx} className="flex justify-between py-2">
-                        <span className="font-medium text-dark-700">{item.nutrient}</span>
-                        <span className="font-bold text-dark-900">{item.amount}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-dark-400">Standard verified batch nutrition table.</p>
-                )}
+                <NutritionFacts
+                  nutritionInfo={product.nutritionInfo}
+                  ingredients={product.ingredients}
+                />
               </div>
             </div>
           </div>
@@ -262,16 +263,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* AI Synergy Bundle — Frequently Bought Together */}
           <div className="border-t border-dark-100 pt-10">
             <FrequentlyBoughtTogether
-              currentProduct={{
-                id: product.id,
-                slug: product.slug,
-                name: product.name,
-                brand: product.brand,
-                price: product.basePrice,
-                mrp: product.mrp,
-                image: product.images?.[0]?.url || "/assets/products/whey.jpg",
-                stock: product.variants?.[0]?.stock ?? 50,
-              }}
+              productId={product.id}
+              productName={product.name}
+              productPrice={product.basePrice}
             />
           </div>
 

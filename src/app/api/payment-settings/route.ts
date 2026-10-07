@@ -26,6 +26,7 @@ function getSettings() {
     enableCOD: true,
     enableUPI: true,
     enableCash: false,
+    customMethods: [],
   }
 }
 
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
       ...(body.enableCOD !== undefined && { enableCOD: body.enableCOD }),
       ...(body.enableUPI !== undefined && { enableUPI: body.enableUPI }),
       ...(body.enableCash !== undefined && { enableCash: body.enableCash }),
+      ...(body.customMethods !== undefined && { customMethods: body.customMethods }),
     }
 
     ensureDir()

@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense } from "react"
 import { signIn, getSession } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Lock, Mail, Eye, EyeOff, ShieldCheck, Truck, FlaskConical, KeyRound, RefreshCw, ArrowRight } from "lucide-react"
+import { Lock, Mail, Eye, EyeOff, ShieldCheck, Truck, FlaskConical, KeyRound, RefreshCw, ArrowRight, MessageSquare, Smartphone } from "lucide-react"
 import { toast } from "sonner"
 
 const SOCIAL_LINKS = [
@@ -44,8 +44,8 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || ""
   
-  // Login method tabs: PASSWORD vs OTP
-  const [authMode, setAuthMode] = useState<"PASSWORD" | "OTP">("PASSWORD")
+  // Login method tabs: PASSWORD vs OTP vs PHONE_OTP
+  const [authMode, setAuthMode] = useState<"PASSWORD" | "OTP" | "PHONE_OTP">("PASSWORD")
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -56,9 +56,13 @@ function LoginForm() {
 
   // OTP login state
   const [otpCode, setOtpCode] = useState("")
+  const [phone, setPhone] = useState("")
   const [otpSent, setOtpSent] = useState(false)
   const [sendingOtp, setSendingOtp] = useState(false)
   const [resendTimer, setResendTimer] = useState(0)
+  const [phoneSmsLink, setPhoneSmsLink] = useState("")
+  const [phoneWaLink, setPhoneWaLink] = useState("")
+  const [revealedOtp, setRevealedOtp] = useState("")
 
   // Auto-load saved email from client cookie/localStorage
   useEffect(() => {
@@ -99,7 +103,42 @@ function LoginForm() {
 
       setOtpSent(true)
       setResendTimer(60)
+      if (data.devCode) {
+        setRevealedOtp(data.devCode)
+        setOtpCode(data.devCode)
+      }
       toast.success("Verification code sent to your email! Please check your inbox.")
+    } catch (err: any) {
+      toast.error(err.message || "Could not send verification code")
+    } finally {
+      setSendingOtp(false)
+    }
+  }
+
+  const handleSendPhoneOtp = async () => {
+    if (!phone || phone.length < 10) {
+      toast.error("Please enter a valid 10-digit phone number.")
+      return
+    }
+    setSendingOtp(true)
+    try {
+      const res = await fetch("/api/auth/send-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to send code")
+      setOtpSent(true)
+      setResendTimer(60)
+      if (data.smsLink) setPhoneSmsLink(data.smsLink)
+      if (data.waLink) setPhoneWaLink(data.waLink)
+      if (data.otp || data.devCode) {
+        const code = data.otp || data.devCode
+        setRevealedOtp(code)
+        setOtpCode(code)
+      }
+      toast.success("Verification code ready! Use Messages app, WhatsApp, or tap Verify.")
     } catch (err: any) {
       toast.error(err.message || "Could not send verification code")
     } finally {
@@ -115,25 +154,20 @@ function LoginForm() {
     const cleanEmail = email.trim().toLowerCase()
 
     try {
-      const credentialsPayload = authMode === "OTP"
-        ? {
-            email: cleanEmail,
-            otp: otpCode.trim(),
-            whatsappOptIn: String(whatsappOptIn),
-            redirect: false,
-          }
-        : {
-            email: cleanEmail,
-            password,
-            whatsappOptIn: String(whatsappOptIn),
-            redirect: false,
-          }
+      let credentialsPayload: any = {}
+      if (authMode === "OTP") {
+        credentialsPayload = { email: cleanEmail, otp: otpCode.trim(), whatsappOptIn: String(whatsappOptIn), redirect: false }
+      } else if (authMode === "PHONE_OTP") {
+        credentialsPayload = { phone, phoneOtp: otpCode.trim(), whatsappOptIn: String(whatsappOptIn), redirect: false }
+      } else {
+        credentialsPayload = { email: cleanEmail, password, whatsappOptIn: String(whatsappOptIn), redirect: false }
+      }
 
       const res = await signIn("credentials", credentialsPayload)
 
       if (res?.error) {
         toast.error(
-          authMode === "OTP"
+          authMode === "OTP" || authMode === "PHONE_OTP"
             ? "Invalid or expired verification code. Please try again."
             : "Invalid email or password. Please verify and try again."
         )
@@ -269,43 +303,75 @@ function LoginForm() {
             <button
               type="button"
               onClick={() => setAuthMode("PASSWORD")}
-              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
+              className={`flex-1 py-2 text-[10px] sm:text-xs font-bold rounded-xl transition-all ${
                 authMode === "PASSWORD"
                   ? "bg-red-600 text-white shadow-md"
                   : "text-zinc-400 hover:text-white"
               }`}
             >
-              Password Login
+              Password
             </button>
             <button
               type="button"
               onClick={() => setAuthMode("OTP")}
-              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2 text-[10px] sm:text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                 authMode === "OTP"
                   ? "bg-red-600 text-white shadow-md"
                   : "text-zinc-400 hover:text-white"
               }`}
             >
-              <KeyRound size={13} /> Instant Code (OTP)
+              Email OTP
+            </button>
+            <button
+              type="button"
+              onClick={() => setAuthMode("PHONE_OTP")}
+              className={`flex-1 py-2 text-[10px] sm:text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                authMode === "PHONE_OTP"
+                  ? "bg-red-600 text-white shadow-md"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              SMS / WhatsApp OTP
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Input */}
-            <div>
-              <label className="block text-xs font-semibold text-zinc-400 mb-1">Email Address</label>
-              <div className="relative">
-                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="w-full text-xs font-semibold pl-10 pr-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors"
-                  required
-                />
+            {/* Email Input for PASSWORD and OTP modes */}
+            {authMode !== "PHONE_OTP" && (
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 mb-1">Email Address</label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className="w-full text-xs font-semibold pl-10 pr-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors"
+                    required
+                  />
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Phone Input for PHONE_OTP mode */}
+            {authMode === "PHONE_OTP" && (
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 mb-1">Phone Number</label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-bold">+91</span>
+                  <input
+                    type="tel"
+                    maxLength={10}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                    placeholder="9876543210"
+                    className="w-full text-xs font-semibold pl-12 pr-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors"
+                    required
+                  />
+                </div>
+              </div>
+            )}
 
             {/* PASSWORD MODE: Password Field */}
             {authMode === "PASSWORD" && (
@@ -329,17 +395,22 @@ function LoginForm() {
                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+                <div className="text-right mt-1.5">
+                  <Link href="/forgot-password" className="text-[10px] sm:text-xs text-red-500 hover:text-red-400 font-bold hover:underline">
+                    Forgot Password?
+                  </Link>
+                </div>
               </div>
             )}
 
             {/* OTP MODE: Send Code button + 6-digit input */}
-            {authMode === "OTP" && (
+            {(authMode === "OTP" || authMode === "PHONE_OTP") && (
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={handleSendLoginOtp}
-                    disabled={sendingOtp || resendTimer > 0 || !email}
+                    onClick={authMode === "PHONE_OTP" ? handleSendPhoneOtp : handleSendLoginOtp}
+                    disabled={sendingOtp || resendTimer > 0 || (authMode === "OTP" && !email) || (authMode === "PHONE_OTP" && !phone)}
                     className="w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-white font-bold text-xs border border-zinc-700 flex items-center justify-center gap-1.5 transition-colors"
                   >
                     {sendingOtp ? (
@@ -349,25 +420,66 @@ function LoginForm() {
                     ) : otpSent ? (
                       "Resend Verification Code"
                     ) : (
-                      "Send One-Time Code to Email"
+                      `Send One-Time Code via ${authMode === "PHONE_OTP" ? "SMS / WhatsApp" : "Email"}`
                     )}
                   </button>
                 </div>
 
                 {otpSent && (
-                  <div className="space-y-1.5 animate-fade-in">
-                    <label className="block text-xs font-semibold text-zinc-400">
-                      Enter 6-Digit Email Code
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                      placeholder="123456"
-                      className="w-full text-center font-mono text-base font-black tracking-widest py-2.5 rounded-xl border border-zinc-700 bg-zinc-900 text-white focus:outline-none focus:border-red-500"
-                      required
-                    />
+                  <div className="space-y-2.5 animate-fade-in pt-1">
+                    {authMode === "PHONE_OTP" && (
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {phoneSmsLink && (
+                            <a
+                              href={phoneSmsLink}
+                              className="py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                            >
+                              <MessageSquare size={14} /> Open Messages App (SMS)
+                            </a>
+                          )}
+                          {phoneWaLink && (
+                            <a
+                              href={phoneWaLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                            >
+                              <Smartphone size={14} /> Open in WhatsApp
+                            </a>
+                          )}
+                        </div>
+
+                        {revealedOtp && (
+                          <div className="p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center">
+                            <span className="text-[11px] text-amber-300 font-semibold block">
+                              Your Verification Code:
+                            </span>
+                            <span className="text-xl font-mono font-black text-amber-400 tracking-widest">
+                              {revealedOtp}
+                            </span>
+                            <span className="text-[10px] text-zinc-400 block mt-0.5">
+                              (Code pre-filled below for instant verification)
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-400 mb-1">
+                        Enter 6-Digit Code
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={6}
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                        placeholder="123456"
+                        className="w-full text-center font-mono text-base font-black tracking-widest py-2.5 rounded-xl border border-zinc-700 bg-zinc-900 text-white focus:outline-none focus:border-red-500"
+                        required
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -408,14 +520,14 @@ function LoginForm() {
 
             <button
               type="submit"
-              disabled={loading || (authMode === "OTP" && (!otpSent || otpCode.length < 6))}
+              disabled={loading || ((authMode === "OTP" || authMode === "PHONE_OTP") && (!otpSent || otpCode.length < 6))}
               className="w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
             >
               {loading ? (
                 <>
                   <RefreshCw size={14} className="animate-spin" /> Verifying...
                 </>
-              ) : authMode === "OTP" ? (
+              ) : (authMode === "OTP" || authMode === "PHONE_OTP") ? (
                 <>
                   Verify & Sign In <ArrowRight size={14} />
                 </>

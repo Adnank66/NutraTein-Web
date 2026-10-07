@@ -96,6 +96,18 @@ export default function ContactPage() {
                   </p>
                 </div>
               </div>
+
+              <div className="card p-5 bg-zinc-900 border border-zinc-800 flex items-start gap-4">
+                <div>
+                  <h3 className="font-bold text-sm text-white">Share Your Experience</h3>
+                  <p className="text-xs text-zinc-400 mt-1 mb-3">
+                    We love hearing from our athletes and customers!
+                  </p>
+                  <a href="/write-review" className="btn-primary text-[10px] px-3 py-1.5 shadow-lg shadow-brand-500/20 w-fit inline-block">
+                    Write a Review
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* Form Area */}

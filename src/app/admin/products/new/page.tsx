@@ -182,6 +182,7 @@ export default function AddProductPage() {
       if (!res.ok) throw new Error(data.error || "Failed to create product")
 
       toast.success(publish ? "Product published live! 🎉" : "Saved as draft")
+      router.refresh()
       router.push("/admin/products")
     } catch (err: any) {
       toast.error(err.message || "Failed to save product")
