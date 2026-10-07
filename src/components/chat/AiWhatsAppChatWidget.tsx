@@ -136,7 +136,8 @@ export default function AiWhatsAppChatWidget() {
       text,
     }
 
-    setMessages((prev) => [...prev, userMsg])
+    const newMessages = [...messages, userMsg]
+    setMessages(newMessages)
     if (!textToSend) setInputMessage("")
     setLoading(true)
 

@@ -170,13 +170,16 @@ export async function getActiveCoupons() {
     const coupons = await prisma.coupon.findMany({
       where: {
         isActive: true,
-        validUntil: { gt: new Date() }
+        OR: [
+          { expiresAt: null },
+          { expiresAt: { gt: new Date() } }
+        ]
       },
       select: {
         code: true,
         discountType: true,
         discountValue: true,
-        minOrderAmount: true,
+        minOrderValue: true,
         description: true
       }
     })

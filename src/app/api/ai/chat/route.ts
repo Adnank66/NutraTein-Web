@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai"
 import { getProducts, searchProducts, getProductById, getOrderStatus, getActiveCoupons, getLegalPage } from "@/lib/ai-tools"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
@@ -51,8 +51,8 @@ export async function POST(req: Request) {
               name: "searchProducts",
               description: "Search for products based on a query.",
               parameters: {
-                type: "OBJECT",
-                properties: { query: { type: "STRING" } },
+                type: SchemaType.OBJECT,
+                properties: { query: { type: SchemaType.STRING } },
                 required: ["query"]
               }
             },
@@ -60,8 +60,8 @@ export async function POST(req: Request) {
               name: "getProductById",
               description: "Get detailed information about a specific product by its ID or slug.",
               parameters: {
-                type: "OBJECT",
-                properties: { idOrSlug: { type: "STRING" } },
+                type: SchemaType.OBJECT,
+                properties: { idOrSlug: { type: SchemaType.STRING } },
                 required: ["idOrSlug"]
               }
             },
@@ -69,9 +69,9 @@ export async function POST(req: Request) {
               name: "getOrderStatus",
               description: "Get the status of an order.",
               parameters: {
-                type: "OBJECT",
+                type: SchemaType.OBJECT,
                 properties: { 
-                  orderId: { type: "STRING", description: "The order ID provided by the user" } 
+                  orderId: { type: SchemaType.STRING, description: "The order ID provided by the user" } 
                 },
                 required: ["orderId"]
               }
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
               name: "getActiveCoupons",
               description: "Get a list of currently active coupons.",
               parameters: {
-                type: "OBJECT",
+                type: SchemaType.OBJECT,
                 properties: {},
                 required: []
               }
@@ -89,8 +89,8 @@ export async function POST(req: Request) {
               name: "getLegalPage",
               description: "Get the content of a legal policy page (e.g. 'refund-policy', 'shipping-policy', 'terms').",
               parameters: {
-                type: "OBJECT",
-                properties: { slug: { type: "STRING" } },
+                type: SchemaType.OBJECT,
+                properties: { slug: { type: SchemaType.STRING } },
                 required: ["slug"]
               }
             }

@@ -42,6 +42,7 @@ interface TopProductItem {
   reviewsCount: number
   servings: string
   bgGradient: string
+  objectFit?: "contain" | "cover"
 }
 
 const DEFAULT_TOP_SELLERS: TopProductItem[] = [
