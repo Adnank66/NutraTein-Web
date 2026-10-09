@@ -251,8 +251,8 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
       image: p.images?.[0]?.url || p.image || "/assets/recommendations/nitrotein.png",
       rating: p.rating || 5.0,
       servingsInfo: p.flavor || "Multiple flavors",
-      price: p.basePrice || p.price,
-      mrp: p.mrp,
+      price: p.variants?.[0]?.price || p.basePrice || p.price,
+      mrp: p.mrp || Math.round((p.variants?.[0]?.price || p.basePrice || p.price) * 1.25),
       flavor: p.flavor || p.shortDesc || "Unflavored",
       size: p.size || "Standard",
       gradient: gradients[idx % gradients.length],
@@ -381,28 +381,12 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
 
         </div>
 
-        {/* Toggle View Mode */}
-        <div className="flex items-center gap-2 mb-5 bg-[#f0f0f4] p-1.5 rounded-full w-fit border border-[#e3e3e8]">
-          <button
-            onClick={() => setViewMode("GOAL")}
-            className={`px-5 py-2 rounded-full text-[13px] font-[800] transition-all ${viewMode === "GOAL" ? "bg-white text-[#19191c] shadow-sm" : "text-[#777680] hover:text-[#19191c]"}`}
-          >
-            Shop by Category
-          </button>
-          <button
-            onClick={() => setViewMode("PRODUCT")}
-            className={`px-5 py-2 rounded-full text-[13px] font-[800] transition-all ${viewMode === "PRODUCT" ? "bg-white text-[#19191c] shadow-sm" : "text-[#777680] hover:text-[#19191c]"}`}
-          >
-            Shop by Product
-          </button>
-        </div>
-
         {/* Category Filter Tabs */}
         <nav
           className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pb-2 mb-8 sm:mb-10"
           aria-label="Supplement categories"
         >
-          {(viewMode === "GOAL" ? goalTabs : productTabs).map((tab) => {
+          {goalTabs.map((tab) => {
             const isActive = activeTab === tab.id
             return (
               <button

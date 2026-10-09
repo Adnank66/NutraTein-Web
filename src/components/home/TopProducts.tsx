@@ -59,8 +59,8 @@ const DEFAULT_TOP_SELLERS: TopProductItem[] = [
     videoName: "ShredTein",
     videoLabel: "ShredTein 4K",
     poster: "/assets/top-sellers/shredtein-lean-protein.png",
-    price: 2699,
-    mrp: 3099,
+    price: 4499,
+    mrp: 5499,
     rating: 5.0,
     reviewsCount: 92,
     servings: "30 Servings",
@@ -258,6 +258,31 @@ export default function TopProducts() {
             const uniqueItems = Array.from(new Map(dynamicItems.map(item => [item.id, item])).values())
             setItems(uniqueItems.slice(0, 4))
           }
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  // 3. Synchronize prices with MongoDB Atlas live catalog
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        const prods = data?.data || data?.products || (Array.isArray(data) ? data : [])
+        if (prods.length > 0) {
+          setItems((prev) =>
+            prev.map((item) => {
+              const matched = prods.find((p: any) => p.slug === item.slug || p.id === item.id)
+              if (matched) {
+                return {
+                  ...item,
+                  price: matched.basePrice || matched.price || item.price,
+                  mrp: matched.mrp || matched.originalPrice || item.mrp,
+                }
+              }
+              return item
+            })
+          )
         }
       })
       .catch(() => {})

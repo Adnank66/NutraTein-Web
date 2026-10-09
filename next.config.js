@@ -5,7 +5,16 @@ const path = require('path')
 const nextConfig = {
   // Fix: silence "multiple lockfiles" workspace root warning from Next.js
   outputFileTracingRoot: path.join(__dirname),
-  allowedDevOrigins: ['192.168.1.111', '192.168.1.111:3000'],
+  allowedDevOrigins: [
+    '192.168.1.108',
+    '192.168.1.108:3000',
+    '192.168.1.111',
+    '192.168.1.111:3000',
+    'localhost',
+    'localhost:3000',
+    '127.0.0.1',
+    '127.0.0.1:3000',
+  ],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },

@@ -86,6 +86,61 @@ export default function ProductsManagerTable({ initialProducts }: { initialProdu
     }
   }
 
+  const handleInlineStockChange = async (productId: string, variantId: string, val: number) => {
+    const targetStock = Math.max(0, val)
+    setUpdatingId(variantId)
+
+    try {
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          variants: [{ id: variantId, stock: targetStock }],
+        }),
+      })
+
+      if (!res.ok) throw new Error("Failed to update stock")
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === productId
+            ? {
+                ...p,
+                variants: p.variants.map((v) =>
+                  v.id === variantId ? { ...v, stock: targetStock } : v
+                ),
+              }
+            : p
+        )
+      )
+      toast.success(`Live stock updated to ${targetStock}`)
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update stock")
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
+  const handleDeleteProduct = async (productId: string, productName: string) => {
+    if (!confirm(`Are you sure you want to permanently delete "${productName}" from the database? This cannot be undone.`)) return
+    setUpdatingId(productId)
+
+    try {
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        method: "DELETE",
+      })
+
+      if (!res.ok) throw new Error("Failed to delete product")
+
+      setProducts((prev) => prev.filter((p) => p.id !== productId))
+      toast.success(`"${productName}" permanently deleted from MongoDB`)
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete product")
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
   const handleSaveVariantEdit = async () => {
     if (!editingVariant) return
     const { productId, variant } = editingVariant
@@ -296,24 +351,37 @@ export default function ProductsManagerTable({ initialProducts }: { initialProdu
                               </div>
 
                               <div className="flex items-center gap-1.5">
-                                <span
-                                  className={`badge text-[10px] font-bold px-2 py-0.5 ${
-                                    v.stock > 25
-                                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                                      : v.stock > 0
-                                      ? "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-                                      : "bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300"
-                                  }`}
-                                >
-                                  {v.stock} in stock
-                                </span>
+                                {/* Live Inline Stock Input */}
+                                <div className="flex items-center gap-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg px-2 py-0.5">
+                                  <span className="text-[10px] text-zinc-400 font-bold uppercase">Stock:</span>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    defaultValue={v.stock}
+                                    key={`stock-${v.id}-${v.stock}`}
+                                    disabled={updatingId === v.id}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        (e.currentTarget as HTMLInputElement).blur()
+                                      }
+                                    }}
+                                    onBlur={(e) => {
+                                      const val = parseInt(e.target.value, 10)
+                                      if (!isNaN(val) && val !== v.stock) {
+                                        handleInlineStockChange(p.id, v.id, val)
+                                      }
+                                    }}
+                                    title="Click to type exact stock and press Enter or blur to save"
+                                    className="w-14 text-center font-bold text-xs bg-transparent text-zinc-900 dark:text-zinc-100 outline-none"
+                                  />
+                                </div>
 
-                                {/* Quick Stock Buttons */}
+                                {/* Quick Delta Buttons */}
                                 <button
                                   onClick={() => handleStockDelta(p.id, v.id, -5)}
                                   disabled={updatingId === v.id || v.stock <= 0}
                                   title="Subtract 5 units"
-                                  className="w-6 h-6 rounded-lg bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 flex items-center justify-center text-zinc-700 dark:text-zinc-200 text-xs font-bold"
+                                  className="w-6 h-6 rounded-lg bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 flex items-center justify-center text-zinc-700 dark:text-zinc-200 text-xs font-bold disabled:opacity-40"
                                 >
                                   -5
                                 </button>
@@ -322,7 +390,7 @@ export default function ProductsManagerTable({ initialProducts }: { initialProdu
                                   onClick={() => handleStockDelta(p.id, v.id, 10)}
                                   disabled={updatingId === v.id}
                                   title="Add 10 units"
-                                  className="w-6 h-6 rounded-lg bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 flex items-center justify-center text-zinc-700 dark:text-zinc-200 text-xs font-bold"
+                                  className="w-6 h-6 rounded-lg bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 flex items-center justify-center text-zinc-700 dark:text-zinc-200 text-xs font-bold disabled:opacity-40"
                                 >
                                   +10
                                 </button>
@@ -333,7 +401,7 @@ export default function ProductsManagerTable({ initialProducts }: { initialProdu
                                     setNewStock(v.stock)
                                     setNewPrice(v.price)
                                   }}
-                                  title="Edit custom stock & price"
+                                  title="Edit custom stock & price modal"
                                   className="p-1 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 hover:text-zinc-800 transition-colors"
                                 >
                                   <Edit2 size={13} />
@@ -359,7 +427,7 @@ export default function ProductsManagerTable({ initialProducts }: { initialProdu
                         </button>
                       </td>
 
-                      {/* Full Product Edit & Quick Clear */}
+                      {/* Full Product Edit & Permanent Delete */}
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <Link
@@ -372,13 +440,10 @@ export default function ProductsManagerTable({ initialProducts }: { initialProdu
                           </Link>
                           <button
                             type="button"
-                            onClick={() => {
-                              setClearedProducts((prev) => [...prev, p])
-                              setProducts((prev) => prev.filter((item) => item.id !== p.id))
-                              toast.success(`Cleared "${p.name}" from view`)
-                            }}
+                            onClick={() => handleDeleteProduct(p.id, p.name)}
+                            disabled={updatingId === p.id}
                             className="p-1.5 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-950/40 text-zinc-400 hover:text-rose-600 transition-colors cursor-pointer"
-                            title="Clear from view (data preserved)"
+                            title="Permanently delete product from MongoDB Atlas"
                           >
                             <Trash2 size={13} />
                           </button>

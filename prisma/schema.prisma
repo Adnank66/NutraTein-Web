@@ -100,6 +100,8 @@ model Product {
   isBestSeller    Boolean  @default(false)
   isNew           Boolean  @default(false)
   isActive        Boolean  @default(true)
+  stockQuantity   Int      @default(0)
+  sku             String?
   howToUse        String?
   ingredients     String?
   benefits        String?
@@ -310,6 +312,19 @@ model Payment {
   createdAt       DateTime @default(now())
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model PaymentMethod {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  upiId        String
+  payeeName    String
+  qrImageUrl   String
+  instructions String?
+  label        String?  // e.g. "Primary Store UPI", "Partner Account"
+  isDefault    Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model SocialLink {

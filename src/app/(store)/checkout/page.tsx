@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import {
   ShieldCheck, Banknote, QrCode, Copy, Check, Info, Tag, X,
-  Loader2, CreditCard, Smartphone, Wallet, CheckCircle2, ExternalLink, ChevronDown, ChevronUp,
+  Loader2, CreditCard, Smartphone, Wallet, CheckCircle2, ExternalLink, ChevronDown, ChevronUp, Clock,
 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -136,25 +136,13 @@ export default function CheckoutPage() {
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>(DEFAULT_SETTINGS)
   const [upiLaunchPending, setUpiLaunchPending] = useState(false)
   const [placedOrderNumber, setPlacedOrderNumber] = useState<string | null>(null)
+  const [placedOrderInfo, setPlacedOrderInfo] = useState<{
+    orderNumber: string
+    totalAmount: number
+  } | null>(null)
+  const [isSubmittingUTR, setIsSubmittingUTR] = useState(false)
   const [postOffices, setPostOffices] = useState<string[]>([])
   const [isLoadingPincode, setIsLoadingPincode] = useState(false)
-  const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null)
-
-  useEffect(() => {
-    if (placedOrderNumber && redirectCountdown === null) {
-      setRedirectCountdown(4)
-    }
-  }, [placedOrderNumber, redirectCountdown])
-
-  useEffect(() => {
-    if (redirectCountdown === null) return
-    if (redirectCountdown === 0) {
-      router.push('/')
-      return
-    }
-    const timer = setTimeout(() => setRedirectCountdown(redirectCountdown - 1), 1000)
-    return () => clearTimeout(timer)
-  }, [redirectCountdown, router])
 
   // Auto-fetch city and state based on pincode
   useEffect(() => {
@@ -211,6 +199,13 @@ export default function CheckoutPage() {
     } catch {}
   }, [])
 
+  // Instantly scroll to top when order is created so customer immediately sees the payment screen
+  useEffect(() => {
+    if (placedOrderNumber && typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "instant" })
+    }
+  }, [placedOrderNumber])
+
   const subtotal = getSubtotal()
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0
   const shipping = subtotal - discountAmount >= 999 ? 0 : 99
@@ -241,10 +236,10 @@ export default function CheckoutPage() {
 
   const handleRemoveCoupon = () => { setAppliedCoupon(null); setPromoCodeInput(""); toast("Promo code removed") }
 
-  if (items.length === 0) {
+  if (items.length === 0 && !placedOrderNumber) {
     return (
       <div className="py-20 text-center container-custom">
-        <h2 className="text-2xl font-bold text-dark-900 mb-2">Your Cart is Empty</h2>
+        <h2 className="text-2xl font-bold text-dark-900 dark:text-white mb-2">Your Cart is Empty</h2>
         <button onClick={() => router.push("/shop")} className="btn-primary text-xs">Browse Shop</button>
       </div>
     )
@@ -346,15 +341,53 @@ export default function CheckoutPage() {
     setIsSubmitting(true)
     try {
       const order = await createOrder("UPI")
-      persistOrderCookies(order.orderNumber || order.id)
-      setPlacedOrderNumber(order.orderNumber || order.id)
+      const ordNum = order.orderNumber || order.id
+      persistOrderCookies(ordNum)
+      setPlacedOrderInfo({
+        orderNumber: ordNum,
+        totalAmount: order.totalAmount || total,
+      })
+      setPlacedOrderNumber(ordNum)
       clearCart()
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "instant" })
+      }
       toast.success("Order created! Complete your UPI payment below.")
-      // Don't redirect yet — show UPI payment screen
     } catch (err: any) {
       toast.error(err.message || "Failed to create order")
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  // ── Verify customer-submitted UTR ──────────────────────────────────────────
+  const handleVerifyAndConfirmUPI = async () => {
+    if (!upiTxnId.trim()) {
+      toast.error("Please enter your 12-digit UTR / Transaction Reference")
+      return
+    }
+    setIsSubmittingUTR(true)
+    try {
+      const res = await fetch("/api/orders/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumber: placedOrderNumber,
+          transactionId: upiTxnId.trim(),
+          amount: placedOrderInfo?.totalAmount || total,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        toast.success("UTR reference submitted! Verification in progress by admin.")
+        router.push(`/order-confirmation/${placedOrderNumber}?status=upi_pending`)
+      } else {
+        toast.error(data.error || "Failed to submit verification.")
+      }
+    } catch {
+      toast.error("Network error while submitting UTR.")
+    } finally {
+      setIsSubmittingUTR(false)
     }
   }
 
@@ -395,6 +428,153 @@ export default function CheckoutPage() {
   }
 
   const [mobileOrderOpen, setMobileOrderOpen] = useState(false)
+
+  if (placedOrderNumber) {
+    const payAmount = placedOrderInfo?.totalAmount || total
+    return (
+      <div className="py-12 px-4 sm:px-6 container-custom flex items-center justify-center min-h-[80vh]">
+        <div className="w-full max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-6 animate-scale-in">
+          <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+            <CheckCircle2 size={32} />
+          </div>
+
+          <div>
+            <span className="badge bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full">
+              ORDER RECORDED • COMPLETE UPI PAYMENT
+            </span>
+            <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white mt-2">
+              Order #{placedOrderNumber}
+            </h1>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+              Your order is recorded! Scan the QR code or tap an app below to complete payment.
+            </p>
+          </div>
+
+          {/* QR Code and Amount Card */}
+          <div className="flex flex-col items-center p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 space-y-3">
+            <div className="w-48 h-48 bg-white p-2.5 rounded-2xl shadow-md border-2 border-emerald-500 flex items-center justify-center">
+              <img
+                src={(paymentSettings.qrCodeImage || "/assets/payment/upi-qr.svg").trim().replace(/\\/g, "/")}
+                alt="UPI QR Code"
+                className="w-full h-full object-contain rounded-xl"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "/assets/payment/upi-qr.svg"
+                }}
+              />
+            </div>
+
+            <div>
+              <span className="text-xs text-zinc-400 uppercase tracking-wider font-semibold">Total Amount Payable</span>
+              <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{formatPrice(payAmount)}</p>
+            </div>
+
+            <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">{paymentSettings.upiName}</p>
+            {paymentSettings.instructions && (
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-sm">
+                {paymentSettings.instructions}
+              </p>
+            )}
+
+            <div className="flex items-center gap-2 pt-1 w-full justify-center">
+              <span className="font-mono text-xs font-bold text-zinc-800 dark:text-zinc-200 px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                {paymentSettings.upiId}
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyUpi}
+                className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition flex items-center gap-1"
+              >
+                {copiedUpi ? <Check size={13} /> : <Copy size={13} />}
+                <span>{copiedUpi ? "Copied" : "Copy UPI"}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Direct UPI App Buttons */}
+          <div>
+            <p className="text-xs font-bold text-zinc-600 dark:text-zinc-400 mb-2.5">Open directly in UPI App on phone:</p>
+            <div className="grid grid-cols-2 gap-2">
+              <a
+                href={buildGPayLink(paymentSettings.upiId, paymentSettings.upiName, payAmount, placedOrderNumber)}
+                className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-emerald-500 transition"
+              >
+                <span>🟢</span> Google Pay
+              </a>
+              <a
+                href={buildPhonePeLink(paymentSettings.upiId, paymentSettings.upiName, payAmount, placedOrderNumber)}
+                className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-emerald-500 transition"
+              >
+                <span>🟣</span> PhonePe
+              </a>
+              <a
+                href={buildPaytmLink(paymentSettings.upiId, paymentSettings.upiName, payAmount, placedOrderNumber)}
+                className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-emerald-500 transition"
+              >
+                <span>🔵</span> Paytm
+              </a>
+              <a
+                href={buildUPILink(paymentSettings.upiId, paymentSettings.upiName, payAmount, placedOrderNumber)}
+                className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 transition"
+              >
+                <Smartphone size={13} /> Any UPI App
+              </a>
+            </div>
+          </div>
+
+          {/* UTR Submission Form */}
+          <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 text-left space-y-2">
+            <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">
+              Enter 12-digit UTR / Transaction Reference (After Paying):
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="e.g. 12-digit UTR from bank SMS"
+                value={upiTxnId}
+                onChange={(e) => setUpiTxnId(e.target.value)}
+                className="input text-xs font-mono flex-1 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+              />
+              <button
+                type="button"
+                disabled={isSubmittingUTR}
+                onClick={handleVerifyAndConfirmUPI}
+                className="btn-primary text-xs px-4 py-2 font-bold whitespace-nowrap flex items-center gap-1.5"
+              >
+                {isSubmittingUTR ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
+                <span>Verify UTR</span>
+              </button>
+            </div>
+            <p className="text-[10px] text-zinc-400">
+              Entering your UTR enables instant verification by our dispatch management team.
+            </p>
+          </div>
+
+          {/* Action CTAs */}
+          <div className="space-y-2 pt-2">
+            <button
+              type="button"
+              onClick={() => router.push(`/order-confirmation/${placedOrderNumber}?status=upi_pending`)}
+              className="w-full btn-primary text-xs py-3 justify-center font-bold flex items-center gap-1.5"
+            >
+              <CheckCircle2 size={15} />
+              <span>I Have Completed Payment</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                toast.info("Order saved! You can complete payment anytime from My Orders.")
+                router.push("/account/orders")
+              }}
+              className="w-full btn-secondary text-xs py-2.5 justify-center font-bold flex items-center gap-1.5"
+            >
+              <Clock size={14} />
+              <span>Pay Later from My Orders Dashboard</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -691,11 +871,6 @@ export default function CheckoutPage() {
                       <div>
                         <p className="font-bold text-sm text-emerald-900 dark:text-emerald-200">Order Created! Complete your payment</p>
                         <p className="text-xs text-emerald-700 dark:text-emerald-400">Order #{placedOrderNumber} is saved. Scan QR or tap a button below to pay.</p>
-                        {redirectCountdown !== null && (
-                          <p className="text-xs font-bold text-red-600 mt-1">
-                            Redirecting to home in {redirectCountdown}...
-                          </p>
-                        )}
                       </div>
                     </div>
 
@@ -722,12 +897,21 @@ export default function CheckoutPage() {
                         </div>
                         <button
                           onClick={() => router.push(`/order-confirmation/${placedOrderNumber}?status=upi_pending`)}
-                          className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3 rounded-xl transition-colors"
+                          className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3 rounded-xl transition-colors shadow-sm"
                         >
                           <CheckCircle2 size={16} /> I've Completed Payment
                         </button>
+                        <button
+                          onClick={() => {
+                            toast.info("Order saved! You can complete payment anytime from My Orders.")
+                            router.push("/account/orders")
+                          }}
+                          className="w-full flex items-center justify-center gap-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-bold py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-colors"
+                        >
+                          <Clock size={14} /> Pay Later from My Orders Dashboard
+                        </button>
                         <p className="text-[10px] text-zinc-400 dark:text-zinc-500 text-center">
-                          Your order is saved. An admin will verify your payment within 1–2 hours and confirm your order.
+                          Your order is safely recorded. You can pay now or pay anytime from your customer account dashboard.
                         </p>
                       </div>
                     </div>
@@ -845,14 +1029,23 @@ export default function CheckoutPage() {
                 )}
 
                 {placedOrderNumber && (
-                  <div className="text-center py-2">
-                    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">✅ Order #{placedOrderNumber} created</p>
-                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Complete UPI payment using the options above</p>
-                    {redirectCountdown !== null && (
-                      <p className="text-[11px] font-bold text-red-600 mt-2">
-                        Redirecting to home in {redirectCountdown}...
-                      </p>
-                    )}
+                  <div className="text-center py-2 space-y-2.5">
+                    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">✅ Order #{placedOrderNumber} created successfully</p>
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400">You can pay now via UPI or complete payment later on your dashboard.</p>
+                    <div className="flex flex-col gap-2 pt-1">
+                      <button
+                        onClick={() => router.push(`/order-confirmation/${placedOrderNumber}?status=upi_pending`)}
+                        className="btn-primary w-full justify-center py-2.5 text-xs font-bold"
+                      >
+                        <CheckCircle2 size={14} /> View Order Confirmation
+                      </button>
+                      <button
+                        onClick={() => router.push("/account/orders")}
+                        className="btn-secondary w-full justify-center py-2.5 text-xs font-bold"
+                      >
+                        <Clock size={14} /> Go to My Orders (Pay Later)
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

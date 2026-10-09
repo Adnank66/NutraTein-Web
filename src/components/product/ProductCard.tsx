@@ -138,6 +138,7 @@ export default function ProductCard({
     addItem({
       id: variantId || id,
       productId: id,
+      variantId,
       name,
       brand,
       price,
@@ -237,6 +238,9 @@ export default function ProductCard({
               {discountPercent && discountPercent > 0 ? (
                 <span className="badge-orange text-[9px] sm:text-[10px]">{discountPercent}% OFF</span>
               ) : null}
+              {stock <= 0 && (
+                <span className="badge bg-rose-600 text-white font-bold text-[9px] sm:text-[10px] px-2 py-0.5 rounded shadow">OUT OF STOCK</span>
+              )}
               {stock > 0 && stock <= 15 && (
                 <span className="badge-red text-[9px] sm:text-[10px]">LOW</span>
               )}
@@ -295,15 +299,24 @@ export default function ProductCard({
             )}
           </div>
 
-          {/* Add to Cart */}
-          <AnimatedButton
-            onClick={handleAddToCart}
-            accentColor="bg-red-600"
-            className="w-full py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold justify-center gap-1 bg-gradient-to-r from-brand-600 to-orange-500 text-white border-none shadow-sm hover:border-none rounded-lg sm:rounded-xl"
-            innerClassName="gap-1 text-white"
-          >
-            <ShoppingBag size={12} /> {t("product.addToCart", undefined) || "Add to Cart"}
-          </AnimatedButton>
+          {/* Add to Cart or Out of Stock */}
+          {stock <= 0 ? (
+            <button
+              disabled
+              className="w-full py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold justify-center bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-lg sm:rounded-xl cursor-not-allowed flex items-center gap-1"
+            >
+              Out of Stock
+            </button>
+          ) : (
+            <AnimatedButton
+              onClick={handleAddToCart}
+              accentColor="bg-red-600"
+              className="w-full py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold justify-center gap-1 bg-gradient-to-r from-brand-600 to-orange-500 text-white border-none shadow-sm hover:border-none rounded-lg sm:rounded-xl"
+              innerClassName="gap-1 text-white"
+            >
+              <ShoppingBag size={12} /> {t("product.addToCart", undefined) || "Add to Cart"}
+            </AnimatedButton>
+          )}
         </div>
       </div>
 
@@ -312,6 +325,7 @@ export default function ProductCard({
         onClose={() => setQuickViewOpen(false)}
         product={{
           id,
+          variantId,
           name,
           slug,
           brand,

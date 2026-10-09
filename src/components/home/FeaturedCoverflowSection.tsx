@@ -143,7 +143,7 @@ export default async function FeaturedCoverflowSection() {
       }
     })(),
     fallback,
-    200
+    4000
   )
 
   return (

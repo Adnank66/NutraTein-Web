@@ -12,6 +12,7 @@ interface QuickViewModalProps {
   onClose: () => void
   product: {
     id: string
+    variantId?: string
     name: string
     slug: string
     brand: string
@@ -35,8 +36,9 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
 
   const handleAddToCart = () => {
     addItem({
-      id: product.id,
+      id: product.variantId || product.id,
       productId: product.id,
+      variantId: product.variantId,
       name: product.name,
       brand: product.brand,
       price: product.price,

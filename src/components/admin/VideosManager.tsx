@@ -277,7 +277,7 @@ export default function VideosManager() {
 
       {/* Add / Edit Form Modal */}
       {isAdding && (
-        <div className="card p-6 bg-white dark:bg-zinc-900 border-2 border-red-500/40 rounded-3xl shadow-xl space-y-4 animate-fade-in">
+        <div className="card p-4 sm:p-6 bg-white dark:bg-zinc-900 border-2 border-red-500/40 rounded-3xl shadow-xl space-y-4 animate-fade-in max-w-full overflow-hidden">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
             <h3 className="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-2">
               <Sparkles size={16} className="text-red-500" />
@@ -309,35 +309,39 @@ export default function VideosManager() {
               />
             </div>
 
-            <div>
+            <div className="col-span-1 sm:col-span-2">
               <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                 Video File Path or Stream URL (.mp4) *
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={formData.videoUrl || ""}
                   onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
                   placeholder="e.g. /assets/video/pre-ani-4k.mp4 or stream URL"
-                  className="flex-1 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                  className="w-full sm:flex-1 min-w-0 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => openGallery("videoUrl")}
-                  className="bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-3 py-2 rounded-xl text-xs font-bold transition-colors"
-                >
-                  Gallery
-                </button>
-                <label className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 transition-colors">
-                  <Upload size={12} /> Upload
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="video/*"
-                    onChange={(e) => handleUpload(e, "videoUrl")}
-                  />
-                </label>
+                <div className="grid grid-cols-2 sm:flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => openGallery("videoUrl")}
+                    className="w-full sm:w-auto bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <Film size={13} />
+                    <span>Gallery</span>
+                  </button>
+                  <label className="w-full sm:w-auto cursor-pointer bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 transition-colors shadow-xs">
+                    <Upload size={13} />
+                    <span>Upload</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="video/*"
+                      onChange={(e) => handleUpload(e, "videoUrl")}
+                    />
+                  </label>
+                </div>
               </div>
               <div className="flex flex-wrap gap-1 mt-1.5">
                 <span className="text-[10px] text-zinc-400 font-bold self-center">Quick Select:</span>
@@ -386,11 +390,11 @@ export default function VideosManager() {
               />
             </div>
 
-            <div>
+            <div className="col-span-1 sm:col-span-2">
               <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                 Product Image for Right-Side Cart *
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={formData.productImage || formData.poster || ""}
@@ -398,25 +402,29 @@ export default function VideosManager() {
                     setFormData({ ...formData, productImage: e.target.value, poster: e.target.value })
                   }
                   placeholder="e.g. /assets/recommendations/titan.jpg"
-                  className="flex-1 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                  className="w-full sm:flex-1 min-w-0 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => openGallery("productImage")}
-                  className="bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-3 py-2 rounded-xl text-xs font-bold transition-colors"
-                >
-                  Gallery
-                </button>
-                <label className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 transition-colors">
-                  <Upload size={12} /> Upload
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => handleUpload(e, "productImage")}
-                  />
-                </label>
+                <div className="grid grid-cols-2 sm:flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => openGallery("productImage")}
+                    className="w-full sm:w-auto bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <ImageIcon size={13} />
+                    <span>Gallery</span>
+                  </button>
+                  <label className="w-full sm:w-auto cursor-pointer bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 transition-colors shadow-xs">
+                    <Upload size={13} />
+                    <span>Upload</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => handleUpload(e, "productImage")}
+                    />
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -725,8 +733,8 @@ export default function VideosManager() {
 
       {/* Media Gallery Selection Modal */}
       {galleryTarget && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-scale-in border border-zinc-200 dark:border-zinc-800">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-4xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-scale-in border border-zinc-200 dark:border-zinc-800 my-auto">
             <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
               <h3 className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2 text-sm">
                 <ImageIcon size={16} className="text-red-500" /> Select Media from Gallery

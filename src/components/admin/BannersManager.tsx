@@ -17,6 +17,7 @@ import {
   Check,
   RefreshCw,
   X,
+  Upload,
 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -415,7 +416,7 @@ export default function BannersManager() {
 
       {/* Edit / Create Modal Form */}
       {editingBanner && (
-        <div className="card p-6 bg-white dark:bg-zinc-900 border-2 border-red-500/50 shadow-2xl rounded-3xl space-y-4">
+        <div className="card p-4 sm:p-6 bg-white dark:bg-zinc-900 border-2 border-red-500/50 shadow-2xl rounded-3xl space-y-4 max-w-full overflow-hidden">
           <h3 className="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-2">
             <Sparkles size={16} className="text-red-500" />
             {isNew ? "Create Storefront Hero Banner" : "Edit Banner Configuration"}
@@ -459,48 +460,64 @@ export default function BannersManager() {
               />
             </div>
 
-              <div>
+            <div className="col-span-1 sm:col-span-2">
               <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                 Desktop Banner Image URL
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={editingBanner.imageUrl}
                   onChange={(e) => setEditingBanner({ ...editingBanner, imageUrl: e.target.value })}
-                  className="flex-1 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                  className="w-full sm:flex-1 min-w-0 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
                   placeholder="/assets/banners/..."
                   required
                 />
-                <button type="button" onClick={() => openGallery("imageUrl")} className="bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-3 py-2 rounded-xl text-xs font-medium">
-                  Gallery
-                </button>
-                <label className="cursor-pointer bg-brand-600 hover:bg-brand-700 text-white px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-center">
-                  Upload
-                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUpload(e, "imageUrl")} />
-                </label>
+                <div className="grid grid-cols-2 sm:flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => openGallery("imageUrl")}
+                    className="w-full sm:w-auto bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-4 py-2 rounded-xl text-xs font-semibold text-center transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <ImageIcon size={13} />
+                    <span>Gallery</span>
+                  </button>
+                  <label className="w-full sm:w-auto cursor-pointer bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-xs">
+                    <Upload size={13} />
+                    <span>Upload</span>
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUpload(e, "imageUrl")} />
+                  </label>
+                </div>
               </div>
             </div>
 
-            <div>
+            <div className="col-span-1 sm:col-span-2">
               <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                 Mobile Banner Image URL (Optional)
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={editingBanner.mobileImageUrl || ""}
                   onChange={(e) => setEditingBanner({ ...editingBanner, mobileImageUrl: e.target.value })}
-                  className="flex-1 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                  className="w-full sm:flex-1 min-w-0 text-xs font-mono px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
                   placeholder="/assets/banners/mobile-..."
                 />
-                <button type="button" onClick={() => openGallery("mobileImageUrl")} className="bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-3 py-2 rounded-xl text-xs font-medium">
-                  Gallery
-                </button>
-                <label className="cursor-pointer bg-brand-600 hover:bg-brand-700 text-white px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-center">
-                  Upload
-                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUpload(e, "mobileImageUrl")} />
-                </label>
+                <div className="grid grid-cols-2 sm:flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => openGallery("mobileImageUrl")}
+                    className="w-full sm:w-auto bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-4 py-2 rounded-xl text-xs font-semibold text-center transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <ImageIcon size={13} />
+                    <span>Gallery</span>
+                  </button>
+                  <label className="w-full sm:w-auto cursor-pointer bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-xs">
+                    <Upload size={13} />
+                    <span>Upload</span>
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUpload(e, "mobileImageUrl")} />
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -688,8 +705,8 @@ export default function BannersManager() {
         </div>
       )}
       {galleryTarget && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-scale-in">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-4xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-scale-in my-auto">
             <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
               <h3 className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2 text-sm">
                 <ImageIcon size={16} className="text-brand-500" /> Select Media from Gallery

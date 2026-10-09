@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { QrCode, CreditCard, Copy, Check, Edit3, X, Smartphone, CheckCircle2, Phone, AlertCircle, RefreshCw } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
@@ -30,14 +30,54 @@ export default function OrderPayAndModifyActions({
   const [copiedUpi, setCopiedUpi] = useState(false)
   const [txnId, setTxnId] = useState("")
   const [isVerifying, setIsVerifying] = useState(false)
+  const [paymentSettings, setPaymentSettings] = useState<{
+    upiId: string
+    upiName: string
+    qrCodeImage: string
+    instructions?: string
+  }>({
+    upiId: "proteinx@upi",
+    upiName: "PROTEINX Supplements Official",
+    qrCodeImage: "/assets/payment/upi-qr.svg",
+    instructions: "Scan the QR code with any UPI app and enter the 12-digit UTR/Txn reference below.",
+  })
 
   // Modify form states
   const [newPhone, setNewPhone] = useState(customerPhone)
   const [newNotes, setNewNotes] = useState("")
   const [isSavingChanges, setIsSavingChanges] = useState(false)
 
-  const upiId = "proteinx@upi"
-  const upiName = "PROTEINX Supplements"
+  // Lock background scroll when any modal is open
+  useEffect(() => {
+    if (showPayModal || showModifyModal) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [showPayModal, showModifyModal])
+
+  // Fetch admin configured live payment settings
+  useEffect(() => {
+    fetch("/api/payment-settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && data?.settings) {
+          setPaymentSettings({
+            upiId: data.settings.upiId || "proteinx@upi",
+            upiName: data.settings.upiName || "PROTEINX Supplements Official",
+            qrCodeImage: data.settings.qrCodeImage || "/assets/payment/upi-qr.svg",
+            instructions: data.settings.instructions || "",
+          })
+        }
+      })
+      .catch((err) => console.warn("Failed to load payment settings:", err))
+  }, [])
+
+  const upiId = paymentSettings.upiId
+  const upiName = paymentSettings.upiName
 
   const upiDeepLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName)}&am=${totalAmount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("Order " + orderNumber)}`
   const gpayLink = `intent://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName)}&am=${totalAmount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("Order " + orderNumber)}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`
@@ -52,6 +92,11 @@ export default function OrderPayAndModifyActions({
   }
 
   const handleConfirmPayment = async () => {
+    if (!txnId.trim()) {
+      toast.error("Please enter your 12-digit UPI Reference / UTR Number before submitting.")
+      return
+    }
+
     setIsVerifying(true)
     try {
       const res = await fetch("/api/orders/verify-payment", {
@@ -60,25 +105,21 @@ export default function OrderPayAndModifyActions({
         body: JSON.stringify({
           orderNumber,
           orderId,
-          transactionId: txnId || "MANUAL-UPI-" + Date.now(),
+          transactionId: txnId.trim(),
           amount: totalAmount,
         }),
       })
 
-      if (res.ok) {
-        setPaymentStatus("PAID")
-        toast.success("Payment recorded! Verification in progress.")
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setPaymentStatus("PENDING")
+        toast.success("UTR submitted! Payment is pending verification by admin.")
         setShowPayModal(false)
       } else {
-        // Fallback optimistic
-        setPaymentStatus("PAID")
-        toast.success("Payment submitted successfully! Admin will verify.")
-        setShowPayModal(false)
+        toast.error(data.error || "Failed to submit verification.")
       }
     } catch {
-      setPaymentStatus("PAID")
-      toast.success("Payment submitted! Admin will verify.")
-      setShowPayModal(false)
+      toast.error("Network error while submitting UTR. Please try again.")
     } finally {
       setIsVerifying(false)
     }
@@ -140,17 +181,17 @@ export default function OrderPayAndModifyActions({
 
       {/* ── PAY NOW MODAL ─────────────────────────────────────────────────── */}
       {showPayModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative animate-scale-in">
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex justify-center items-start sm:items-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl relative animate-scale-in my-4 sm:my-auto">
             <button
               onClick={() => setShowPayModal(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <X size={18} />
             </button>
 
-            <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-zinc-100 dark:border-zinc-800">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center font-bold">
+            <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-zinc-100 dark:border-zinc-800 pr-8">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center font-bold shrink-0">
                 <QrCode size={16} />
               </div>
               <div>
@@ -159,60 +200,66 @@ export default function OrderPayAndModifyActions({
               </div>
             </div>
 
-            <div className="flex flex-col items-center p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 mb-4">
-              <div className="w-40 h-40 bg-white p-2 rounded-xl shadow-md border-2 border-emerald-500 mb-3 flex items-center justify-center">
+            <div className="flex flex-col items-center p-3.5 sm:p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 mb-3.5 sm:mb-4">
+              <div className="w-36 h-36 sm:w-44 sm:h-44 bg-white p-2 rounded-2xl shadow-md border-2 border-emerald-500 mb-2.5 sm:mb-3 flex items-center justify-center">
                 <img
-                  src="/assets/payment/upi-qr.svg"
+                  src={paymentSettings.qrCodeImage || "/assets/payment/upi-qr.svg"}
                   alt="UPI QR Code"
                   className="w-full h-full object-contain"
                 />
               </div>
 
               <div className="text-center">
-                <span className="text-xs text-zinc-400 uppercase tracking-wider font-semibold">Amount to Pay</span>
-                <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{formatPrice(totalAmount)}</p>
+                <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Amount to Pay</span>
+                <p className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">{formatPrice(totalAmount)}</p>
               </div>
 
-              <div className="flex items-center gap-2 mt-3 w-full justify-center">
-                <span className="font-mono text-xs font-bold text-zinc-800 dark:text-zinc-200 px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+              <div className="flex items-center gap-2 mt-2.5 w-full justify-center">
+                <span className="font-mono text-xs font-bold text-zinc-800 dark:text-zinc-200 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
                   {upiId}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyUpi}
-                  className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                 >
                   {copiedUpi ? <Check size={13} /> : <Copy size={13} />}
                   <span>{copiedUpi ? "Copied" : "Copy"}</span>
                 </button>
               </div>
+
+              {paymentSettings.instructions && (
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-2 text-center leading-relaxed">
+                  {paymentSettings.instructions}
+                </p>
+              )}
             </div>
 
             {/* Direct UPI App Deep-Links */}
-            <div className="mb-4">
-              <p className="text-xs font-bold text-zinc-600 dark:text-zinc-400 mb-2">Open directly on your phone:</p>
+            <div className="mb-3.5 sm:mb-4">
+              <p className="text-xs font-bold text-zinc-600 dark:text-zinc-400 mb-2">Tap to open UPI app on phone:</p>
               <div className="grid grid-cols-2 gap-2">
                 <a
                   href={gpayLink}
-                  className="flex items-center justify-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-emerald-500 transition"
+                  className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-emerald-500 transition shadow-2xs"
                 >
                   <span>🟢</span> Google Pay
                 </a>
                 <a
                   href={phonePeLink}
-                  className="flex items-center justify-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-emerald-500 transition"
+                  className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-emerald-500 transition shadow-2xs"
                 >
                   <span>🟣</span> PhonePe
                 </a>
                 <a
                   href={paytmLink}
-                  className="flex items-center justify-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-emerald-500 transition"
+                  className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-emerald-500 transition shadow-2xs"
                 >
                   <span>🔵</span> Paytm
                 </a>
                 <a
                   href={upiDeepLink}
-                  className="flex items-center justify-center gap-2 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 transition"
+                  className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 transition shadow-2xs"
                 >
                   <Smartphone size={13} /> Any UPI App
                 </a>
@@ -221,24 +268,29 @@ export default function OrderPayAndModifyActions({
 
             <div className="space-y-2">
               <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block">
-                Transaction ID / UTR Number (Optional):
+                Transaction ID / UTR Number (Enter to Verify):
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 12-digit UTR from your bank SMS"
-                value={txnId}
-                onChange={(e) => setTxnId(e.target.value)}
-                className="input text-xs font-mono w-full dark:bg-zinc-800 dark:border-zinc-700"
-              />
-              <button
-                type="button"
-                onClick={handleConfirmPayment}
-                disabled={isVerifying}
-                className="w-full btn-primary text-xs py-2.5 justify-center mt-2 font-bold flex items-center gap-1.5"
-              >
-                {isVerifying ? <RefreshCw size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-                <span>I Have Paid {formatPrice(totalAmount)}</span>
-              </button>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="12-digit UTR from bank SMS"
+                  value={txnId}
+                  onChange={(e) => setTxnId(e.target.value)}
+                  className="input text-xs font-mono flex-1 dark:bg-zinc-800 dark:border-zinc-700"
+                />
+                <button
+                  type="button"
+                  onClick={handleConfirmPayment}
+                  disabled={isVerifying}
+                  className="btn-primary text-xs px-3.5 py-2 font-bold flex items-center gap-1.5 shrink-0 whitespace-nowrap"
+                >
+                  {isVerifying ? <RefreshCw size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
+                  <span>{isVerifying ? "Verifying..." : "Verify UTR"}</span>
+                </button>
+              </div>
+              <p className="text-[10px] text-zinc-400">
+                Submitting your UTR marks your order as payment pending verification.
+              </p>
             </div>
           </div>
         </div>
@@ -246,17 +298,17 @@ export default function OrderPayAndModifyActions({
 
       {/* ── CHANGE / MODIFY ORDER MODAL ───────────────────────────────────── */}
       {showModifyModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative animate-scale-in">
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex justify-center items-start sm:items-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl relative animate-scale-in my-4 sm:my-auto">
             <button
               onClick={() => setShowModifyModal(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <X size={18} />
             </button>
 
-            <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-zinc-100 dark:border-zinc-800">
-              <div className="w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-950/40 text-brand-600 flex items-center justify-center font-bold">
+            <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-zinc-100 dark:border-zinc-800 pr-8">
+              <div className="w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-950/40 text-brand-600 flex items-center justify-center font-bold shrink-0">
                 <Edit3 size={16} />
               </div>
               <div>

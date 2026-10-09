@@ -176,3 +176,51 @@ export async function sendContactAlertEmail(contact: {
     }
   }
 }
+
+export async function sendLowStockAlertEmail(alert: {
+  productName: string
+  variantName?: string
+  remainingStock: number
+  threshold: number
+  sku?: string
+}) {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #7f1d1d; padding: 20px; color: #ffffff;">
+        <h1 style="margin: 0; font-size: 18px; color: #fca5a5;">⚠️ NUTRA TEIN — LOW STOCK WARNING</h1>
+        <p style="margin: 5px 0 0 0; font-size: 13px; color: #fecaca;">Action Required: Inventory replenishment</p>
+      </div>
+
+      <div style="padding: 24px; font-size: 13px;">
+        <p>The following product has dropped below the low-stock alert threshold (<strong>${alert.threshold} units</strong>):</p>
+        <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 16px; margin: 15px 0;">
+          <h3 style="margin: 0 0 6px 0; color: #991b1b; font-size: 16px;">${alert.productName}</h3>
+          ${alert.variantName ? `<p style="margin: 3px 0;"><strong>Variant / Flavor:</strong> ${alert.variantName}</p>` : ""}
+          ${alert.sku ? `<p style="margin: 3px 0;"><strong>SKU:</strong> <code>${alert.sku}</code></p>` : ""}
+          <p style="margin: 6px 0 0 0; font-size: 14px; font-weight: bold; color: #b91c1c;">Current Stock: ${alert.remainingStock} units remaining</p>
+        </div>
+
+        <p style="font-size: 12px; color: #71717a;">
+          Manage your catalog and restock live at: <a href="http://localhost:3000/admin/products" style="color: #2563eb; font-weight: bold;">Products Manager</a>
+        </p>
+      </div>
+    </div>
+  `
+
+  logAlertFallback("LOW_STOCK", alert)
+
+  const transporter = getTransporter()
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: `"NUTRA TEIN Inventory" <${process.env.SMTP_USER || "inventory@nutratein.in"}>`,
+        to: getTargetEmail(),
+        subject: `🚨 [Low Stock Alert] ${alert.productName}${alert.variantName ? ` (${alert.variantName})` : ""} — Only ${alert.remainingStock} left!`,
+        html,
+      })
+      console.log(`✅ [LOW STOCK EMAIL ALERT SENT] To: ${getTargetEmail()}`)
+    } catch (err: any) {
+      console.error("Failed to send low stock alert email via SMTP:", err.message)
+    }
+  }
+}

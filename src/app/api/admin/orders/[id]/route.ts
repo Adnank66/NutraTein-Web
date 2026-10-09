@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { updateBackupOrderStatus } from "@/lib/orders-store"
+import { sendMail } from "@/lib/sendEmail"
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -142,6 +143,42 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           data: dataToUpdate,
           include: { items: true, address: true, user: true, payment: true },
         })
+
+        // Synchronize Payment record in MongoDB Atlas
+        if (dataToUpdate.paymentStatus) {
+          try {
+            await prisma.payment.updateMany({
+              where: { orderId: existing.id },
+              data: { status: dataToUpdate.paymentStatus },
+            })
+          } catch (paySyncErr: any) {
+            console.warn("Payment sync notice:", paySyncErr?.message)
+          }
+
+          // Trigger authentic Paid Confirmation Email only when payment is actually verified as PAID
+          if (dataToUpdate.paymentStatus === "PAID" && (updated?.customerEmail || updated?.user?.email)) {
+            const customerEmail = updated.customerEmail || updated.user?.email
+            if (customerEmail) {
+              const paidHtml = `
+                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background-color: #ffffff;">
+                  <div style="background-color: #065f46; padding: 22px 24px; color: #ffffff;">
+                    <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: #34d399;">PAYMENT VERIFIED & CONFIRMED!</h1>
+                    <p style="margin: 6px 0 0 0; font-size: 13px; color: #a7f3d0;">Order #${updated.orderNumber} is now being packed</p>
+                  </div>
+                  <div style="padding: 24px; color: #1e293b;">
+                    <p>Dear ${updated.address?.name || updated.user?.name || "Athlete"},</p>
+                    <p>Your payment of <strong>₹${updated.totalAmount}</strong> has been successfully verified by our accounting team. Your supplements are now being prepared for dispatch.</p>
+                    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 14px 16px; margin: 16px 0;">
+                      <p style="margin: 0; font-size: 13px; color: #166534;"><strong>Status:</strong> Payment Received • Order Confirmed</p>
+                    </div>
+                    <p style="font-size: 12px; color: #64748b;">You can track your delivery live on our webstore at any time.</p>
+                  </div>
+                </div>
+              `
+              sendMail(customerEmail, `Payment Confirmed — Order #${updated.orderNumber} (NUTRA TEIN)`, paidHtml).catch(() => {})
+            }
+          }
+        }
 
         // Restock inventory if marked as REFUNDED or restock requested
         if ((status === "REFUNDED" || deliveryStatus === "RETURNED" || restock) && updated?.items) {

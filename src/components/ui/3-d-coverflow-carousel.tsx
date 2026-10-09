@@ -225,6 +225,7 @@ export default function CoverflowCarousel({
     addItem({
       id: variantId ? `${product.id}-${variantId}` : product.id,
       productId: product.id,
+      variantId,
       name: product.name,
       brand: product.brand || "NUTRATEIN",
       price: itemPrice,
@@ -260,6 +261,7 @@ export default function CoverflowCarousel({
     addItem({
       id: variantId ? `${product.id}-${variantId}` : product.id,
       productId: product.id,
+      variantId,
       name: product.name,
       brand: product.brand || "NUTRATEIN",
       price: itemPrice,

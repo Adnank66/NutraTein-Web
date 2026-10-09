@@ -135,6 +135,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     addItem({
       id: variantId,
       productId: product.id,
+      variantId: selectedVariant?.id,
       name: `${product.name} (${itemFlavor})`,
       brand: product.brand,
       price: currentPrice,
