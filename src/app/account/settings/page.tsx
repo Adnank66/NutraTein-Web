@@ -35,7 +35,7 @@ export default function SettingsPage() {
     try {
       const formData = new FormData()
       formData.append("file", file)
-      const res = await fetch("/api/admin/upload", {
+      const res = await fetch("/api/user/upload", {
         method: "POST",
         body: formData
       })

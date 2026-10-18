@@ -51,6 +51,13 @@ export default function CartDrawer() {
             </h2>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={closeCart}
+              className="text-xs text-zinc-500 hover:text-zinc-900 flex items-center gap-1 transition-colors"
+            >
+              <ShoppingBag size={13} /> Shop More
+            </button>
             {items.length > 0 && (
               <button
                 type="button"
@@ -64,7 +71,7 @@ export default function CartDrawer() {
                 title="Clear all items in cart"
               >
                 <Trash2 size={12} />
-                <span>{t("common.clearAll", undefined) || "Clear All"}</span>
+                <span>Clear All</span>
               </button>
             )}
             {(lastClearedItems?.length > 0 || lastRemovedItem) && (
@@ -83,7 +90,7 @@ export default function CartDrawer() {
                 title="Recover cleared items back to cart"
               >
                 <RotateCcw size={12} />
-                <span>{t("common.recover", undefined) || "Recover"}</span>
+                <span>Recover</span>
               </button>
             )}
             <button
@@ -109,7 +116,7 @@ export default function CartDrawer() {
               </div>
               <div className="flex flex-col gap-2 w-full max-w-[200px]">
                 <Link href="/shop" onClick={closeCart} className="btn-primary text-center">
-                  {t("cart.shopNow") || "Shop Now"}
+                  Shop More
                 </Link>
                 {(lastClearedItems?.length > 0 || lastRemovedItem) && (
                   <button
@@ -126,7 +133,7 @@ export default function CartDrawer() {
                     className="btn-secondary text-xs flex items-center justify-center gap-1.5 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100"
                   >
                     <RotateCcw size={13} />
-                    <span>{t("common.recover", undefined) || "Recover"} ({lastClearedItems?.length || 1})</span>
+                    <span>Recover</span>
                   </button>
                 )}
               </div>
@@ -142,7 +149,7 @@ export default function CartDrawer() {
                     src={item.image}
                     alt={item.name}
                     fill
-                    className="object-cover object-center"
+                    className="object-contain p-1"
                   />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -232,13 +239,23 @@ export default function CartDrawer() {
               >
                 {t("cart.checkout") || "Checkout"} <ArrowRight size={16} />
               </Link>
-              <Link
-                href="/cart"
-                onClick={closeCart}
-                className="btn-secondary w-full justify-center"
-              >
-                {t("cart.viewCart") || "View Cart"}
-              </Link>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/cart"
+                  onClick={closeCart}
+                  className="btn-secondary w-full justify-center text-xs py-2"
+                >
+                  {t("cart.viewCart") || "View Cart"}
+                </Link>
+                <button
+                  type="button"
+                  onClick={closeCart}
+                  className="btn-secondary w-full justify-center text-xs py-2 flex items-center gap-1.5"
+                >
+                  <ShoppingBag size={13} />
+                  <span>Shop More</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

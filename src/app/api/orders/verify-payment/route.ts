@@ -1,20 +1,22 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { auth } from "@/lib/auth"
+import { requireUser } from "@/lib/security"
 import { sendMail } from "@/lib/sendEmail"
 
 export async function POST(req: Request) {
   try {
-    const session = await auth()
+    const guard = await requireUser()
+    if (!guard.authorized || !guard.user?.id) return guard.errorResponse!
+
     const body = await req.json()
-    const { orderNumber, orderId, transactionId, amount } = body
+    const { orderNumber, orderId, transactionId } = body
 
     if (!orderNumber && !orderId) {
       return NextResponse.json({ error: "Order identifier required" }, { status: 400 })
     }
 
-    const cleanTxnId = (transactionId || "").trim()
-    if (!cleanTxnId) {
+    const cleanTxnId = typeof transactionId === "string" ? transactionId.trim() : ""
+    if (!/^[A-Za-z0-9-]{6,100}$/.test(cleanTxnId)) {
       return NextResponse.json({ error: "Please enter a valid Transaction ID or UTR number" }, { status: 400 })
     }
 
@@ -29,7 +31,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
     }
 
-    // Update Payment record in MongoDB Atlas
+    // Security check: Verify order ownership before accepting payment details
+    const isAdmin = guard.user.role === "ADMIN"
+
+    if (!isAdmin) {
+      if (order.userId !== guard.user.id) {
+        return NextResponse.json(
+          { error: "Unauthorized access: You do not have permission to submit payment for this order" },
+          { status: 403 }
+        )
+      }
+    }
+
+    // Update Payment record in MongoDB Atlas (Always use server-side order.totalAmount)
     if (order.payment) {
       await prisma.payment.update({
         where: { id: order.payment.id },
@@ -42,7 +56,7 @@ export async function POST(req: Request) {
       await prisma.payment.create({
         data: {
           orderId: order.id,
-          amount: amount || order.totalAmount,
+          amount: order.totalAmount,
           currency: "INR",
           status: "PENDING",
           method: "UPI",
@@ -93,7 +107,8 @@ export async function POST(req: Request) {
           </div>
         </div>
       `
-      sendMail("adnankazi275@gmail.com", `Verify UPI Payment: Order #${order.orderNumber} (UTR: ${cleanTxnId})`, adminHtml).catch(() => {})
+      const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_EMAIL || "nutratein@gmail.com"
+      sendMail(adminEmail, `Verify UPI Payment: Order #${order.orderNumber} (UTR: ${cleanTxnId})`, adminHtml).catch(() => {})
     } catch {}
 
     return NextResponse.json({

@@ -24,7 +24,10 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: timeoutMS,
       socketTimeoutMS: 30000,
       autoIndex: process.env.NODE_ENV !== 'production',
-      tlsAllowInvalidCertificates: true,
+      // Keep TLS certificate verification enabled by default. A developer can
+      // opt in only for an isolated local troubleshooting session.
+      tlsAllowInvalidCertificates:
+        process.env.NODE_ENV !== 'production' && process.env.ALLOW_INSECURE_LOCAL_TLS === 'true',
     });
     const dbName = conn.connection.name;
     const host = conn.connection.host;

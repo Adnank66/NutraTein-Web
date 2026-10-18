@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Mail,
   Send,
@@ -15,7 +15,7 @@ import {
 import { toast } from "sonner"
 
 export default function EmailSettingsManager() {
-  const [primaryEmail, setPrimaryEmail] = useState("adnankazi275@gmail.com")
+  const [primaryEmail, setPrimaryEmail] = useState("nutratein@gmail.com")
   const [secondaryEmail, setSecondaryEmail] = useState("admin@proteinx.in")
   const [lowStockThreshold, setLowStockThreshold] = useState(25)
   const [notifyNewOrders, setNotifyNewOrders] = useState(true)
@@ -24,6 +24,23 @@ export default function EmailSettingsManager() {
   const [notifyContactForm, setNotifyContactForm] = useState(true)
   const [testing, setTesting] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/admin/email-settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.settings) {
+          if (data.settings.primaryEmail) setPrimaryEmail(data.settings.primaryEmail)
+          if (data.settings.secondaryEmail) setSecondaryEmail(data.settings.secondaryEmail)
+          if (typeof data.settings.lowStockThreshold === "number") setLowStockThreshold(data.settings.lowStockThreshold)
+          if (typeof data.settings.notifyNewOrders === "boolean") setNotifyNewOrders(data.settings.notifyNewOrders)
+          if (typeof data.settings.notifyLowStock === "boolean") setNotifyLowStock(data.settings.notifyLowStock)
+          if (typeof data.settings.notifyReturns === "boolean") setNotifyReturns(data.settings.notifyReturns)
+          if (typeof data.settings.notifyContactForm === "boolean") setNotifyContactForm(data.settings.notifyContactForm)
+        }
+      })
+      .catch((err) => console.warn("Failed to load email settings:", err))
+  }, [])
 
   const handleSendTest = async () => {
     setTesting(true)
@@ -141,28 +158,78 @@ export default function EmailSettingsManager() {
 
         {/* Low Stock Depletion Warning Settings */}
         <div className="card p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl space-y-4">
-          <h3 className="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-2">
-            <Package size={16} className="text-brand-500" />
-            Inventory & Low-Stock Trigger
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-2">
+              <Package size={16} className="text-brand-500" />
+              Inventory & Low-Stock Trigger (Depletion Warning)
+            </h3>
+            <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400 font-bold border border-brand-200 dark:border-brand-800">
+              Threshold: {lowStockThreshold} Units
+            </span>
+          </div>
 
-          <div className="max-w-md">
-            <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
-              <span className="text-zinc-700 dark:text-zinc-300">Trigger Threshold</span>
-              <span className="font-mono font-bold text-brand-600">{lowStockThreshold} Units Left</span>
+          <div className="max-w-xl space-y-3">
+            <div>
+              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                Manual Alert Unit Number (Alert triggers when inventory drops ≤ this unit number)
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="relative w-40">
+                  <input
+                    type="number"
+                    min={1}
+                    max={1000}
+                    value={lowStockThreshold}
+                    onChange={(e) => {
+                      const val = Number(e.target.value)
+                      if (!isNaN(val) && val >= 1) setLowStockThreshold(val)
+                    }}
+                    required
+                    className="w-full px-3.5 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm font-bold font-mono text-zinc-900 dark:text-white text-center focus:ring-2 focus:ring-brand-500"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 font-semibold pointer-events-none">
+                    units
+                  </span>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1.5">
+                  {[10, 15, 20, 25, 50].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setLowStockThreshold(preset)}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        lowStockThreshold === preset
+                          ? "bg-brand-600 text-white shadow-sm"
+                          : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                      }`}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-            <input
-              type="range"
-              min={5}
-              max={100}
-              step={5}
-              value={lowStockThreshold}
-              onChange={(e) => setLowStockThreshold(Number(e.target.value))}
-              className="w-full accent-brand-600 cursor-pointer h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg"
-            />
-            <p className="text-[11px] text-zinc-400 mt-1.5">
-              An automated restocking email alert will be dispatched to <strong>{primaryEmail}</strong> whenever any supplement flavor or weight variant drops to or below {lowStockThreshold} units.
-            </p>
+
+            {/* Range Slider for visual fine-tuning */}
+            <div className="pt-1">
+              <input
+                type="range"
+                min={5}
+                max={100}
+                step={5}
+                value={Math.min(100, Math.max(5, lowStockThreshold))}
+                onChange={(e) => setLowStockThreshold(Number(e.target.value))}
+                className="w-full accent-brand-600 cursor-pointer h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg"
+              />
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50">
+              <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                🔔 <strong>Automated Depletion Alert:</strong> An instant warning email is automatically dispatched to <strong>{primaryEmail}</strong> whenever any supplement flavor, size, or product inventory drops to <strong>{lowStockThreshold} units or fewer</strong>.
+              </p>
+            </div>
           </div>
         </div>
 

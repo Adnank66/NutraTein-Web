@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { auth } from "@/lib/auth"
 import { getBackupOrders } from "@/lib/orders-store"
 import { notFound } from "next/navigation"
 import Link from "next/link"
@@ -21,14 +22,14 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
     if (/^[a-f\d]{24}$/i.test(id)) {
       order = await prisma.order.findUnique({
         where: { id },
-        include: { items: true, address: true, payment: true },
+        include: { items: true, address: true, payment: true, user: true },
       })
     }
     // Fall back to lookup by orderNumber or backup ID prefix
     if (!order) {
       order = await prisma.order.findFirst({
         where: { orderNumber: id.replace(/^ord_/, "PX-") },
-        include: { items: true, address: true, payment: true },
+        include: { items: true, address: true, payment: true, user: true },
       })
     }
     // Try backup orders file
@@ -56,10 +57,35 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
 
   if (!order) notFound()
 
+  // Anti-IDOR Authorization Check
+  const session = await auth()
+  const sessionUserId = session?.user?.id
+  const sessionEmail = session?.user?.email?.toLowerCase().trim()
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
+
+  const orderUserId = order.userId
+  const orderEmail = (order.customerEmail || order.user?.email || "").toLowerCase().trim()
+
+  if (session) {
+    const isOwner = Boolean(
+      isAdmin ||
+      (sessionUserId && orderUserId && sessionUserId === orderUserId) ||
+      (sessionEmail && orderEmail && sessionEmail === orderEmail)
+    )
+    if (!isOwner) {
+      notFound()
+    }
+  } else {
+    // If order was placed under a registered account with a password, do not expose PII to anonymous users
+    if (orderUserId && order.user?.password) {
+      notFound()
+    }
+  }
+
 
   const itemsSummary = (order.items || []).map((i: any) => `${i.quantity}x ${i.productName}`).join(", ")
   const whatsappMessage = encodeURIComponent(
-    `Hi PROTEINX! My order *#${order.orderNumber}* for *₹${order.totalAmount}* was placed successfully.\nItems: ${itemsSummary}\nPlease share dispatch updates!`
+    `Hi NUTRA TEIN! My order *#${order.orderNumber}* for *₹${order.totalAmount}* was placed successfully.\nItems: ${itemsSummary}\nPlease share dispatch updates!`
   )
   const whatsappUrl = `https://wa.me/919321598094?text=${whatsappMessage}`
 

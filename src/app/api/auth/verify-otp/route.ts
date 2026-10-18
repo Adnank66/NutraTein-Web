@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { verifyOtp } from "@/lib/otp"
+import { checkRateLimit, getClientIdentifier } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
   try {
+    const rate = checkRateLimit(`verify-otp:${getClientIdentifier(req)}`, 10, 15 * 60 * 1000)
+    if (!rate.success) return NextResponse.json({ error: "Too many verification attempts. Please try again later." }, { status: 429 })
+
     const { email, code } = await req.json()
 
     if (!email || !code) {
@@ -15,12 +20,12 @@ export async function POST(req: Request) {
     const cleanEmail = email.toLowerCase().trim()
     const cleanCode = code.toString().trim()
 
-    // Find latest matching OTP — use $runCommandRaw to avoid M0 transaction issues
+    // Read only the latest OTP and compare its stored hash in constant time.
     let otpRecord: any = null
     try {
       const result: any = await prisma.$runCommandRaw({
         find: "EmailOTP",
-        filter: { email: cleanEmail, code: cleanCode },
+        filter: { email: cleanEmail },
         sort: { createdAt: -1 },
         limit: 1,
       })
@@ -29,12 +34,12 @@ export async function POST(req: Request) {
     } catch (e: any) {
       // Fallback to Prisma ORM if raw command fails
       otpRecord = await prisma.emailOTP.findFirst({
-        where: { email: cleanEmail, code: cleanCode },
+        where: { email: cleanEmail },
         orderBy: { createdAt: "desc" },
       })
     }
 
-    if (!otpRecord) {
+    if (!otpRecord || !verifyOtp(otpRecord.code, cleanCode)) {
       return NextResponse.json(
         { error: "Invalid verification code. Please check your email and try again." },
         { status: 400 }
@@ -81,9 +86,9 @@ export async function POST(req: Request) {
       message: "Email successfully verified!",
     })
   } catch (error: any) {
-    console.error("Error verifying OTP:", error)
+    console.error("Error verifying OTP")
     return NextResponse.json(
-      { error: error.message || "Failed to verify code. Please try again." },
+      { error: "Failed to verify code. Please try again." },
       { status: 500 }
     )
   }

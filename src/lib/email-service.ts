@@ -11,7 +11,7 @@ function getTargetEmail() {
       if (settings.primaryEmail) return settings.primaryEmail
     }
   } catch {}
-  return process.env.ALERT_EMAIL || "adnankazi275@gmail.com"
+  return process.env.ALERT_EMAIL || "nutratein@gmail.com"
 }
 
 function getTransporter() {
@@ -29,6 +29,7 @@ function getTransporter() {
       tls: {
         rejectUnauthorized: false,
       },
+      connectionTimeout: 15000,
     })
   }
 
@@ -221,6 +222,54 @@ export async function sendLowStockAlertEmail(alert: {
       console.log(`✅ [LOW STOCK EMAIL ALERT SENT] To: ${getTargetEmail()}`)
     } catch (err: any) {
       console.error("Failed to send low stock alert email via SMTP:", err.message)
+    }
+  }
+}
+
+export async function sendAdminLoginAlertEmail(adminEmail: string, adminName?: string) {
+  const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; background: #ffffff;">
+      <div style="background-color: #09090b; padding: 22px; color: #ffffff;">
+        <h2 style="margin: 0; color: #ea580c; font-size: 19px; letter-spacing: 0.5px;">🔐 SECURITY ALERT: ADMIN LOGIN</h2>
+        <p style="margin: 4px 0 0 0; color: #a1a1aa; font-size: 12px;">NUTRA TEIN Management System</p>
+      </div>
+
+      <div style="padding: 24px; color: #18181b; font-size: 13px; line-height: 1.6;">
+        <p>Hello <strong>${adminName || "Store Administrator"}</strong>,</p>
+        <p>
+          A successful sign-in to the <strong>NUTRA TEIN Admin Dashboard</strong> was authenticated using your verified administrator credentials.
+        </p>
+
+        <div style="background-color: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 8px; padding: 14px 18px; margin: 18px 0; font-size: 13px;">
+          <p style="margin: 4px 0;"><strong>Admin Email:</strong> ${adminEmail}</p>
+          <p style="margin: 4px 0;"><strong>Time (IST):</strong> ${timestamp}</p>
+          <p style="margin: 4px 0;"><strong>Status:</strong> Authenticated &amp; Session Granted</p>
+        </div>
+
+        <p style="color: #52525b; font-size: 12px;">
+          If this was you, you can safely disregard this message. If you did NOT log in, your credentials may be compromised — change your password immediately in Admin Settings.
+        </p>
+      </div>
+    </div>
+  `
+
+  logAlertFallback("ADMIN_LOGIN", { adminEmail, timestamp })
+
+  const transporter = getTransporter()
+  const primaryAlert = getTargetEmail()
+  const recipient = Array.from(new Set([adminEmail, primaryAlert])).filter(Boolean).join(", ")
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: `"NUTRA TEIN Security" <${process.env.SMTP_USER || process.env.SMTP_EMAIL || "security@nutratein.in"}>`,
+        to: recipient,
+        subject: `🔐 [Admin Security Alert] Successful Admin Login at ${timestamp}`,
+        html,
+      })
+      console.log(`✅ [ADMIN LOGIN ALERT SENT] To: ${recipient}`)
+    } catch (err: any) {
+      console.error("Failed to send admin login alert email via SMTP:", err.message)
     }
   }
 }

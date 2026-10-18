@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { requireAdmin } from "@/lib/security"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(req: Request) {
-  const session = await auth()
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
 
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get("page") || "1")

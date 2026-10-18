@@ -43,7 +43,7 @@ export default function FinalCTA() {
             />
 
             <p className="text-zinc-400 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
-              Join over 50,000 athletes who rely on PROTEINX for pure, certified formulas and uncompromised results.
+              Join over 50,000 athletes who rely on NUTRA TEIN for pure, certified formulas and uncompromised results.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">

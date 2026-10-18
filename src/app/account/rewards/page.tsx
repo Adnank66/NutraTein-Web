@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Gift, TrendingUp, ShoppingBag, Clock, ArrowUpRight, ArrowDownLeft } from "lucide-react"
+import Link from "next/link"
 
 export default function RewardsPage() {
   const [data, setData] = useState<any>(null)
@@ -14,7 +15,23 @@ export default function RewardsPage() {
   }, [])
 
   if (loading) return <div className="py-20 text-center text-zinc-400">Loading your rewards...</div>
-  if (!data?.success) return <div className="py-20 text-center text-zinc-400">Unable to load rewards data.</div>
+
+  if (!data?.success || data?.config?.enabled === false) {
+    return (
+      <div className="max-w-4xl mx-auto py-16 px-4 text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto">
+          <Gift size={28} />
+        </div>
+        <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Loyalty Program Currently Inactive</h1>
+        <p className="text-xs text-zinc-500 max-w-md mx-auto">
+          The NutraTein loyalty and rewards program is currently inactive. You can continue shopping all our premium supplements directly with store discounts!
+        </p>
+        <Link href="/shop" className="inline-block text-xs bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-xl">
+          Shop Now
+        </Link>
+      </div>
+    )
+  }
 
   const { account, transactions, config } = data
   const discountValue = config.redeemValue * Math.floor(account.points / config.redeemRate)

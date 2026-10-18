@@ -40,7 +40,7 @@ export default async function AdminOrdersPage() {
         orderBy: { createdAt: "desc" },
       }),
       [],
-      2500
+      15000
     )
   } catch (err) {
     console.warn("MongoDB Atlas orders query note:", err)

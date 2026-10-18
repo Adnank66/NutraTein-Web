@@ -26,63 +26,8 @@ export interface ReviewItem {
   user?: { id: string; name?: string | null; email?: string | null } | null
 }
 
-const DEMO_REVIEWS: ReviewItem[] = [
-  {
-    id: "rev-1",
-    rating: 5,
-    title: "Best Whey Isolate in India! Unmatched mixability",
-    body: "Results within 3 weeks of consistent intake. Zero bloating and taste is phenomenal with cold milk. Highly recommended!",
-    isVerified: true,
-    createdAt: new Date().toISOString(),
-    product: { id: "p1", name: "Nitro-Tein Whey Isolate", slug: "nitro-tein-whey-isolate" },
-    user: { id: "u1", name: "Vikram Malhotra", email: "vikram.m@gmail.com" },
-  },
-  {
-    id: "rev-2",
-    rating: 5,
-    title: "Insane pump & laser focus on heavy lifts",
-    body: "Titan Pump gives clean energy with zero crash. Hit PR on bench press yesterday. 10/10 supplement.",
-    isVerified: true,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    product: { id: "p2", name: "Titan Pump Pre-Workout", slug: "titan-pump-preworkout" },
-    user: { id: "u2", name: "Rohit Deshmukh", email: "rohit.d@gmail.com" },
-  },
-  {
-    id: "rev-3",
-    rating: 4,
-    title: "Solid creatine monohydrate, pure & micronized",
-    body: "Dissolves well in warm water or whey shake. Strength gains visible in 2 weeks of loading phase.",
-    isVerified: true,
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-    product: { id: "p3", name: "CreaCore Micronized Creatine", slug: "creacore-creatine" },
-    user: { id: "u3", name: "Kunal Verma", email: "kunal.v@gmail.com" },
-  },
-  {
-    id: "rev-4",
-    rating: 5,
-    title: "Gained 3.5kg clean mass without fat accumulation",
-    body: "Mass Surge gainer is great for hardgainers. Digestion friendly enzymes keep stomach calm.",
-    isVerified: false,
-    createdAt: new Date(Date.now() - 259200000).toISOString(),
-    product: { id: "p4", name: "Mass Surge Extreme Gainer", slug: "mass-surge-extreme" },
-    user: { id: "u4", name: "Deepak Rawat", email: "deepak.r@outlook.com" },
-  },
-  {
-    id: "rev-5",
-    rating: 3,
-    title: "Good results but Belgian Chocolate was slightly sweet",
-    body: "Quality and protein content is genuine, just found flavor a bit sweeter than anticipated.",
-    isVerified: true,
-    createdAt: new Date(Date.now() - 345600000).toISOString(),
-    product: { id: "p1", name: "Nitro-Tein Whey Isolate", slug: "nitro-tein-whey-isolate" },
-    user: { id: "u5", name: "Arjun Nair", email: "arjun.nair@gmail.com" },
-  },
-]
-
 export default function ReviewsManager({ initialReviews = [] }: { initialReviews?: ReviewItem[] }) {
-  const [reviews, setReviews] = useState<ReviewItem[]>(
-    initialReviews.length > 0 ? initialReviews : DEMO_REVIEWS
-  )
+  const [reviews, setReviews] = useState<ReviewItem[]>(initialReviews)
   const [search, setSearch] = useState("")
   const [ratingFilter, setRatingFilter] = useState<number | "ALL">("ALL")
   const [verifiedFilter, setVerifiedFilter] = useState<"ALL" | "VERIFIED">("ALL")

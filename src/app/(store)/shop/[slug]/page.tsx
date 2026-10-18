@@ -13,6 +13,8 @@ import FrequentlyBoughtTogether from "@/components/product/FrequentlyBoughtToget
 import TrustBadges from "@/components/TrustBadges"
 import NutritionFacts from "@/components/product/NutritionFacts"
 
+import type { Metadata } from "next"
+
 export const dynamic = "force-dynamic"
 
 interface ProductPageProps {
@@ -22,6 +24,62 @@ interface ProductPageProps {
 function normalizeSlug(val?: string): string {
   if (!val) return ""
   return val.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+}
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params
+  let product: any = null
+  try {
+    product = await withFastTimeout(
+      prisma.product.findUnique({
+        where: { slug },
+        include: { images: { orderBy: { sortOrder: "asc" } } },
+      }),
+      null,
+      300
+    )
+  } catch {}
+
+  if (!product) {
+    product = getAllCatalogProducts().find((p) => p.slug === slug)
+  }
+
+  if (!product) {
+    return {
+      title: "Product Not Found",
+      description: "Supplement product not found on NUTRA TEIN.",
+    }
+  }
+
+  const cleanDescription = (
+    product.description ||
+    `Buy ${product.name} at NUTRA TEIN. 100% authentic lab-tested sports nutrition with express delivery across India.`
+  )
+    .replace(/\s+/g, " ")
+    .slice(0, 160)
+
+  const ogImage = product.images?.[0]?.url || product.image || "/og-image.png"
+
+  return {
+    title: product.name,
+    description: cleanDescription,
+    openGraph: {
+      title: `${product.name} | NUTRA TEIN`,
+      description: cleanDescription,
+      images: [
+        {
+          url: ogImage,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | NUTRA TEIN`,
+      description: cleanDescription,
+      images: [ogImage],
+    },
+  }
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {

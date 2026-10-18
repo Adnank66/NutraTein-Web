@@ -248,7 +248,7 @@ export default function ComparePage() {
                       <X size={15} />
                     </button>
                     <div className="space-y-3">
-                      <div className="relative aspect-square w-28 h-28 mx-auto bg-zinc-100 dark:bg-zinc-800 rounded-xl overflow-hidden p-2">
+                      <div className="relative aspect-square w-28 h-28 mx-auto bg-white dark:bg-zinc-800/80 rounded-xl overflow-hidden p-2 border border-zinc-100 dark:border-zinc-700/60 shadow-xs">
                         <Image
                           src={item.image}
                           alt={item.name}

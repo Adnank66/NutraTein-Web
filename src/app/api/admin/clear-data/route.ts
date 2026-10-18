@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 
 export async function POST(req: Request) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { scope = "all", mode = "all" } = await req.json()
 

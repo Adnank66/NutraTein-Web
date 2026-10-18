@@ -3,38 +3,17 @@ import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { withFastTimeout } from "@/lib/fast-data"
+import { verifyOtp } from "@/lib/otp"
 
-if (!process.env.AUTH_SECRET) {
-  process.env.AUTH_SECRET = process.env.NEXTAUTH_SECRET || "proteinx_jwt_secret_key_2024_auth_secret_nutratein_fallback_for_vercel"
+// Authentication must fail closed if a deployment has not configured its own
+// high-entropy signing secret. A committed fallback would let anyone mint sessions.
+const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+if (!authSecret) {
+  throw new Error("AUTH_SECRET (or NEXTAUTH_SECRET) must be configured")
 }
 
-// Authorized admin credentials — stored server-side only, never exposed to client
-const ADMIN_CREDENTIALS = [
-  {
-    id: "usr_kazi_owner",
-    name: "Adnan Kazi",
-    email: "adnankazi275@gmail.com",
-    password: "Adnan@123",
-    role: "ADMIN",
-  },
-  {
-    id: "usr_admin_primary",
-    name: "Nutratein Admin",
-    email: "admin@proteinx.in",
-    password: "Adnan@123",
-    role: "ADMIN",
-  },
-  {
-    id: "usr_admin_nutra",
-    name: "Nutratein Super Admin",
-    email: "admin@nutratein.com",
-    password: "Adnan@123",
-    role: "ADMIN",
-  },
-]
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "proteinx_jwt_secret_key_2024_auth_secret_nutratein",
+  secret: authSecret,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -64,12 +43,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             const otp = (credentials.phoneOtp as string).trim()
             const record = await prisma.phoneOTP.findFirst({
               where: {
-                phone: { contains: cleanPhone },
-                code: otp,
+                phone: cleanPhone,
               },
               orderBy: { createdAt: "desc" },
             })
-            if (!record || new Date() > record.expiresAt) return null
+            if (!record || new Date() > record.expiresAt || !verifyOtp(record.code, otp)) return null
             await prisma.phoneOTP.delete({ where: { id: record.id } }).catch(() => {})
             let dbUser = await prisma.user.findFirst({
               where: {
@@ -110,14 +88,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (credentials.otp) {
             const cleanOtp = (credentials.otp as string).trim()
             const otpRecord = await prisma.emailOTP.findFirst({
-              where: {
-                email: cleanEmail,
-                code: cleanOtp,
-              },
+              where: { email: cleanEmail },
               orderBy: { createdAt: "desc" },
             })
 
-            if (!otpRecord || new Date() > new Date(otpRecord.expiresAt)) {
+            if (!otpRecord || new Date() > new Date(otpRecord.expiresAt) || !verifyOtp(otpRecord.code, cleanOtp)) {
               return null
             }
 
@@ -147,6 +122,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               }).catch(() => {})
             }
 
+            // Security alert: Dispatch email notification immediately when Admin logs in via OTP
+            if (dbUser.role === "ADMIN" || dbUser.role === "SUPER_ADMIN") {
+              const { sendAdminLoginAlertEmail } = await import("@/lib/email-service")
+              sendAdminLoginAlertEmail(dbUser.email, dbUser.name || "Administrator").catch((alertErr) =>
+                console.warn("Admin login alert notice:", alertErr)
+              )
+            }
+
             return {
               id: dbUser.id,
               email: dbUser.email,
@@ -160,25 +143,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const password = credentials.password as string
           if (!password) return null
 
-          // 1. Check admin credentials (constant-time comparison for security)
-          const adminMatch = ADMIN_CREDENTIALS.find(
-            (u) => u.email.toLowerCase() === cleanEmail && u.password === password
-          )
-          if (adminMatch) {
-            return {
-              id: adminMatch.id,
-              email: adminMatch.email,
-              name: adminMatch.name,
-              role: adminMatch.role,
-            }
-          }
-
-          // 2. Check database users with bcrypt
-          const dbUser = await withFastTimeout(
-            prisma.user.findUnique({ where: { email: cleanEmail } }),
-            null,
-            3000
-          )
+          // Check database users with bcrypt. Roles are loaded from the database;
+          // they are never granted from an email address or hard-coded account.
+          const dbUser = await prisma.user.findUnique({ where: { email: cleanEmail } })
 
           if (dbUser && dbUser.password) {
             const isValid = await bcrypt.compare(password, dbUser.password)
@@ -188,6 +155,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   where: { id: dbUser.id },
                   data: { whatsappOptIn: true },
                 }).catch(() => {})
+              }
+
+              // Security alert: Dispatch email notification immediately when Admin credentials are used
+              if (dbUser.role === "ADMIN" || dbUser.role === "SUPER_ADMIN") {
+                const { sendAdminLoginAlertEmail } = await import("@/lib/email-service")
+                sendAdminLoginAlertEmail(dbUser.email, dbUser.name || "Administrator").catch((alertErr) =>
+                  console.warn("Admin login alert notice:", alertErr)
+                )
               }
 
               return {

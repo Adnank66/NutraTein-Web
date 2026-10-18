@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { createCachedETagResponse } from "@/lib/cache"
+import { withFastTimeout, getFallbackProducts } from "@/lib/fast-data"
 
 export async function GET(req: Request) {
   try {
@@ -25,18 +27,22 @@ export async function GET(req: Request) {
       ]
     }
 
-    const products = await prisma.product.findMany({
-      where,
-      include: {
-        images: { where: { isPrimary: true }, take: 1 },
-        variants: { where: { isActive: true }, orderBy: { price: "asc" } },
-        category: true,
-      },
-      orderBy: { isBestSeller: "desc" },
-    })
+    const products = await withFastTimeout(
+      prisma.product.findMany({
+        where,
+        include: {
+          images: { where: { isPrimary: true }, take: 1 },
+          variants: { where: { isActive: true }, orderBy: { price: "asc" } },
+          category: true,
+        },
+        orderBy: { isBestSeller: "desc" },
+      }),
+      getFallbackProducts() as any,
+      800
+    )
 
-    return NextResponse.json({ data: products })
+    return createCachedETagResponse(req, { data: products || getFallbackProducts() }, "public, s-maxage=60, stale-while-revalidate=300")
   } catch (error: any) {
-    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 })
+    return createCachedETagResponse(req, { data: getFallbackProducts() }, "public, s-maxage=60, stale-while-revalidate=300")
   }
 }

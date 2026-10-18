@@ -184,7 +184,7 @@ export default function StaggerTestimonials({
         setSummary(data.summary)
       }
     } catch (err: any) {
-      console.error("Error fetching reviews:", err)
+      console.warn("Reviews fetch notice:", err)
       setError("Customer reviews are temporarily unavailable. Please try again later.")
     } finally {
       setIsLoading(false)
@@ -320,8 +320,8 @@ export default function StaggerTestimonials({
           </div>
         )}
 
-        {/* Rating Summary & Breakdown Card */}
-        {showSummary && (
+        {/* Rating Summary & Breakdown Card — only display when verified reviews exist */}
+        {showSummary && summary.totalReviews > 0 && (
           <div className="card p-6 sm:p-8 bg-zinc-50/80 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl mb-10 max-w-4xl mx-auto shadow-sm backdrop-blur-sm">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
               {/* Left Score Box */}
@@ -592,9 +592,9 @@ export default function StaggerTestimonials({
 
                             <div>
                               <div className="flex items-center gap-1.5">
-                                <h4 className="font-bold text-sm text-zinc-950 dark:text-white leading-tight">
+                                <h3 className="font-bold text-sm text-zinc-950 dark:text-white leading-tight">
                                   {review.customerName}
-                                </h4>
+                                </h3>
                                 {review.isVerified && (
                                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
                                     <ShieldCheck size={10} /> Verified Purchase
@@ -625,9 +625,9 @@ export default function StaggerTestimonials({
 
                         {/* Review Title */}
                         {review.title && (
-                          <h5 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-1.5 leading-snug">
+                          <p className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-1.5 leading-snug">
                             {review.title}
-                          </h5>
+                          </p>
                         )}
 
                         {/* Review Body */}

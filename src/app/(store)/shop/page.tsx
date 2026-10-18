@@ -5,6 +5,14 @@ import Link from "next/link"
 import { withFastTimeout } from "@/lib/fast-data"
 import { getAllCatalogProducts } from "@/data/products-catalog"
 
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Supplement Catalog",
+  description:
+    "Browse our complete range of certified sports nutrition, protein powders, gainers, and workout enhancers with fast doorstep delivery across India.",
+}
+
 export const dynamic = "force-dynamic"
 
 interface ShopPageProps {

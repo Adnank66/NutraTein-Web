@@ -3,8 +3,9 @@ import { Shield, Award, Zap, Heart, CheckCircle2, ArrowRight } from "lucide-reac
 import Link from "next/link"
 
 export const metadata = {
-  title: "About Us | NUTRA TEIN",
-  description: "Learn about NUTRA TEIN, our mission for clean sports nutrition and verified quality.",
+  title: "Our Story & Purity Standards",
+  description:
+    "Learn how NUTRA TEIN formulates clean, unadulterated sports supplements backed by rigorous third-party lab testing and zero filler blends.",
 }
 
 const SOCIAL_LINKS = [

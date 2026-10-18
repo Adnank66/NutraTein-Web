@@ -67,9 +67,19 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
         </button>
 
         <div className="grid grid-cols-1 sm:grid-cols-2">
-          <div className="relative bg-zinc-100/70 dark:bg-zinc-800/60 flex items-center justify-center p-4 sm:p-6 border-b sm:border-b-0 sm:border-r border-zinc-200 dark:border-zinc-700 min-h-[240px]">
+          <div className="relative bg-white dark:bg-zinc-800/60 flex items-center justify-center p-3 sm:p-4 border-b sm:border-b-0 sm:border-r border-zinc-200 dark:border-zinc-700 min-h-[240px]">
             <div className="relative w-full h-56 sm:h-72">
-              <Image src={product.image} alt={product.name} fill className="object-contain p-1" priority />
+              <Image
+                src={
+                  product.image && !product.image.includes("/search/") && !product.image.endsWith(".html")
+                    ? product.image
+                    : "/assets/products/whey.jpg"
+                }
+                alt={product.name}
+                fill
+                className="object-contain p-1"
+                priority
+              />
             </div>
             {product.discountPercent && product.discountPercent > 0 && (
               <span className="absolute top-4 left-4 badge-orange font-bold text-xs">
@@ -83,13 +93,15 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
               <span className="text-[11px] font-bold text-brand-600 uppercase tracking-wider">{product.brand}</span>
               <h2 className="text-lg font-bold text-zinc-900 mt-1 leading-snug">{product.name}</h2>
 
-              <div className="flex items-center gap-2 mt-2">
-                <div className="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-md text-amber-700 text-xs font-bold">
-                  <Star size={12} className="fill-amber-400 text-amber-400" />
-                  <span>{product.rating.toFixed(1)}</span>
+              {product.reviewCount && product.reviewCount > 0 ? (
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-md text-amber-700 text-xs font-bold">
+                    <Star size={12} className="fill-amber-400 text-amber-400" />
+                    <span>{product.rating.toFixed(1)}</span>
+                  </div>
+                  <span className="text-xs text-zinc-400">({product.reviewCount} verified ratings)</span>
                 </div>
-                <span className="text-xs text-zinc-400">({product.reviewCount} verified ratings)</span>
-              </div>
+              ) : null}
 
               <div className="flex items-baseline gap-2 mt-3">
                 <span className="text-2xl font-black text-zinc-900">{formatPrice(product.price)}</span>

@@ -1,16 +1,20 @@
 "use client"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import StoreLayout from "@/components/layout/StoreLayout"
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 
 export default function ContactPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     subject: "",
     message: "",
+    hp_company: "", // Anti-spam honeypot
   })
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -29,16 +33,16 @@ export default function ContactPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
-      if (res.ok) {
-        setSubmitted(true)
-        toast.success("Message sent directly to Adnan Kazi!")
-      } else {
-        setSubmitted(true)
-        toast.success("Message received!")
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data?.error || "Failed to submit message.")
+        return
       }
+
+      toast.success("Message received! Redirecting to confirmation...")
+      router.push("/thank-you")
     } catch {
-      setSubmitted(true)
-      toast.success("Message sent successfully!")
+      toast.error("Failed to submit message. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -65,8 +69,8 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-xs text-zinc-900">Email Inquiries</h3>
-                  <a href="mailto:adnankazi275@gmail.com" className="text-xs text-brand-600 hover:underline font-mono mt-0.5 block">
-                    adnankazi275@gmail.com
+                  <a href="mailto:nutratein@gmail.com" className="text-xs text-brand-600 hover:underline font-mono mt-0.5 block">
+                    nutratein@gmail.com
                   </a>
                   <p className="text-[10px] text-zinc-400 mt-1">Average reply time: 4 hours</p>
                 </div>
@@ -78,8 +82,8 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-xs text-zinc-900">Phone Support</h3>
-                  <a href="tel:+919321598094" className="text-xs text-zinc-600 hover:text-brand-600 font-mono mt-0.5 block">
-                    +91 9321598094
+                  <a href="tel:+917030407080" className="text-xs text-zinc-600 hover:text-brand-600 font-mono mt-0.5 block">
+                    +91 7030407080
                   </a>
                   <p className="text-[10px] text-zinc-400 mt-1">Mon-Sat: 9:00 AM – 6:00 PM</p>
                 </div>
@@ -103,9 +107,9 @@ export default function ContactPage() {
                   <p className="text-xs text-zinc-400 mt-1 mb-3">
                     We love hearing from our athletes and customers!
                   </p>
-                  <a href="/write-review" className="btn-primary text-[10px] px-3 py-1.5 shadow-lg shadow-brand-500/20 w-fit inline-block">
+                  <Link href="/write-review" className="btn-primary text-[10px] px-3 py-1.5 shadow-lg shadow-brand-500/20 w-fit inline-block">
                     Write a Review
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -122,7 +126,7 @@ export default function ContactPage() {
                     A customer support specialist will review your inquiry and reply to <strong>{formData.email}</strong> shortly.
                   </p>
                   <button
-                    onClick={() => { setSubmitted(false); setFormData({ name: "", email: "", phone: "", subject: "", message: "" }) }}
+                    onClick={() => { setSubmitted(false); setFormData({ name: "", email: "", phone: "", subject: "", message: "", hp_company: "" }) }}
                     className="btn-secondary text-xs"
                   >
                     Send Another Message
@@ -130,6 +134,18 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Invisible Honeypot field for bot protection */}
+                  <input
+                    type="text"
+                    name="hp_company"
+                    value={formData.hp_company}
+                    onChange={(e) => setFormData({ ...formData, hp_company: e.target.value })}
+                    className="hidden opacity-0 pointer-events-none absolute -left-[9999px]"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                  />
+
                   <h2 className="text-base font-bold text-zinc-900 mb-2">Send Us a Direct Message</h2>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

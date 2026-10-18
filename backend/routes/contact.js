@@ -3,6 +3,18 @@ const router = express.Router();
 const mockDb = require('../utils/mockDb');
 const { sendEmail, getTransporter } = require('../services/emailService');
 const { logAdminAction } = require('../utils/adminLogger');
+const { protect } = require('../middleware/auth');
+const admin = require('../middleware/admin');
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[character]);
+}
 
 // POST /api/contact
 router.post('/', async (req, res) => {
@@ -19,11 +31,18 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Message must be at least 10 characters.' });
     }
 
-    const topic = subject || 'General Inquiry';
+    const topic = typeof subject === 'string'
+      ? subject.replace(/[\r\n]/g, ' ').trim().slice(0, 120) || 'General Inquiry'
+      : 'General Inquiry';
     const cleanName = name.trim();
     const cleanEmail = email.trim().toLowerCase();
     const cleanPhone = phone ? phone.trim() : '';
     const cleanMessage = message.trim();
+    const safeName = escapeHtml(cleanName);
+    const safeEmail = escapeHtml(cleanEmail);
+    const safeTopic = escapeHtml(topic);
+    const safePhone = escapeHtml(cleanPhone);
+    const safeMessage = escapeHtml(cleanMessage);
 
     // 1. Persist to mockDb and MongoDB
     const inquiryRecord = {
@@ -70,13 +89,13 @@ router.post('/', async (req, res) => {
     const customerHtml = `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;">
         <h2 style="color:#D9651E;margin-top:0;">Message Received! 📨</h2>
-        <p>Hi <strong>${cleanName}</strong>,</p>
-        <p>Thank you for reaching out to NUTRATEIN. We have received your inquiry regarding <strong>${topic}</strong>.</p>
+        <p>Hi <strong>${safeName}</strong>,</p>
+        <p>Thank you for reaching out to NUTRATEIN. We have received your inquiry regarding <strong>${safeTopic}</strong>.</p>
         <div style="background:#f8fafc;padding:16px;border-radius:8px;border-left:4px solid #D9651E;margin:18px 0;">
           <strong style="font-size:12px;color:#64748b;text-transform:uppercase;">Your Message:</strong>
-          <p style="margin:6px 0 0;font-size:14px;color:#1e293b;line-height:1.5;">${cleanMessage.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+          <p style="margin:6px 0 0;font-size:14px;color:#1e293b;line-height:1.5;">${safeMessage}</p>
         </div>
-        <p>Our certified sports nutrition support team is looking into this and will get back to you at <strong>${cleanEmail}</strong>${cleanPhone ? ' or ' + cleanPhone : ''} within 24 hours.</p>
+        <p>Our certified sports nutrition support team is looking into this and will get back to you at <strong>${safeEmail}</strong>${cleanPhone ? ' or ' + safePhone : ''} within 24 hours.</p>
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
         <p style="color:#64748b;font-size:12px;margin:0;">NUTRATEIN Sports Nutrition Ltd. | Email: ${adminRecipient} | WhatsApp/Helpline: +91 93215 98094</p>
       </div>
@@ -85,12 +104,12 @@ router.post('/', async (req, res) => {
     const adminHtml = `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;">
         <h3 style="color:#0F172A;margin-top:0;">📩 New Contact Inquiry Received</h3>
-        <p><strong>From:</strong> ${cleanName} (&lt;${cleanEmail}&gt;)</p>
-        <p><strong>Phone:</strong> ${cleanPhone || 'Not provided'}</p>
-        <p><strong>Topic:</strong> ${topic}</p>
+        <p><strong>From:</strong> ${safeName} (&lt;${safeEmail}&gt;)</p>
+        <p><strong>Phone:</strong> ${safePhone || 'Not provided'}</p>
+        <p><strong>Topic:</strong> ${safeTopic}</p>
         <div style="background:#f1f5f9;padding:16px;border-radius:8px;margin:16px 0;">
           <strong>Message Body:</strong>
-          <p style="margin:8px 0 0;line-height:1.5;">${cleanMessage.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+          <p style="margin:8px 0 0;line-height:1.5;">${safeMessage}</p>
         </div>
         <p style="font-size:12px;color:#64748b;">Timestamp: ${new Date().toLocaleString('en-IN')}</p>
       </div>
@@ -121,7 +140,7 @@ router.post('/', async (req, res) => {
 });
 
 // GET /api/contact - Admin: view all inquiries
-router.get('/', async (req, res) => {
+router.get('/', protect, admin, async (req, res) => {
   try {
     if (global.USE_MONGODB) {
       const ContactMessage = require('../models/ContactMessage');

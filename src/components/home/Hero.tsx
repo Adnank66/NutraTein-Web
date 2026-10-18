@@ -211,6 +211,8 @@ export default function Hero() {
       onWheel={handleWheel}
       aria-label="Nutra Tein Promotional Banners"
     >
+      <h1 className="sr-only">NUTRA TEIN – Premium Fitness Supplements & Sports Nutrition</h1>
+
       {/* Dynamic Ambient Background Blur */}
       <div className="absolute inset-0 pointer-events-none opacity-25 overflow-hidden">
         <div
@@ -307,15 +309,15 @@ export default function Hero() {
 
             {/* Touch and touchpad scrollable directly without arrows */}
 
-            {/* Quick Action CTA: Visible on tablet and desktop, unobtrusive so mobile graphic text is 100% visible */}
-            <div className="hidden sm:block absolute bottom-2.5 sm:bottom-4 right-3 sm:right-6 z-20 pointer-events-auto">
+            {/* Quick Action CTA: Positioned logically on the left below headline/offer */}
+            <div className="hidden sm:block absolute bottom-3 sm:bottom-6 left-4 sm:left-8 z-20 pointer-events-auto">
               <AnimatedButton
                 href={currentBanner.ctaLink || "/shop"}
                 accentColor="bg-red-600"
-                className="bg-red-600 hover:bg-red-700 text-white font-black text-xs py-1.5 sm:py-2 px-3 sm:px-4 shadow-xl rounded-xl"
+                className="bg-red-600 hover:bg-red-700 text-white font-black text-xs py-2 sm:py-2.5 px-4 sm:px-5 shadow-xl rounded-xl"
               >
                 <span>{currentBanner.ctaText && currentBanner.ctaText.includes("Shop ") ? currentBanner.ctaText : t("hero.shopNow")}</span>
-                <ArrowRight size={12} className="ml-1" />
+                <ArrowRight size={13} className="ml-1" />
               </AnimatedButton>
             </div>
           </div>

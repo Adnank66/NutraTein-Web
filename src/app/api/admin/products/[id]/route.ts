@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 import { revalidatePath } from "next/cache"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { id } = await params
     const product = await prisma.product.findUnique({
@@ -34,10 +32,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { id } = await params
     const body = await req.json()
@@ -137,10 +133,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { id } = await params
     await prisma.productVariant.deleteMany({ where: { productId: id } })

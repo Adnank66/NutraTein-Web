@@ -6,6 +6,8 @@ const nextConfig = {
   // Fix: silence "multiple lockfiles" workspace root warning from Next.js
   outputFileTracingRoot: path.join(__dirname),
   allowedDevOrigins: [
+    '192.168.1.107',
+    '192.168.1.107:3000',
     '192.168.1.108',
     '192.168.1.108:3000',
     '192.168.1.111',
@@ -15,15 +17,19 @@ const nextConfig = {
     '127.0.0.1',
     '127.0.0.1:3000',
   ],
+  compress: true,
+  poweredByHeader: false,
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'via.placeholder.com' },
       { protocol: 'https', hostname: 'placehold.co' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: '*.googleusercontent.com' },
+      { protocol: 'https', hostname: '*.shutterstock.com' },
+      { protocol: 'https', hostname: 'www.shutterstock.com' },
     ],
-    unoptimized: true,
     // Declare quality values used in <Image quality={...}> to avoid Next.js 16 warning
     qualities: [75, 85, 90, 95, 100],
     localPatterns: [
@@ -45,6 +51,20 @@ const nextConfig = {
         ],
       },
       {
+        // Cache immutable Next.js static bundles with cache busting
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        // Static assets & uploads caching with stale-while-revalidate
+        source: '/(assets|uploads)/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+        ],
+      },
+      {
         // Prevent caching sensitive admin + account data
         source: '/(admin|account|checkout|api/admin)/:path*',
         headers: [
@@ -63,6 +83,8 @@ const nextConfig = {
       { source: '/register.html', destination: '/register' },
       { source: '/account.html', destination: '/account' },
       { source: '/tracking.html', destination: '/account/orders' },
+      { source: '/refund-policy', destination: '/return-policy' },
+      { source: '/refund-policy.html', destination: '/return-policy' },
     ]
   },
 }

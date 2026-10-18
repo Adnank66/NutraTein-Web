@@ -35,6 +35,41 @@ interface ProductCardProps {
 
 import { useSession } from "next-auth/react"
 
+const ALLOWED_REMOTE_IMAGE_HOSTS = [
+  "images.unsplash.com",
+  "via.placeholder.com",
+  "placehold.co",
+  "res.cloudinary.com",
+  "googleusercontent.com",
+  "shutterstock.com",
+  "freepik.com",
+  "pixabay.com",
+  "pexels.com",
+]
+
+function getSafeProductImage(rawSrc?: string | null): string {
+  const fallback = "/assets/products/whey.jpg"
+  if (!rawSrc || typeof rawSrc !== "string") return fallback
+  const clean = rawSrc.trim()
+  if (!clean || clean.includes("/search/") || clean.endsWith(".html") || clean.includes("?search=")) return fallback
+
+  // Local assets are always safe
+  if (clean.startsWith("/")) return clean
+
+  // External URLs: verify structure and allowed host
+  try {
+    const parsed = new URL(clean)
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return fallback
+    const isAllowed = ALLOWED_REMOTE_IMAGE_HOSTS.some(
+      (h) => parsed.hostname === h || parsed.hostname.endsWith(`.${h}`)
+    )
+    if (!isAllowed) return fallback
+    return clean
+  } catch {
+    return fallback
+  }
+}
+
 export default function ProductCard({
   id,
   slug,
@@ -58,7 +93,13 @@ export default function ProductCard({
   const { t } = useTranslation()
   const { data: session, status } = useSession()
   const [quickViewOpen, setQuickViewOpen] = useState(false)
+  const [imgSrc, setImgSrc] = useState(() => getSafeProductImage(image))
+  useEffect(() => {
+    setImgSrc(getSafeProductImage(image))
+  }, [image])
+
   const addItem = useCartStore((s) => s.addItem)
+  const openCart = useCartStore((s) => s.openCart)
   const { isInWishlist, toggleWishlist } = useWishlistStore()
   const wishlisted = isInWishlist(id)
   const { isInCompare, toggleCompare } = useCompareStore()
@@ -150,6 +191,7 @@ export default function ProductCard({
       stock,
       slug,
     })
+    openCart()
     toast.success("Added to cart", {
       description: name,
     })
@@ -220,15 +262,16 @@ export default function ProductCard({
         className="group card flex flex-col justify-between overflow-hidden bg-white dark:bg-zinc-900 hover:-translate-y-1 hover:shadow-xl hover:shadow-zinc-300/40 dark:hover:shadow-zinc-950/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300"
       >
         <div>
-          {/* Image container — fixed 1:1 aspect, product always fully visible */}
-          <div className="relative w-full aspect-square overflow-hidden bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
+          {/* Image container — standard 1:1 aspect ratio, perfectly fitting supplement tubs without empty margins */}
+          <div className="relative w-full aspect-square overflow-hidden bg-white dark:bg-zinc-900/60 flex items-center justify-center p-3">
             <Link href={`/shop/${slug}`} className="relative w-full h-full block">
               <Image
-                src={image}
+                src={imgSrc}
                 alt={name}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-contain object-center transition-transform duration-500 ease-out group-hover:scale-105"
+                onError={() => setImgSrc("/assets/products/whey.jpg")}
               />
             </Link>
 
@@ -271,7 +314,7 @@ export default function ProductCard({
           </div>
 
           {/* Text content */}
-          <div className="p-2 sm:p-4 space-y-1 transition-transform duration-100 [transform-style:preserve-3d] will-change-transform" style={text3dStyle}>
+          <div className="p-2.5 sm:p-4 space-y-1 transition-transform duration-100 [transform-style:preserve-3d] will-change-transform" style={text3dStyle}>
             <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">{brand}</span>
             <Link
               href={`/shop/${slug}`}
@@ -280,13 +323,15 @@ export default function ProductCard({
               {name}
             </Link>
 
-            <div className="flex items-center gap-1 pt-0.5">
-              <div className="flex items-center gap-0.5 text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-400 px-1 py-0.5 rounded border border-amber-200/60 dark:border-amber-900/60">
-                <Star size={10} className="fill-amber-400 text-amber-400" />
-                <span>{rating.toFixed(1)}</span>
+            {reviewCount && reviewCount > 0 ? (
+              <div className="flex items-center gap-1 pt-0.5">
+                <div className="flex items-center gap-0.5 text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-400 px-1 py-0.5 rounded border border-amber-200/60 dark:border-amber-900/60">
+                  <Star size={10} className="fill-amber-400 text-amber-400" />
+                  <span>{rating.toFixed(1)}</span>
+                </div>
+                <span className="text-[10px] text-zinc-400 dark:text-zinc-500">({reviewCount})</span>
               </div>
-              <span className="text-[10px] text-zinc-400 dark:text-zinc-500">({reviewCount})</span>
-            </div>
+            ) : null}
           </div>
         </div>
 

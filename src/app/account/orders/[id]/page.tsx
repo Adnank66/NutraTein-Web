@@ -60,6 +60,24 @@ export default async function OrderDetailsPage({ params }: OrderDetailsProps) {
 
   if (!order) notFound()
 
+  // Strict ownership check (Anti-IDOR)
+  const sessionUserId = session?.user?.id
+  const sessionEmail = session?.user?.email?.toLowerCase().trim()
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
+
+  const orderUserId = order.userId
+  const orderEmail = (order.customerEmail || order.user?.email || "").toLowerCase().trim()
+
+  const isOwner = Boolean(
+    isAdmin ||
+    (sessionUserId && orderUserId && sessionUserId === orderUserId) ||
+    (sessionEmail && orderEmail && sessionEmail === orderEmail)
+  )
+
+  if (!isOwner) {
+    notFound()
+  }
+
   const curDeliveryStatus = order.deliveryStatus || order.status || "ORDER_PLACED"
   const isCancelled = curDeliveryStatus === "CANCELLED" || order.status === "CANCELLED"
   const isReturned = curDeliveryStatus === "RETURNED" || order.status === "REFUNDED"

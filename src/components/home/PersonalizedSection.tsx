@@ -49,7 +49,7 @@ const GOAL_PRODUCTS: GoalProduct[] = [
     badge: "BEST SELLER",
     badgeVariant: "best",
     image: "/assets/recommendations/creacore.jpg",
-    rating: 5.0,
+    rating: 0,
     servingsInfo: "80 servings",
     price: 699,
     mrp: 899,
@@ -67,7 +67,7 @@ const GOAL_PRODUCTS: GoalProduct[] = [
     badge: "MASS GAINER",
     badgeVariant: "offer",
     image: "/assets/recommendations/mass-tein.jpg",
-    rating: 5.0,
+    rating: 0,
     servingsInfo: "Swiss chocolate",
     price: 3999,
     mrp: 4999,
@@ -85,7 +85,7 @@ const GOAL_PRODUCTS: GoalProduct[] = [
     badge: "PUMP & FOCUS",
     badgeVariant: "best",
     image: "/assets/recommendations/titan.jpg",
-    rating: 5.0,
+    rating: 0,
     servingsInfo: "30 servings",
     price: 2999,
     mrp: 3699,
@@ -103,7 +103,7 @@ const GOAL_PRODUCTS: GoalProduct[] = [
     badge: "TRIPLE STRENGTH",
     badgeVariant: "offer",
     image: "/assets/recommendations/l-carnitine.jpg",
-    rating: 5.0,
+    rating: 0,
     servingsInfo: "Pineapple",
     price: 2499,
     mrp: 2999,
@@ -121,7 +121,7 @@ const GOAL_PRODUCTS: GoalProduct[] = [
     badge: "WHEY PROTEIN",
     badgeVariant: "best",
     image: "/assets/recommendations/nitrotein.png",
-    rating: 5.0,
+    rating: 0,
     servingsInfo: "Swiss chocolate",
     price: 4499,
     mrp: 5499,
@@ -139,7 +139,7 @@ const GOAL_PRODUCTS: GoalProduct[] = [
     badge: "LEAN MUSCLES",
     badgeVariant: "offer",
     image: "/assets/recommendations/shred-tein.png",
-    rating: 5.0,
+    rating: 0,
     servingsInfo: "Swiss chocolate",
     price: 4499,
     mrp: 5499,
@@ -174,6 +174,7 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
   const [allProducts, setAllProducts] = useState<any[]>([])
 
   const addItem = useCartStore((s) => s.addItem)
+  const openCart = useCartStore((s) => s.openCart)
   const wishlist = useWishlistStore((s) => s.items)
   const toggleWishlist = useWishlistStore((s) => s.toggleItem)
   const { t } = useTranslation()
@@ -311,6 +312,7 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
       stock: 50,
     })
 
+    openCart()
     setAddedMap((prev) => ({ ...prev, [product.id]: true }))
     toast.success(`${product.name} added to cart!`, {
       description: "Added to your fitness nutrition stack.",
@@ -481,10 +483,10 @@ function GoalProductCard({
       <div className="absolute top-[14px] left-[14px] right-[14px] z-20 flex items-start justify-between pointer-events-none">
         {/* Pill Badge */}
         <span
-          className={`px-[10px] py-[6px] rounded-full text-[10px] font-[800] tracking-[0.02em] uppercase transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:shadow-[0_8px_18px_rgba(0,0,0,0.18)] group-hover:-translate-y-[5px] group-hover:scale-[1.05] pointer-events-auto ${
+          className={`px-[10px] py-[6px] rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:shadow-[0_8px_18px_rgba(0,0,0,0.18)] group-hover:-translate-y-[5px] group-hover:scale-[1.05] pointer-events-auto ${
             product.badgeVariant === "offer"
-              ? "bg-[#fff7df] text-[#df7300]"
-              : "bg-[#171719] text-white"
+              ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400"
+              : "bg-zinc-900 text-white"
           }`}
         >
           {product.badge}
@@ -496,54 +498,66 @@ function GoalProductCard({
             type="button"
             onClick={(e) => onToggleWishlist(e, product)}
             aria-label="Save to Wishlist"
-            className={`w-[34px] h-[34px] rounded-full border border-white/70 bg-white/85 text-[#62616b] flex items-center justify-center shadow-[0_3px_8px_rgba(0,0,0,0.05)] transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:bg-white group-hover:shadow-[0_8px_18px_rgba(0,0,0,0.18)] group-hover:-translate-y-[4px] group-hover:scale-[1.06] ${
-              isFav ? "text-[#df7300]" : "hover:text-[#19191c]"
+            className={`w-[34px] h-[34px] rounded-full border border-white/70 bg-white/85 text-zinc-600 dark:text-zinc-400 flex items-center justify-center shadow-[0_3px_8px_rgba(0,0,0,0.05)] transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:bg-white group-hover:shadow-[0_8px_18px_rgba(0,0,0,0.18)] group-hover:-translate-y-[4px] group-hover:scale-[1.06] ${
+              isFav ? "text-amber-600" : "hover:text-zinc-900"
             }`}
           >
-            <Heart size={16} className={isFav ? "fill-[#df7300]" : ""} />
+            <Heart size={16} className={isFav ? "fill-amber-600 text-amber-600" : ""} />
           </button>
 
           <button
             type="button"
             onClick={(e) => onAddToCart(e, product)}
             aria-label="Quick Add to Cart"
-            className={`w-[34px] h-[34px] rounded-full border border-white/70 bg-white/85 text-[#62616b] flex items-center justify-center shadow-[0_3px_8px_rgba(0,0,0,0.05)] transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] delay-[60ms] group-hover:bg-white group-hover:shadow-[0_8px_18px_rgba(0,0,0,0.18)] group-hover:-translate-y-[7px] group-hover:scale-[1.06] hover:text-[#19191c]`}
+            className={`w-[34px] h-[34px] rounded-full border border-white/70 bg-white/85 text-zinc-600 dark:text-zinc-400 flex items-center justify-center shadow-[0_3px_8px_rgba(0,0,0,0.05)] transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] delay-[60ms] group-hover:bg-white group-hover:shadow-[0_8px_18px_rgba(0,0,0,0.18)] group-hover:-translate-y-[7px] group-hover:scale-[1.06] hover:text-zinc-900`}
           >
-            {isAdded ? <Check size={16} className="text-[#4f7100]" /> : <ShoppingBag size={16} />}
+            {isAdded ? <Check size={16} className="text-emerald-600" /> : <ShoppingBag size={16} />}
           </button>
         </div>
       </div>
 
       {/* Product Copy & Metadata */}
-      <div className="flex-1 p-[18px_18px_18px] bg-white transition-all duration-[720ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:bg-[#fefefc]">
-        <span className="block mb-1.5 text-[10px] font-[850] tracking-[0.12em] text-[#9b9aa4] uppercase">
+      <div className="flex-1 p-[18px] bg-white dark:bg-zinc-900 transition-all duration-[720ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:bg-[#fefefc] dark:group-hover:bg-zinc-850">
+        <span className="block mb-1.5 text-xs font-bold tracking-wider text-zinc-500 dark:text-zinc-400 uppercase">
           {product.brand}
         </span>
 
-        <h3 className="m-0 min-h-[44px] text-[15px] sm:text-[16px] leading-[1.3] tracking-[-0.025em] font-[790] text-[#19191c] line-clamp-2 transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:text-red-600">
+        <h3 className="m-0 min-h-[44px] text-sm sm:text-base leading-[1.3] tracking-tight font-bold text-zinc-950 dark:text-white line-clamp-2 transition-all duration-300 group-hover:text-red-600">
           {product.name}
         </h3>
 
-        {/* Rating Tag */}
-        <div className="inline-flex items-center gap-1.5 mt-2 px-2 py-1 border border-[#ffd877] rounded text-[11px] font-[800] text-[#d88a00] bg-[#fffaf0]">
-          <Star size={12} className="fill-[#d88a00]" />
-          <span>{product.rating.toFixed(1)}</span>
-          <span className="text-[#a9a8af] font-[550]">
-            ({product.servingsInfo})
+        {/* Specification & Serving Tag */}
+        <div className="inline-flex items-center gap-1.5 mt-2 px-2 py-0.5 border border-zinc-200 dark:border-zinc-800 rounded text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/60">
+          <span className="text-zinc-600 dark:text-zinc-300 font-medium">
+            {product.servingsInfo}
           </span>
         </div>
 
         {/* Price & Action Row */}
-        <div className="mt-3.5 pt-2.5 border-t border-zinc-100 flex items-center justify-between">
+        <div className="mt-3.5 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base sm:text-lg font-black text-[#19191c]">₹{product.price.toLocaleString("en-IN")}</span>
+            <span className="text-base sm:text-lg font-black text-zinc-950 dark:text-white">₹{product.price.toLocaleString("en-IN")}</span>
             {product.mrp && product.mrp > product.price && (
-              <span className="text-xs text-[#9b9aa4] line-through font-medium">₹{product.mrp.toLocaleString("en-IN")}</span>
+              <span className="text-xs text-zinc-400 line-through font-medium">₹{product.mrp.toLocaleString("en-IN")}</span>
             )}
           </div>
-          <span className="text-xs font-bold text-red-600 group-hover:underline flex items-center gap-1">
-            {t("product.viewProduct")} <ArrowRight size={12} />
-          </span>
+          <button
+            type="button"
+            onClick={(e) => onAddToCart(e, product)}
+            className="py-1.5 px-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition-all active:scale-95 shrink-0"
+          >
+            {isAdded ? (
+              <>
+                <Check size={13} className="stroke-[3]" />
+                <span>Added</span>
+              </>
+            ) : (
+              <>
+                <ShoppingBag size={13} />
+                <span>Add to Cart</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
     </Link>

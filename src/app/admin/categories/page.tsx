@@ -215,17 +215,23 @@ export default function AdminCategoriesPage() {
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <span className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400 flex items-center justify-center text-lg font-bold">
+                  <Link
+                    href={`/shop?category=${c.slug}`}
+                    target="_blank"
+                    className="flex items-center gap-3 group/link hover:opacity-80 transition-opacity"
+                    title={`Open /shop?category=${c.slug} storefront page`}
+                  >
+                    <span className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400 flex items-center justify-center text-lg font-bold group-hover/link:scale-105 transition-transform">
                       {c.icon || "🏷️"}
                     </span>
                     <div>
-                      <h3 className="font-extrabold text-sm text-zinc-900 dark:text-white leading-tight">
+                      <h3 className="font-extrabold text-sm text-zinc-900 dark:text-white leading-tight group-hover/link:text-brand-600 flex items-center gap-1.5">
                         {c.name}
+                        <ExternalLink size={12} className="text-zinc-400 group-hover/link:text-brand-600" />
                       </h3>
                       <span className="font-mono text-[11px] text-zinc-400">/{c.slug}</span>
                     </div>
-                  </div>
+                  </Link>
 
                   <div className="flex items-center gap-2">
                     <span className="badge text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">

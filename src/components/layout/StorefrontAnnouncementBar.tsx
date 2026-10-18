@@ -18,7 +18,7 @@ const DEFAULT_FALLBACK_RIBBONS: RibbonItem[] = [
   {
     id: "ribbon-1",
     enabled: true,
-    text: "⚡ FLASH SALE: 20% OFF ALL SUPPLEMENTS | USE CODE 'PROTEIN20' | FREE EXPRESS SHIPPING OVER ₹999",
+    text: "⚡ Flash Sale: 20% off all supplements | Use code 'PROTEIN20' | Free express shipping over ₹999",
     badge: "LIMITED TIME",
     link: "/shop",
     bgColor: "bg-red-600",
@@ -26,7 +26,7 @@ const DEFAULT_FALLBACK_RIBBONS: RibbonItem[] = [
   {
     id: "ribbon-2",
     enabled: true,
-    text: "🛡️ 100% AUTHENTIC INDIAN BATCH LAB CERTIFIED | NO AMINO SPIKING | HASSLE-FREE 7-DAY REPLACEMENTS",
+    text: "🛡️ 100% Authentic Indian batch lab-certified | Zero amino spiking | Hassle-free 7-day replacements",
     badge: "LAB CERTIFIED",
     link: "/about",
     bgColor: "bg-zinc-950",
@@ -36,6 +36,7 @@ const DEFAULT_FALLBACK_RIBBONS: RibbonItem[] = [
 export default function StorefrontAnnouncementBar() {
   const [ribbons, setRibbons] = useState<RibbonItem[]>(DEFAULT_FALLBACK_RIBBONS)
   const [dismissedIds, setDismissedIds] = useState<Record<string, boolean>>({})
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
     fetch("/api/admin/announcement", { cache: "no-store" })
@@ -61,40 +62,55 @@ export default function StorefrontAnnouncementBar() {
 
   const activeRibbons = ribbons.filter((r) => r.enabled && r.text && !dismissedIds[r.id])
 
+  useEffect(() => {
+    if (activeRibbons.length <= 1) return
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % activeRibbons.length)
+    }, 5500)
+    return () => clearInterval(timer)
+  }, [activeRibbons.length])
+
   if (activeRibbons.length === 0) {
     return null
   }
 
-  return (
-    <div className="relative z-50 flex flex-col font-sans transition-all duration-300 divide-y divide-white/10">
-      {activeRibbons.map((ribbon, idx) => (
-        <div
-          key={ribbon.id || idx}
-          className={`relative ${ribbon.bgColor || "bg-red-600"} text-white py-1.5 px-4 text-[11px] font-semibold shadow-xs transition-colors`}
-        >
-          <div className="container-custom flex items-center justify-between gap-3">
-            <div className="flex-1 flex items-center justify-center gap-2 text-center truncate">
-              {ribbon.badge && (
-                <span className="text-[9px] font-black uppercase bg-black/25 px-2 py-0.5 rounded-md tracking-wider shrink-0">
-                  {ribbon.badge}
-                </span>
-              )}
-              <Link href={ribbon.link || "/shop"} className="hover:underline truncate flex items-center gap-1">
-                <span>{ribbon.text}</span>
-                <span className="opacity-90 font-bold ml-1 hidden sm:inline">Shop Now →</span>
-              </Link>
-            </div>
+  const currentRibbon = activeRibbons[currentIndex % activeRibbons.length]
 
+  return (
+    <div className="relative z-50 w-full font-sans transition-all duration-300">
+      <div
+        key={currentRibbon.id}
+        className={`relative ${currentRibbon.bgColor || "bg-red-600"} text-white py-2 px-4 text-xs font-medium shadow-xs transition-colors`}
+      >
+        <div className="container-custom flex items-center justify-between gap-3">
+          <div className="flex-1 flex items-center justify-center gap-2 text-center truncate">
+            {currentRibbon.badge && (
+              <span className="text-[10px] font-black uppercase bg-black/25 px-2 py-0.5 rounded-full tracking-wider shrink-0">
+                {currentRibbon.badge}
+              </span>
+            )}
+            <Link href={currentRibbon.link || "/shop"} className="hover:underline truncate flex items-center gap-1">
+              <span className="truncate">{currentRibbon.text}</span>
+              <span className="opacity-90 font-bold ml-1 hidden sm:inline shrink-0">Shop Now →</span>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0">
+            {activeRibbons.length > 1 && (
+              <span className="text-[10px] opacity-75 font-mono hidden md:inline mr-1">
+                {((currentIndex % activeRibbons.length) + 1)}/{activeRibbons.length}
+              </span>
+            )}
             <button
-              onClick={() => setDismissedIds((prev) => ({ ...prev, [ribbon.id]: true }))}
-              className="text-white/80 hover:text-white p-0.5 rounded-md hover:bg-black/10 transition-colors shrink-0"
-              aria-label={`Close announcement ${idx + 1}`}
+              onClick={() => setDismissedIds((prev) => ({ ...prev, [currentRibbon.id]: true }))}
+              className="text-white/80 hover:text-white p-1 rounded-md hover:bg-black/10 transition-colors"
+              aria-label="Close announcement bar"
             >
-              <X size={13} />
+              <X size={14} />
             </button>
           </div>
         </div>
-      ))}
+      </div>
     </div>
   )
 }

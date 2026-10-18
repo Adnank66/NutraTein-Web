@@ -1,9 +1,16 @@
 "use client"
 import { useState, useEffect } from "react"
-import { FileText } from "lucide-react"
+import Link from "next/link"
+import { FileText, ArrowLeft } from "lucide-react"
+
+interface LegalPageData {
+  title?: string
+  content?: string
+  updatedAt?: string
+}
 
 export default function LegalPageContent({ slug }: { slug: string }) {
-  const [page, setPage] = useState<any>(null)
+  const [page, setPage] = useState<LegalPageData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -17,6 +24,13 @@ export default function LegalPageContent({ slug }: { slug: string }) {
 
   return (
     <div className="max-w-3xl mx-auto py-12 px-4">
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white mb-4 transition-colors"
+      >
+        <ArrowLeft size={13} />
+        Back to Home
+      </Link>
       <div className="flex items-center gap-3 mb-8">
         <FileText size={24} className="text-brand-600" />
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{page?.title || slug}</h1>

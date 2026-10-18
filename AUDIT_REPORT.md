@@ -37,7 +37,7 @@ A comprehensive architectural, database, payment workflow, and security audit wa
 | **Multiple UPI Profiles** | **PASS** | `PaymentMethod` model added to Atlas. Admin API created at `/api/admin/payment-methods`. Default active profile selection supported. |
 | **Storefront Stock Indicators** | **PASS** | Products with 0 stock display "OUT OF STOCK" badge and disable Add to Cart. |
 | **Admin Inline Stock Editing** | **PASS** | Admin product table allows live inline quantity editing with instant MongoDB update. |
-| **Low Stock Email Alerts** | **PASS** | Automatically dispatches alert emails to admin (`adnankazi275@gmail.com`) when variant stock falls $\le 25$. |
+| **Low Stock Email Alerts** | **PASS** | Automatically dispatches alert emails to admin (`nutratein@gmail.com`) when variant stock falls $\le 25$. |
 | **Security & Secrets Hygiene** | **PASS** | No credentials, API secrets, or passwords logged, exposed to frontend, or committed to Git. |
 | **TypeScript Compilation** | **PASS** | `npx tsc --noEmit` exited with code 0 (zero errors). |
 | **Next.js Production Build** | **PASS** | `npx next build` exited with code 0 (100% of pages and endpoints compiled). |

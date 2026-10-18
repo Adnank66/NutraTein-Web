@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Mail, ArrowRight, RefreshCw, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 
@@ -75,7 +76,7 @@ export default function ForgotPasswordPage() {
       const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password, otpCode: otpCode.trim() }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed to reset password")
@@ -100,10 +101,15 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center p-6 bg-zinc-950">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-block mb-4">
-            <span className="font-display text-2xl font-black text-white tracking-tight uppercase">
-              NUTRA<span className="text-red-500">TEIN</span>
-            </span>
+          <Link href="/" className="inline-block mb-4 py-1" aria-label="NutraTein Home">
+            <Image
+              src="/assets/logos/nutratein-logo.png"
+              alt="NutraTein"
+              width={180}
+              height={80}
+              className="h-10 w-auto object-contain invert brightness-200 transition-transform hover:scale-105"
+              priority
+            />
           </Link>
           <h2 className="text-2xl font-black text-white">Reset Password</h2>
           <p className="text-xs text-zinc-400">{stepLabel}</p>

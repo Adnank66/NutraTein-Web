@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { sendMail } from "@/lib/sendEmail"
+import { generateOtp, hashOtp } from "@/lib/otp"
+import { checkRateLimit, getClientIdentifier } from "@/lib/rate-limit"
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
@@ -18,7 +20,10 @@ export async function POST(req: Request) {
   try {
     const { email, type = "REGISTER" } = await req.json()
 
-    if (!email || !EMAIL_REGEX.test(email.trim())) {
+    const rate = checkRateLimit(`email-otp:${getClientIdentifier(req)}`, 5, 15 * 60 * 1000)
+    if (!rate.success) return NextResponse.json({ error: "Too many verification requests. Please try again later." }, { status: 429 })
+
+    if (!email || typeof email !== "string" || email.length > 254 || !EMAIL_REGEX.test(email.trim())) {
       return NextResponse.json(
         { error: "Please enter a valid email address." },
         { status: 400 }
@@ -26,38 +31,15 @@ export async function POST(req: Request) {
     }
 
     const cleanEmail = email.toLowerCase().trim()
-
-    // ── Step 1: Check if already registered (for REGISTER flow) ──
-    if (type === "REGISTER") {
-      try {
-        const existingUser = await withTimeout(
-          prisma.user.findUnique({ where: { email: cleanEmail } }),
-          10000,
-          "user-check"
-        )
-        if (existingUser?.password) {
-          return NextResponse.json(
-            { error: "This email is already registered. Please sign in instead." },
-            { status: 400 }
-          )
-        }
-      } catch (e: any) {
-        if (e.message?.startsWith("TIMEOUT:")) {
-          return NextResponse.json(
-            { error: "Database is slow to respond. Please wait 30 seconds and try again. If this persists, contact support." },
-            { status: 503 }
-          )
-        }
-        // Other DB errors — continue and try to send OTP anyway
-        console.warn("[send-otp] User check failed:", e.message)
-      }
+    if (!['REGISTER', 'LOGIN', 'RESET'].includes(String(type).toUpperCase())) {
+      return NextResponse.json({ error: "Unsupported verification request." }, { status: 400 })
     }
 
-    // ── Step 2: Generate 6-digit OTP ──
-    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    // ── Step 1: Generate a cryptographically secure, short-lived OTP ──
+    const otp = generateOtp()
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
 
-    // ── Step 3: Delete old OTPs + Insert new OTP via raw commands ──
+    // ── Step 2: Delete old OTPs + Insert the hashed OTP via raw commands ──
     // MongoDB M0 Free Tier does NOT support transactions.
     // $runCommandRaw bypasses Prisma's transaction wrapper.
     try {
@@ -80,7 +62,7 @@ export async function POST(req: Request) {
           documents: [
             {
               email: cleanEmail,
-              code: otp,
+              code: hashOtp(otp),
               expiresAt: { $date: expiresAt.toISOString() },
               createdAt: { $date: new Date().toISOString() },
             },
@@ -103,7 +85,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // ── Step 4: Send email via Gmail SMTP ──
+    // ── Step 3: Send email via SMTP ──
     const html = `
       <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#ffffff;">
         <div style="background:#09090b;padding:24px;text-align:center;">
@@ -135,16 +117,16 @@ export async function POST(req: Request) {
       )
 
       if (!mailResult.success) {
-        console.error("[send-otp] Email send failed:", mailResult.error)
+        console.error("[send-otp] Email send failed")
         return NextResponse.json(
-          { error: "Verification code saved but email could not be sent. Check SMTP_EMAIL and SMTP_PASSWORD in environment variables." },
+          { error: "Email delivery is temporarily unavailable. Please try again later." },
           { status: 500 }
         )
       }
     } catch (e: any) {
-      console.error("[send-otp] SMTP error:", e.message)
+      console.error("[send-otp] SMTP error")
       return NextResponse.json(
-        { error: "Email delivery failed. Please verify SMTP_EMAIL and SMTP_PASSWORD are set correctly in your Vercel environment variables." },
+        { error: "Email delivery is temporarily unavailable. Please try again later." },
         { status: 500 }
       )
     }
@@ -152,13 +134,11 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: "Verification code sent to your email.",
-      // Only expose OTP in development to help test locally
-      ...(process.env.NODE_ENV !== "production" && { devCode: otp }),
     })
   } catch (error: any) {
-    console.error("[send-otp] Unexpected error:", error)
+    console.error("[send-otp] Unexpected error")
     return NextResponse.json(
-      { error: error.message || "Failed to send verification code. Please try again." },
+      { error: "Failed to send verification code. Please try again." },
       { status: 500 }
     )
   }

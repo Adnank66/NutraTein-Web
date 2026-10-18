@@ -151,8 +151,8 @@ export default function WishlistPage() {
                 </div>
 
                 <div>
-                  <div className="relative aspect-square rounded-xl bg-dark-50 dark:bg-zinc-900/60 overflow-hidden mb-3">
-                    <Image src={item.image} alt={item.name} fill className="object-contain p-2" />
+                  <div className="relative aspect-square rounded-xl bg-white dark:bg-zinc-900/60 overflow-hidden mb-3 p-2">
+                    <Image src={item.image} alt={item.name} fill className="object-contain p-1" />
                   </div>
                   <p className="text-[10px] font-bold text-brand-600 uppercase">{item.brand}</p>
                   <Link href={`/shop/${item.slug}`} className="text-xs font-bold text-dark-900 dark:text-zinc-100 line-clamp-2 hover:text-brand-600 dark:hover:text-brand-400">

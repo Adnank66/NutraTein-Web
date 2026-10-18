@@ -2,27 +2,13 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
-// Helper to safely verify JWT across current and fallback secrets
+// Verify only with the deployment's configured secret. A fallback turns a
+// public source string into a token-signing key.
 function verifyToken(token) {
-  const secrets = [
-    process.env.JWT_SECRET,
-    'proteinx_jwt_secret_key_2024_change_me',
-    'proteinx_secret_jwt_key',
-    'proteinx-super-secret-key-2024-min-32-characters-long'
-  ].filter(Boolean);
-
-  let lastError = null;
-  for (const secret of secrets) {
-    try {
-      return jwt.verify(token, secret);
-    } catch (err) {
-      lastError = err;
-      if (err.name === 'TokenExpiredError') {
-        throw err; // Stop trying if token is simply expired
-      }
-    }
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured');
   }
-  throw lastError || new Error('Invalid token');
+  return jwt.verify(token, process.env.JWT_SECRET);
 }
 
 // Protect routes - require JWT token
@@ -68,24 +54,6 @@ const protect = async (req, res, next) => {
       );
     }
 
-    // 3. Fallback for authenticated admin tokens
-    const adminEmails = [
-      (process.env.ADMIN_EMAIL || 'kaziadnan275@gmail.com').toLowerCase(),
-      'kaziadnan275@gmail.com',
-      'admin@proteinx.in'
-    ];
-
-    if (!user && (decoded.role === 'admin' || (decoded.email && adminEmails.includes(decoded.email.toLowerCase())))) {
-      user = {
-        _id: decoded.id || 'usr_admin',
-        name: decoded.name || 'Administrator',
-        email: decoded.email || 'kaziadnan275@gmail.com',
-        role: 'admin',
-        adminRole: decoded.adminRole || 'super_admin',
-        isActive: true
-      };
-    }
-
     if (!user) {
       return res.status(401).json({ 
         success: false, 
@@ -102,13 +70,10 @@ const protect = async (req, res, next) => {
       });
     }
 
-    // Normalize role to lowercase and ensure adminRole
+    // Normalize the database-backed role. Never promote based on e-mail or a
+    // claim embedded in the token.
     if (user.role) {
       user.role = String(user.role).toLowerCase();
-    }
-    if (user.email && adminEmails.includes(user.email.toLowerCase())) {
-      user.role = 'admin';
-      if (!user.adminRole) user.adminRole = 'super_admin';
     }
 
     req.user = user;

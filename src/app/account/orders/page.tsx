@@ -5,7 +5,6 @@ import { Package, ArrowRight, ExternalLink, Clock, CheckCircle, Truck, Calendar 
 import { formatPrice } from "@/lib/utils"
 import { getBackupOrders } from "@/lib/orders-store"
 import { withFastTimeout } from "@/lib/fast-data"
-import { cookies } from "next/headers"
 import { getEffectiveDeliveryDisplay } from "@/lib/delivery-estimate"
 import OrderPayAndModifyActions from "@/components/account/OrderPayAndModifyActions"
 
@@ -21,29 +20,15 @@ export default async function OrdersListPage() {
   const userId = session?.user?.id
   const sessionEmail = session?.user?.email?.toLowerCase().trim()
 
-  // Read saved customer email and recent order numbers from client cookies
-  const cookieStore = await cookies()
-  const cookieEmail = cookieStore.get("proteinx_user_email")?.value?.toLowerCase().trim()
-  const effectiveEmail = sessionEmail || cookieEmail || null
-
-  const recentCookie = cookieStore.get("proteinx_recent_orders")?.value
-  let recentOrderNumbers: string[] = []
-  if (recentCookie) {
-    try {
-      recentOrderNumbers = JSON.parse(decodeURIComponent(recentCookie))
-    } catch {}
-  }
-
   let dbOrders: any[] = []
+  let targetUserId = isValidObjectId(userId) ? userId : null
 
-  // 1. Query orders from database by userId, email, and/or saved cookie orders
+  // 1. Query orders from database strictly by authenticated userId or email
   try {
-    let targetUserId = isValidObjectId(userId) ? userId : null
-
     // If session ID is not an ObjectId, look up the user by email in Prisma
-    if (!targetUserId && effectiveEmail) {
+    if (!targetUserId && sessionEmail) {
       const dbUser = await withFastTimeout(
-        prisma.user.findUnique({ where: { email: effectiveEmail } }),
+        prisma.user.findUnique({ where: { email: sessionEmail } }),
         null,
         1500
       )
@@ -54,8 +39,10 @@ export default async function OrdersListPage() {
 
     const orConditions: any[] = []
     if (targetUserId) orConditions.push({ userId: targetUserId })
-    if (effectiveEmail) orConditions.push({ user: { email: effectiveEmail } })
-    if (recentOrderNumbers.length > 0) orConditions.push({ orderNumber: { in: recentOrderNumbers } })
+    if (sessionEmail) {
+      orConditions.push({ user: { email: sessionEmail } })
+      orConditions.push({ customerEmail: sessionEmail })
+    }
 
     if (orConditions.length > 0) {
       dbOrders = await withFastTimeout(
@@ -75,16 +62,14 @@ export default async function OrdersListPage() {
     dbOrders = []
   }
 
-  // 2. Query backup orders matching user email or saved cookie orders
+  // 2. Query backup orders matching authenticated user email or userId
   const backupOrders = getBackupOrders()
   const matchingBackupOrders = backupOrders.filter((b) => {
-    const bEmail = (b.customer?.email || b.user?.email || "").toLowerCase().trim()
+    const bEmail = (b.customer?.email || b.user?.email || b.customerEmail || "").toLowerCase().trim()
     const bUserId = b.userId
-    const bOrderNum = b.orderNumber
     return (
-      (effectiveEmail && bEmail === effectiveEmail) ||
-      (userId && bUserId === userId) ||
-      recentOrderNumbers.includes(bOrderNum)
+      (sessionEmail && bEmail === sessionEmail) ||
+      (targetUserId && bUserId === targetUserId)
     )
   })
 
@@ -103,7 +88,7 @@ export default async function OrdersListPage() {
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   )
 
-  const displayAccountEmail = effectiveEmail || session?.user?.email || "Athlete"
+  const displayAccountEmail = sessionEmail || session?.user?.email || "Athlete"
 
   return (
     <div className="card p-6 space-y-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">

@@ -6,9 +6,6 @@
  */
 
 // Bypass local Windows Node.js CA cert issues if present
-if (process.env.NODE_ENV !== "production") {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-}
 
 const { MongoClient } = require('mongodb');
 const { createClient } = require('@supabase/supabase-js');

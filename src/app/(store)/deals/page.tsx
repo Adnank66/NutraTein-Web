@@ -3,6 +3,14 @@ import ProductCard from "@/components/product/ProductCard"
 import { Sparkles, Tag, Timer, Zap } from "lucide-react"
 import ComboBuilder from "@/components/home/ComboBuilder"
 
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Special Offers & Stacks",
+  description:
+    "Save up to 20% on performance bundles, combo builders, and exclusive limited-time discounts on premium sports nutrition.",
+}
+
 export const dynamic = "force-dynamic"
 
 export default async function DealsPage() {

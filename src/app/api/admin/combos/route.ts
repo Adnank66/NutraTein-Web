@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 import fs from "fs"
 import path from "path"
 
@@ -18,10 +18,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { combos } = await req.json()
     fs.writeFileSync(dataFile, JSON.stringify(combos, null, 2))

@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 import { prisma } from "@/lib/prisma"
 
 export async function POST(req: Request) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const body = await req.json()
     const { title, message, channel, recipientEmail, recipientPhone } = body
@@ -23,7 +21,7 @@ export async function POST(req: Request) {
       try {
         const { sendOrderAlertEmail } = await import("@/lib/email-service")
         // If a specific recipient is provided, send to them; otherwise notify admin
-        const target = recipientEmail || session.user?.email || "admin@proteinx.in"
+        const target = recipientEmail || guard.user?.email || "admin@proteinx.in"
         // Log notification in NotificationLog
         await (prisma as any).notificationLog?.create({
           data: {

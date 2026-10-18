@@ -40,11 +40,10 @@ GEMINI_API_KEY="your_google_gemini_api_key_here"
 3. Add the `GEMINI_API_KEY` to your `.env` file.
 4. Run `npm run dev` to start the server locally.
 
-## 7. How to Deploy with Vercel
-1. Push your latest code changes to GitHub.
-2. In your Vercel Dashboard, go to your project settings -> **Environment Variables**.
-3. Add `GEMINI_API_KEY` and paste your key.
-4. Trigger a new deployment. The Edge/Serverless functions will automatically pick up the new SDK and API route.
+## 7. How to Deploy with Hostinger
+1. Push or upload your latest code changes to your Hostinger server.
+2. In your Hostinger Node.js Application Manager / VPS `.env`, ensure `GEMINI_API_KEY` is configured.
+3. Build and restart your application via `npm run build && pm2 restart nutratein-web` (or restart in hPanel).
 
 ## 8. Remaining Limitations
 - The AI currently executes one tool per turn. If a user asks "Compare my order #123 with order #124", it will only fetch one order per message.

@@ -2,13 +2,12 @@ import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 
+import { requireAdmin } from "@/lib/security"
+
 export async function POST(req: Request) {
   try {
-    const session = await auth()
-    const isAdmin = (session?.user as any)?.role === "ADMIN" || process.env.NODE_ENV === "development"
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const body = await req.json()
     const { products } = body

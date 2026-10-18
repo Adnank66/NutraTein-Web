@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { requireAdmin } from "@/lib/security"
 
 const DEFAULT_HOMEPAGE_FAQS = [
   {
@@ -47,15 +47,6 @@ const DEFAULT_HOMEPAGE_FAQS = [
   },
 ]
 
-async function requireAdmin() {
-  const session = await auth()
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-  }
-  return null
-}
-
-
 export async function GET() {
   try {
     let faqs = await prisma.fAQ.findMany({
@@ -83,8 +74,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const err = await requireAdmin()
-  if (err) return err
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
   try {
     const body = await req.json()
 
@@ -121,8 +112,8 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const err = await requireAdmin()
-  if (err) return err
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
   try {
     const { id, question, answer, sortOrder, isActive } = await req.json()
     if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 })
@@ -142,8 +133,8 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const err = await requireAdmin()
-  if (err) return err
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
   try {
     const { id } = await req.json()
     if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 })

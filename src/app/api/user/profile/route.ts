@@ -1,21 +1,40 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { requireUser } from '@/lib/security'
 
-export async function PATCH(req: Request) {
-  const session = await auth()
-  if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const { name, phone, image } = await req.json()
-  const user = await prisma.user.update({
-    where: { email: session.user.email },
-    data: { name, phone, image }
+export const dynamic = 'force-dynamic'
+
+export async function GET() {
+  const guard = await requireUser()
+  if (!guard.authorized || !guard.user?.email) return guard.errorResponse!
+
+  const user = await prisma.user.findUnique({
+    where: { email: guard.user.email },
+    select: { id: true, name: true, phone: true, email: true, image: true, role: true }
   })
   return NextResponse.json({ success: true, user })
 }
 
-export async function GET() {
-  const session = await auth()
-  if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const user = await prisma.user.findUnique({ where: { email: session.user.email }, select: { name: true, phone: true, email: true, image: true } })
-  return NextResponse.json({ success: true, user })
+export async function PATCH(req: Request) {
+  const guard = await requireUser()
+  if (!guard.authorized || !guard.user?.email) return guard.errorResponse!
+
+  try {
+    const body = await req.json()
+    const { name, phone, image } = body
+
+    const updateData: any = {}
+    if (typeof name === 'string') updateData.name = name.trim().slice(0, 100)
+    if (typeof phone === 'string') updateData.phone = phone.trim().slice(0, 20)
+    if (typeof image === 'string') updateData.image = image.trim().slice(0, 500)
+
+    const user = await prisma.user.update({
+      where: { email: guard.user.email },
+      data: updateData,
+      select: { id: true, name: true, phone: true, email: true, image: true, role: true }
+    })
+    return NextResponse.json({ success: true, user })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || 'Failed to update profile' }, { status: 500 })
+  }
 }

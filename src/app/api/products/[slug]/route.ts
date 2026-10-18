@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { createCachedETagResponse } from "@/lib/cache"
 
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -21,7 +22,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ data: product })
+    return createCachedETagResponse(req, { data: product }, "public, s-maxage=120, stale-while-revalidate=600")
   } catch (error: any) {
     return NextResponse.json({ error: "Failed to fetch product" }, { status: 500 })
   }

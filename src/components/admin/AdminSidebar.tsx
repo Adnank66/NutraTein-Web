@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
 import { cn } from "@/lib/utils"
@@ -38,7 +39,7 @@ import {
   RefreshCw,
   Gift,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import { useLanguageStore } from "@/store/language"
 
@@ -188,8 +189,7 @@ const navGroups = [
       { label: "Product Bundles", href: "/admin/bundles", icon: Package, exact: false },
       { label: "Customer Reviews Control", href: "/admin/reviews", icon: Star, exact: false },
       { label: "FAQ Manager", href: "/admin/faq", icon: HelpCircle, exact: false },
-      { label: "Media Assets Library", href: "/admin/media", icon: ImageIcon, exact: false },
-      { label: "Loyalty & Rewards", href: "/admin/loyalty", icon: Gift, exact: false },
+      { label: "Subscriptions & Loyalty", href: "/admin/subscriptions-loyalty", icon: Gift, exact: false },
     ],
   },
   {
@@ -201,7 +201,6 @@ const navGroups = [
       { label: "Athlete Video Showcase", href: "/admin/videos", icon: Film, exact: false },
       { label: "Free Shipping & Announcements", href: "/admin/announcements", icon: Megaphone, exact: false },
       { label: "Legal Pages CMS", href: "/admin/legal", icon: FileText, exact: false },
-      { label: "Subscriptions", href: "/admin/subscriptions", icon: RefreshCw, exact: false },
     ],
   },
   {
@@ -224,6 +223,11 @@ export default function AdminSidebar({ adminName, adminEmail, adminRole }: Admin
   const [mobileOpen, setMobileOpen] = useState(false)
   const language = useLanguageStore((s) => s.language)
 
+  // Auto-close mobile navigation drawer whenever any link or page is opened
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
   const tr = (text: string) => {
     if (language && ADMIN_TRANSLATIONS[language] && ADMIN_TRANSLATIONS[language][text]) {
       return ADMIN_TRANSLATIONS[language][text]
@@ -239,15 +243,16 @@ export default function AdminSidebar({ adminName, adminEmail, adminRole }: Admin
       {/* Brand */}
       <div className="px-5 py-5 border-b border-zinc-200 dark:border-zinc-800/80 shrink-0">
         <div className="flex items-center justify-between mb-3">
-          <Link href="/admin" className="flex items-center gap-2 group" onClick={() => setMobileOpen(false)}>
-            <div className="w-8 h-8 bg-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-600/30 transition-transform group-hover:scale-105">
-              <span className="font-black text-sm text-white italic">N</span>
-            </div>
-            <span className="font-display text-base font-black tracking-tight text-zinc-900 dark:text-white uppercase">
-              NUTRA<span className="text-brand-600 dark:text-brand-500"> TEIN</span>
-            </span>
+          <Link href="/" title="Return to Storefront Homepage" className="flex items-center group py-1" onClick={() => setMobileOpen(false)}>
+            <Image
+              src="/assets/logos/nutratein-logo.png"
+              alt="NutraTein"
+              width={140}
+              height={60}
+              className="h-8 w-auto object-contain dark:invert transition-transform group-hover:scale-105"
+            />
           </Link>
-          <span className="text-[9px] font-bold tracking-wider px-2 py-0.5 bg-purple-100 dark:bg-purple-900/80 border border-purple-200 dark:border-purple-700 text-purple-700 dark:text-purple-300 rounded-md">
+          <span className="text-[9px] font-bold tracking-wider px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-md">
             {tr("ADMIN")}
           </span>
         </div>
@@ -256,7 +261,7 @@ export default function AdminSidebar({ adminName, adminEmail, adminRole }: Admin
         <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800">
           <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{adminName}</p>
           <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">{adminEmail}</p>
-          <span className="inline-block mt-1.5 text-[9px] font-bold bg-purple-100 dark:bg-purple-800/60 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded-md border border-purple-200 dark:border-purple-700/50">
+          <span className="inline-block mt-1.5 text-[9px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-1.5 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700/50">
             {adminRole === "ADMIN" ? tr("Super Administrator") : adminRole}
           </span>
         </div>
@@ -346,18 +351,22 @@ export default function AdminSidebar({ adminName, adminEmail, adminRole }: Admin
 
       {/* Mobile Header Bar */}
       <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-40">
-        <Link href="/admin" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-brand-600 rounded-lg flex items-center justify-center">
-            <Zap size={14} className="text-white" fill="white" />
-          </div>
-          <span className="font-display text-base font-bold text-zinc-900 dark:text-white">
-            PROTEIN<span className="text-brand-600 dark:text-brand-500">X</span>
-            <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 ml-1">ADMIN</span>
+        <Link href="/" title="Return to Storefront Homepage" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
+          <Image
+            src="/assets/logos/nutratein-logo.png"
+            alt="NutraTein"
+            width={125}
+            height={55}
+            className="h-7 w-auto object-contain dark:invert"
+          />
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">
+            ADMIN
           </span>
         </Link>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-950 dark:hover:text-white transition-colors"
+          aria-label="Toggle admin navigation"
         >
           <ChevronDown size={16} className={cn("transition-transform", mobileOpen && "rotate-180")} />
         </button>

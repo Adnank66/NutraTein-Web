@@ -23,13 +23,19 @@ export default function CookieConsentBanner() {
       marketing: all ? true : prefs.marketing,
       timestamp: new Date().toISOString(),
     }
-    try { localStorage.setItem("nutratein_cookie_consent", JSON.stringify(consent)) } catch {}
+    try {
+      localStorage.setItem("nutratein_cookie_consent", JSON.stringify(consent))
+      window.dispatchEvent(new CustomEvent("nutratein_consent_changed", { detail: consent }))
+    } catch {}
     setShow(false)
   }
 
   const decline = () => {
     const consent = { essential: true, analytics: false, marketing: false, timestamp: new Date().toISOString() }
-    try { localStorage.setItem("nutratein_cookie_consent", JSON.stringify(consent)) } catch {}
+    try {
+      localStorage.setItem("nutratein_cookie_consent", JSON.stringify(consent))
+      window.dispatchEvent(new CustomEvent("nutratein_consent_changed", { detail: consent }))
+    } catch {}
     setShow(false)
   }
 

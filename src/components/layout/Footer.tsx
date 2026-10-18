@@ -1,6 +1,7 @@
 "use client"
 import Link from "next/link"
-import { Zap, Mail, Phone, MapPin } from "lucide-react"
+import Image from "next/image"
+import { Zap, Mail, Phone, MapPin, ArrowUp } from "lucide-react"
 import { useTranslation } from "@/hooks/useTranslation"
 import TrustBadges from "@/components/TrustBadges"
 
@@ -49,14 +50,15 @@ const footerSections = {
   support: [
     { label: "Contact Us", href: "/contact" },
     { label: "FAQs & Knowledgebase", href: "/#faq" },
+    { label: "Track Your Order", href: "/track" },
     { label: "Shipping Policy", href: "/shipping-policy" },
     { label: "Return & Refund Policy", href: "/return-policy" },
-    { label: "Track Your Order", href: "/account/orders" },
   ],
   company: [
     { label: "About NUTRA TEIN", href: "/about" },
     { label: "Quality Standard", href: "/about#standards" },
     { label: "Privacy Policy", href: "/privacy-policy" },
+    { label: "Cookie Policy", href: "/cookie-policy" },
     { label: "Terms & Conditions", href: "/terms" },
     { label: "Write a Review", href: "/write-review" },
   ],
@@ -64,6 +66,13 @@ const footerSections = {
 
 export default function Footer() {
   const { t } = useTranslation()
+
+  const scrollToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }
+
   return (
     <footer className="bg-zinc-950 text-zinc-300 border-t border-zinc-900">
       <div className="container-custom py-10">
@@ -72,13 +81,14 @@ export default function Footer() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center">
-                <span className="font-black text-sm text-zinc-950 italic">N</span>
-              </div>
-              <span className="font-display text-xl font-black text-white tracking-tight uppercase">
-                NUTRA<span className="text-red-500"> TEIN</span>
-              </span>
+            <Link href="/" className="inline-block py-1 group" aria-label="NutraTein Home">
+              <Image
+                src="/assets/logos/nutratein-logo.png"
+                alt="NutraTein"
+                width={160}
+                height={75}
+                className="h-9 w-auto object-contain invert brightness-200 transition-transform group-hover:scale-105"
+              />
             </Link>
             <p className="text-xs text-zinc-400 leading-relaxed max-w-sm">
               {t("footer.description")}
@@ -86,7 +96,7 @@ export default function Footer() {
 
             {/* Social Media Handles */}
             <div className="pt-1">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
+              <p className="text-xs font-semibold text-zinc-400 mb-2">
                 {t("footer.followUs")}
               </p>
               <div className="flex items-center gap-2">
@@ -108,11 +118,11 @@ export default function Footer() {
             <div className="space-y-1.5 text-xs text-zinc-400 pt-2 border-t border-zinc-900">
               <div className="flex items-center gap-2">
                 <Mail size={13} className="text-red-500" />
-                <a href="mailto:adnankazi275@gmail.com" className="hover:text-white transition-colors">adnankazi275@gmail.com</a>
+                <a href="mailto:nutratein@gmail.com" className="hover:text-white transition-colors">nutratein@gmail.com</a>
               </div>
               <div className="flex items-center gap-2">
                 <Phone size={13} className="text-red-500" />
-                <a href="tel:+919321598094" className="hover:text-white transition-colors">+91 9321598094 (Mon-Sat, 9AM-6PM)</a>
+                <a href="tel:+917030407080" className="hover:text-white transition-colors">+91 7030407080 (Mon-Sat, 9AM-6PM)</a>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin size={13} className="text-red-500 shrink-0" />
@@ -122,7 +132,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("footer.shopFormulas")}</h3>
+            <h3 className="text-sm font-semibold text-white mb-4">{t("footer.shopFormulas")}</h3>
             <ul className="space-y-2">
               {footerSections.shop.map((l) => (
                 <li key={l.label}>
@@ -135,7 +145,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("footer.customerSupport")}</h3>
+            <h3 className="text-sm font-semibold text-white mb-4">{t("footer.customerSupport")}</h3>
             <ul className="space-y-2">
               {footerSections.support.map((l) => (
                 <li key={l.label}>
@@ -148,7 +158,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("footer.company")}</h3>
+            <h3 className="text-sm font-semibold text-white mb-4">{t("footer.company")}</h3>
             <ul className="space-y-2">
               {footerSections.company.map((l) => (
                 <li key={l.label}>
@@ -165,13 +175,23 @@ export default function Footer() {
       <div className="border-t border-zinc-900 bg-zinc-950/80">
         <div className="container-custom py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
           <p>&copy; {new Date().getFullYear()} NUTRA TEIN Nutrition Pvt Ltd. All rights reserved.</p>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="text-[11px]">{t("footer.secureCheckout")}</span>
             {["UPI", "RuPay", "Visa", "MasterCard", "COD"].map((p) => (
               <span key={p} className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-semibold text-zinc-400">
                 {p}
               </span>
             ))}
+            <button
+              type="button"
+              onClick={scrollToTop}
+              className="ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 hover:border-zinc-700 transition-all text-xs font-semibold cursor-pointer group shadow-sm active:scale-95"
+              aria-label="Back to top"
+              title="Back to top"
+            >
+              <span>Back to Top</span>
+              <ArrowUp size={13} className="text-red-500 transition-transform group-hover:-translate-y-0.5" />
+            </button>
           </div>
         </div>
       </div>

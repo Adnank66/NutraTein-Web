@@ -19,7 +19,10 @@ const generateToken = (userOrId) => {
   } else {
     payload = { id: String(userOrId) };
   }
-  return jwt.sign(payload, process.env.JWT_SECRET || 'proteinx_jwt_secret_key_2024_change_me', {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured');
+  }
+  return jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
   });
 };
@@ -121,8 +124,7 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ success: false, message: 'Invalid email or password.' });
       }
       const token = generateToken(user);
-      const isSuper = user.email === 'admin@proteinx.in' || user.email === 'kaziadnan275@gmail.com';
-      const adminRole = user.adminRole || (isSuper ? 'super_admin' : 'staff');
+      const adminRole = user.adminRole || (user.role === 'super_admin' ? 'super_admin' : 'staff');
       return res.json({
         success: true,
         message: 'Login successful!',
@@ -140,9 +142,8 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ success: false, message: 'Your account has been deactivated.' });
     }
 
-    const isSuperDb = user.email === 'admin@proteinx.in' || user.email === 'kaziadnan275@gmail.com';
-    const normalizedRole = (String(user.role).toLowerCase() === 'admin' || isSuperDb) ? 'admin' : (String(user.role).toLowerCase() || 'user');
-    const adminRole = user.adminRole || (isSuperDb ? 'super_admin' : 'staff');
+    const normalizedRole = String(user.role).toLowerCase() || 'user';
+    const adminRole = user.adminRole || (normalizedRole === 'super_admin' ? 'super_admin' : 'staff');
     const tokenUser = { ...(user.toObject ? user.toObject() : user), role: normalizedRole, adminRole };
     const token = generateToken(tokenUser);
 
@@ -391,7 +392,7 @@ router.put('/users/:id/role', protect, superAdmin, async (req, res) => {
 
 // GET /api/auth/me
 router.get('/me', protect, async (req, res) => {
-  const adminRole = req.user.adminRole || (req.user.email === 'admin@proteinx.in' || req.user.email === 'kaziadnan275@gmail.com' ? 'super_admin' : 'staff');
+  const adminRole = req.user.adminRole || (String(req.user.role).toLowerCase() === 'super_admin' ? 'super_admin' : 'staff');
   res.json({ success: true, user: { ...req.user, adminRole } });
 });
 

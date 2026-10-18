@@ -3,32 +3,8 @@ import { useState, useEffect } from "react"
 import { Star, Quote, Plus, X } from "lucide-react"
 import { toast } from "sonner"
 
-const STATIC_REVIEWS = [
-  {
-    name: "Vikram Malhotra",
-    role: "National Powerlifter",
-    rating: 5,
-    product: "100% Gold Whey Isolate",
-    text: "PROTEINX Gold Whey Isolate is without question the cleanest protein in the Indian market. Instant mixing with zero froth or gut discomfort. Hit my personal deadlift PR of 240kg on this nutrition!",
-  },
-  {
-    name: "Ananya Iyer",
-    role: "Marathon Runner & Fitness Coach",
-    rating: 5,
-    product: "HydroFuel BCAA + EAA",
-    text: "Intra-workout hydration with the Himalayan electrolytes makes an immense difference in long distance training. No cramping and my next-day DOMS is virtually gone.",
-  },
-  {
-    name: "Rohit Deshmukh",
-    role: "CrossFit Athlete",
-    rating: 5,
-    product: "HyperDrive Pre-Workout",
-    text: "Insane pump and laser focus without any heart palpitations or caffeine crash. Taste is crisp and natural. Highly recommend to anyone doing intense conditioning.",
-  },
-]
-
 export default function Testimonials() {
-  const [reviews, setReviews] = useState<any[]>(STATIC_REVIEWS)
+  const [reviews, setReviews] = useState<any[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({ name: "", role: "Verified Buyer", rating: 5, product: "", text: "" })
   const [submitting, setSubmitting] = useState(false)
@@ -38,7 +14,7 @@ export default function Testimonials() {
       .then(r => r.json())
       .then(d => {
         if (d.success && d.reviews && d.reviews.length > 0) {
-          setReviews([...d.reviews, ...STATIC_REVIEWS])
+          setReviews(d.reviews.filter((r: any) => r.status === "APPROVED"))
         }
       })
       .catch(() => {})
@@ -82,33 +58,40 @@ export default function Testimonials() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {reviews.slice(0, 6).map((r, idx) => (
-            <div key={idx} className="card p-6 flex flex-col justify-between hover:shadow-md transition-all bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex gap-1">
-                    {Array.from({ length: r.rating }).map((_, i) => (
-                      <Star key={i} size={15} className="text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                  <Quote size={20} className="text-brand-300 dark:text-zinc-700" />
-                </div>
-                <p className="text-sm text-dark-700 dark:text-zinc-300 leading-relaxed italic mb-6">"{r.text}"</p>
-              </div>
-
-              <div className="pt-4 border-t border-dark-100 dark:border-zinc-800 flex items-center justify-between">
+        {reviews.length === 0 ? (
+          <div className="card p-8 text-center max-w-md mx-auto bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl space-y-2">
+            <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">No customer reviews yet.</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Be the first athlete to share your honest feedback.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {reviews.slice(0, 6).map((r, idx) => (
+              <div key={idx} className="card p-6 flex flex-col justify-between hover:shadow-md transition-all bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                 <div>
-                  <p className="font-bold text-dark-900 dark:text-white text-sm">{r.name}</p>
-                  <p className="text-xs text-dark-400 dark:text-zinc-500">{r.role}</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex gap-1">
+                      {Array.from({ length: r.rating }).map((_, i) => (
+                        <Star key={i} size={15} className="text-yellow-400 fill-yellow-400" />
+                      ))}
+                    </div>
+                    <Quote size={20} className="text-brand-300 dark:text-zinc-700" />
+                  </div>
+                  <p className="text-sm text-dark-700 dark:text-zinc-300 leading-relaxed italic mb-6">"{r.text}"</p>
                 </div>
-                <span className="text-[11px] font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/40 px-2 py-0.5 rounded">
-                  {r.product}
-                </span>
+
+                <div className="pt-4 border-t border-dark-100 dark:border-zinc-800 flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-dark-900 dark:text-white text-sm">{r.name}</p>
+                    <p className="text-xs text-dark-400 dark:text-zinc-500">{r.role}</p>
+                  </div>
+                  <span className="text-[11px] font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/40 px-2 py-0.5 rounded">
+                    {r.product}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {isModalOpen && (

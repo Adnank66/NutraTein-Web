@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import fs from "fs"
 import path from "path"
+import { requireAdmin } from "@/lib/security"
 
 export const dynamic = "force-dynamic"
 
@@ -27,13 +28,19 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
+
   try {
     const { features } = await req.json()
+    if (!Array.isArray(features)) {
+      return NextResponse.json({ error: "Features payload must be an array" }, { status: 400 })
+    }
     const dir = path.dirname(FEATURES_FILE)
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
     fs.writeFileSync(FEATURES_FILE, JSON.stringify(features, null, 2), "utf-8")
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, features })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: err.message || "Failed to update features" }, { status: 500 })
   }
 }

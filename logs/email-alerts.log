@@ -7,3 +7,74 @@
   "message": "Hey sir, madam I want to cancel my order pls do somthing."
 }
 
+[2026-10-12T16:44:24.696Z] [CONTACT_MESSAGE] To: adnankazi275@gmail.com
+{
+  "name": "Adnan Test",
+  "email": "test@example.com",
+  "phone": "",
+  "subject": "Purity Question",
+  "message": "Hello, can you verify the protein percentage of the batch?"
+}
+
+[2026-10-17T14:22:31.274Z] [ADMIN_LOGIN] To: adnankazi275@gmail.com
+{
+  "adminEmail": "adnankazi275@gmail.com",
+  "timestamp": "17/10/2026, 7:52:31 pm"
+}
+
+[2026-10-17T18:22:12.336Z] [ADMIN_LOGIN] To: adnankazi275@gmail.com
+{
+  "adminEmail": "adnankazi275@gmail.com",
+  "timestamp": "17/10/2026, 11:52:12 pm"
+}
+
+[2026-10-17T18:58:30.454Z] [ADMIN_LOGIN] To: nutratein@gmail.com
+{
+  "adminEmail": "nutratein@gmail.com",
+  "timestamp": "18/10/2026, 12:28:30 am"
+}
+
+[2026-10-17T19:17:02.449Z] [SMTP_DISPATCH_FALLBACK] To: nutratein@gmail.com | Subject: 🔑 764364 — Your NUTRA TEIN Verification Code
+Error: read ECONNRESET
+NUTRA TEIN Account Verification Your One-Time Code Use the 6-digit code below to verify your email and access your account. 764364 This code expires in 10 minutes . If you didn't request this, ignore it. © 2026 NUTRA TEIN India
+
+[2026-10-18T15:56:38.615Z] [ADMIN_LOGIN] To: nutratein@gmail.com
+{
+  "adminEmail": "nutratein@gmail.com",
+  "timestamp": "18/10/2026, 9:26:38 pm"
+}
+
+[2026-10-18T15:56:58.428Z] [ADMIN_LOGIN] To: nutratein@gmail.com
+{
+  "adminEmail": "nutratein@gmail.com",
+  "timestamp": "18/10/2026, 9:26:58 pm"
+}
+
+[2026-10-18T15:56:58.432Z] [NEW_ORDER] To: nutratein@gmail.com
+{
+  "orderNumber": "TEST-ORD-9999",
+  "totalAmount": 1499,
+  "paymentMethod": "COD",
+  "customer": {
+    "name": "Adnan Test Customer",
+    "email": "nutratein@gmail.com",
+    "phone": "7030407080"
+  },
+  "address": {
+    "houseFlat": "Flat 101",
+    "street": "Kalyan West",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "pincode": "421311"
+  },
+  "items": [
+    {
+      "productName": "Titan Loaded Pre-Workout",
+      "quantity": 1,
+      "price": 1499,
+      "flavor": "Fruit Punch",
+      "size": "300g"
+    }
+  ]
+}
+

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { signIn } from "next-auth/react"
 import { ShieldCheck, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
 import { toast } from "sonner"
@@ -31,6 +32,7 @@ export default function AdminDirectLogin() {
       })
 
       if (res?.error) {
+        setPassword("")
         const newAttempts = attempts + 1
         setAttempts(newAttempts)
         if (newAttempts >= 5) {
@@ -38,7 +40,7 @@ export default function AdminDirectLogin() {
           setTimeout(() => { setLocked(false); setAttempts(0) }, 2 * 60 * 1000)
           toast.error("Access locked for 2 minutes due to repeated failed attempts.")
         } else {
-          toast.error(`Invalid credentials. (${5 - newAttempts} attempts remaining)`)
+          toast.error(`Invalid credentials. Password cleared. (${5 - newAttempts} attempts remaining)`)
         }
       } else {
         setAttempts(0)
@@ -46,6 +48,7 @@ export default function AdminDirectLogin() {
         window.location.href = "/admin"
       }
     } catch (err: any) {
+      setPassword("")
       toast.error("Sign in failed. Please try again.")
     } finally {
       setLoading(false)
@@ -54,31 +57,43 @@ export default function AdminDirectLogin() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 sm:p-6 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-zinc-950/80 to-zinc-950 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/20 via-zinc-950/80 to-zinc-950 pointer-events-none" />
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-600 shadow-xl shadow-brand-600/30 mb-4">
-            <ShieldCheck size={28} className="text-white" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl mb-4 text-red-500">
+            <ShieldCheck size={28} />
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <span className="font-display text-2xl font-black text-white tracking-tight uppercase">
-              NUTRA<span className="text-brand-500">TEIN</span>
-            </span>
-            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-purple-900/80 border border-purple-600 text-purple-300 tracking-wider">
+          <div className="flex flex-col items-center justify-center gap-2">
+            <Image
+              src="/assets/logos/nutratein-logo.png"
+              alt="NutraTein"
+              width={160}
+              height={70}
+              className="h-9 w-auto object-contain invert brightness-200"
+              priority
+            />
+            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-300 tracking-wider">
               Admin Console
             </span>
           </div>
-          <h1 className="text-xl font-bold text-white mt-3">Secure Administrator Login</h1>
+          <h1 className="text-xl font-bold text-white mt-3">Administrator Portal</h1>
           <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
-            Enter your authorized admin credentials to access the management console.
+            Authorized management credentials required.
           </p>
         </div>
 
         <div className="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md space-y-5">
           {locked && (
-            <div className="bg-red-950/60 border border-red-800 rounded-xl p-3 text-xs text-red-300 text-center">
-              🔒 Account temporarily locked. Please wait 2 minutes before retrying.
+            <div className="bg-red-950/60 border border-red-800 rounded-xl p-3 text-xs text-red-300 flex items-center justify-between gap-2">
+              <span>🔒 Account locked due to repeated attempts.</span>
+              <button
+                type="button"
+                onClick={() => { setLocked(false); setAttempts(0) }}
+                className="px-2 py-0.5 text-[10px] bg-red-800 hover:bg-red-700 text-white rounded font-bold cursor-pointer"
+              >
+                Reset
+              </button>
             </div>
           )}
 
@@ -130,7 +145,7 @@ export default function AdminDirectLogin() {
             <button
               type="submit"
               disabled={loading || locked}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 font-bold text-xs uppercase tracking-wider text-white shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-60 cursor-pointer"
+              className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-700 font-bold text-xs uppercase tracking-wider text-white shadow-md shadow-red-600/20 flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-60 cursor-pointer"
             >
               {loading ? (
                 <>

@@ -26,6 +26,8 @@ function getLowStockThreshold(): number {
 export async function POST(req: Request) {
   try {
     const session = await auth()
+    const sessionUser = session?.user
+
     const body = await req.json()
     const {
       customer,
@@ -36,18 +38,76 @@ export async function POST(req: Request) {
     } = body
 
     // ── 1. Validate Basic Customer & Cart Input ─────────────────────────────
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    if (!items || !Array.isArray(items) || items.length === 0 || items.length > 20) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 })
     }
 
-    const cleanEmail = (customer?.email || "").toLowerCase().trim()
-    if (!cleanEmail) {
-      return NextResponse.json({ error: "Customer email is required" }, { status: 400 })
+    // Customer email: prioritize verified session, fallback to checkout form email
+    const formEmail = typeof customer?.email === "string" ? customer.email.trim().toLowerCase() : ""
+    const sessionEmail = typeof sessionUser?.email === "string" ? sessionUser.email.trim().toLowerCase() : ""
+    const cleanEmail = formEmail || sessionEmail
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      return NextResponse.json({ error: "A valid customer email address is required" }, { status: 400 })
     }
 
-    const cleanPhone = (customer?.phone || "").trim()
-    const customerName = (customer?.name || "Valued Athlete").trim()
+    const customerName = typeof customer?.name === "string" && customer.name.trim()
+      ? customer.name.trim().slice(0, 100)
+      : sessionUser?.name?.trim() || "Valued Athlete"
+    const cleanPhone = typeof customer?.phone === "string" ? customer.phone.trim().slice(0, 20) : ""
     const validMethod = ["UPI", "COD", "CASH"].includes(paymentMethod) ? paymentMethod : "UPI"
+
+    // Safe user resolution that prevents Malformed ObjectID crashes
+    let resolvedUserId: string | null = null
+    const isValidHexId = (id?: string | null) => Boolean(id && /^[0-9a-fA-F]{24}$/.test(id))
+
+    if (isValidHexId(sessionUser?.id)) {
+      try {
+        const existingById = await prisma.user.findUnique({
+          where: { id: sessionUser!.id },
+          select: { id: true },
+        })
+        if (existingById) resolvedUserId = existingById.id
+      } catch {}
+    }
+
+    if (!resolvedUserId) {
+      try {
+        const userRecord = await prisma.user.upsert({
+          where: { email: cleanEmail },
+          update: {
+            name: customerName || undefined,
+            phone: cleanPhone || undefined,
+          },
+          create: {
+            name: customerName,
+            email: cleanEmail,
+            phone: cleanPhone,
+            role: "USER",
+          },
+          select: { id: true },
+        })
+        resolvedUserId = userRecord.id
+      } catch (userErr: any) {
+        console.error("User resolution upsert error during checkout:", userErr)
+        try {
+          const fallbackUser = await prisma.user.findUnique({
+            where: { email: cleanEmail },
+            select: { id: true },
+          })
+          if (fallbackUser) resolvedUserId = fallbackUser.id
+        } catch (fallbackErr) {
+          console.error("Fallback findUnique error during checkout:", fallbackErr)
+        }
+      }
+    }
+
+    if (!resolvedUserId) {
+      return NextResponse.json({ error: "Could not link or create customer account for checkout" }, { status: 500 })
+    }
+
+    const account = { id: resolvedUserId }
 
     // ── 2. Server-Side Price & Inventory Verification from MongoDB ──────────
     let verifiedSubtotal = 0
@@ -63,13 +123,17 @@ export async function POST(req: Request) {
     }> = []
 
     for (const cartItem of items) {
-      const qty = Math.max(1, parseInt(cartItem.quantity, 10) || 1)
-      const productId = cartItem.productId
-      const variantId = cartItem.variantId
+      const qty = Number(cartItem?.quantity)
+      const productId = typeof cartItem?.productId === "string" ? cartItem.productId.trim() : ""
+      const variantId = typeof cartItem?.variantId === "string" ? cartItem.variantId.trim() : null
+      if (!Number.isInteger(qty) || qty < 1 || qty > 10 || !productId) {
+        return NextResponse.json({ error: "Cart contains an invalid item" }, { status: 400 })
+      }
 
-      // Query real product from MongoDB
-      const dbProduct = await prisma.product.findUnique({
-        where: { id: productId },
+      // Query real product from MongoDB (support 24-char ObjectId or slug/name lookup)
+      const isHex = /^[0-9a-fA-F]{24}$/.test(productId)
+      const dbProduct = await prisma.product.findFirst({
+        where: isHex ? { id: productId } : { OR: [{ slug: productId }, { name: cartItem.productName || productId }] },
         include: { variants: true },
       })
 
@@ -87,7 +151,11 @@ export async function POST(req: Request) {
       let resolvedVariantId: string | null = null
 
       if (variantId && dbProduct.variants.length > 0) {
-        const dbVariant = dbProduct.variants.find((v) => v.id === variantId)
+        const isVarHex = /^[0-9a-fA-F]{24}$/.test(variantId)
+        const dbVariant = dbProduct.variants.find((v) =>
+          isVarHex ? v.id === variantId : (v.flavor === cartItem.flavor || v.size === cartItem.size || v.sku === variantId)
+        ) || dbProduct.variants[0]
+
         if (!dbVariant || !dbVariant.isActive) {
           return NextResponse.json(
             { error: `Selected variant for "${dbProduct.name}" is no longer available.` },
@@ -213,23 +281,7 @@ export async function POST(req: Request) {
     try {
       const atlasOperation = (async () => {
         // Resolve or create user account
-        let userId = session?.user?.id
-        if (!userId || !/^[0-9a-fA-F]{24}$/.test(userId)) {
-          const existing = await prisma.user.findUnique({ where: { email: cleanEmail } })
-          if (existing) {
-            userId = existing.id
-          } else {
-            const newUser = await prisma.user.create({
-              data: {
-                name: customerName,
-                email: cleanEmail,
-                phone: cleanPhone,
-                role: "USER",
-              },
-            })
-            userId = newUser.id
-          }
-        }
+        const userId = account.id
 
         // Save delivery address
         const address = await prisma.address.create({
@@ -300,10 +352,20 @@ export async function POST(req: Request) {
         })
       })()
 
-      savedOrder = await withFastTimeout(atlasOperation, null, 4000)
+      savedOrder = await withFastTimeout(atlasOperation, null, 15000)
     } catch (dbErr: any) {
-      console.warn("⚠️ MongoDB Atlas order placement notice:", dbErr?.message)
-      savedOrder = null
+      console.error("❌ MongoDB Atlas order placement failed:", dbErr?.message)
+      return NextResponse.json(
+        { error: `Database error: Could not save order to MongoDB. ${dbErr?.message || ""}` },
+        { status: 500 }
+      )
+    }
+
+    if (!savedOrder) {
+      return NextResponse.json(
+        { error: "Failed to persist order to MongoDB Atlas database. Please verify database connection and retry." },
+        { status: 500 }
+      )
     }
 
     // Track coupon usage
@@ -352,7 +414,7 @@ export async function POST(req: Request) {
 
     // ── 7. Send Order Notification Emails ───────────────────────────────────
     try {
-      const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_EMAIL || "adnankazi275@gmail.com"
+      const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_EMAIL || "nutratein@gmail.com"
       const isUpi = validMethod === "UPI"
 
       const itemsListHtml = verifiedItems

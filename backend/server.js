@@ -3,8 +3,11 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
-process.env.JWT_SECRET = process.env.JWT_SECRET || 'proteinx_jwt_secret_key_2024_change_me';
 process.env.PORT = process.env.PORT || 5000;
+
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET must be configured in production.');
+}
 
 const express = require('express');
 const cors = require('cors');
@@ -37,8 +40,24 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS - allow frontend to connect
-app.use(cors({ origin: true, credentials: true }));
+// CORS - credentialed requests must use an explicitly configured frontend.
+// In production this fails closed when neither variable is set.
+const configuredOrigins = (process.env.CORS_ALLOWED_ORIGINS || process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = new Set(configuredOrigins);
+if (process.env.NODE_ENV !== 'production') {
+  allowedOrigins.add('http://localhost:3000');
+  allowedOrigins.add('http://127.0.0.1:3000');
+}
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    return callback(new Error('CORS origin is not allowed'));
+  },
+  credentials: true,
+}));
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
@@ -169,5 +188,5 @@ server.on('error', (err) => {
 // Remove or comment out your app.listen block:
 // app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// Replace it with this so Vercel can run it:
+// Export app for server runtime:
 module.exports = app;

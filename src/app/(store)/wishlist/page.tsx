@@ -194,7 +194,7 @@ export default function WishlistPage() {
                     </div>
 
                     <div>
-                      <div className="relative aspect-square rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 overflow-hidden mb-3 border border-zinc-100 dark:border-zinc-700/50 flex items-center justify-center">
+                      <div className="relative aspect-square rounded-xl bg-white dark:bg-zinc-900/60 overflow-hidden mb-3 border border-zinc-100 dark:border-zinc-700/50 flex items-center justify-center p-2">
                         <Image
                           src={item.image}
                           alt={item.name}

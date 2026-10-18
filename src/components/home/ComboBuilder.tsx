@@ -41,7 +41,7 @@ export default function ComboBuilder() {
         id: item.id,
         productId: item.id,
         name: item.name,
-        brand: "PROTEINX",
+        brand: "NUTRA TEIN",
         price: Math.round(item.price * 0.85),
         mrp: item.mrp,
         image: item.image,
@@ -57,7 +57,11 @@ export default function ComboBuilder() {
   }
 
   if (loading || stackCategories.length < 2 || !selectedProtein || !selectedPerf) {
-    return <div className="py-16 text-center text-zinc-500">Loading combos...</div>
+    return (
+      <div id="combos" className="py-16 text-center text-zinc-500">
+        Loading combos...
+      </div>
+    )
   }
 
   return (
@@ -96,21 +100,23 @@ export default function ComboBuilder() {
                     type="button"
                     key={opt.id}
                     onClick={() => setSelectedProtein(opt)}
-                    className={`w-full p-3 rounded-xl border text-left flex items-center justify-between transition-all ${
+                    className={`w-full p-3.5 rounded-xl border text-left transition-all ${
                       isSelected
                         ? "bg-white dark:bg-zinc-800 border-brand-500 shadow-sm ring-1 ring-brand-500"
                         : "bg-white/60 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-white dark:hover:bg-zinc-800"
                     }`}
                   >
-                    <div className="min-w-0 pr-2">
-                      <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">{opt.name}</p>
-                      <p className="text-[11px] text-zinc-400 dark:text-zinc-500">{opt.size}</p>
-                      <p className="text-xs font-black text-brand-600 dark:text-brand-400 mt-1">{formatPrice(opt.price)}</p>
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <p className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate">{opt.name}</p>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                        isSelected ? "bg-brand-500 text-white" : "border border-zinc-300 dark:border-zinc-600"
+                      }`}>
+                        {isSelected && <Check size={12} />}
+                      </div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                      isSelected ? "bg-brand-500 text-white" : "border border-zinc-300 dark:border-zinc-600"
-                    }`}>
-                      {isSelected && <Check size={12} />}
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-zinc-100/80 dark:border-zinc-700/60 text-xs">
+                      <span className="text-zinc-500 dark:text-zinc-400 font-medium truncate">{opt.size}</span>
+                      <span className="font-black text-brand-600 dark:text-brand-400 shrink-0">{formatPrice(opt.price)}</span>
                     </div>
                   </button>
                 )
@@ -132,21 +138,23 @@ export default function ComboBuilder() {
                     type="button"
                     key={opt.id}
                     onClick={() => setSelectedPerf(opt)}
-                    className={`w-full p-3 rounded-xl border text-left flex items-center justify-between transition-all ${
+                    className={`w-full p-3.5 rounded-xl border text-left transition-all ${
                       isSelected
                         ? "bg-white dark:bg-zinc-800 border-brand-500 shadow-sm ring-1 ring-brand-500"
                         : "bg-white/60 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-white dark:hover:bg-zinc-800"
                     }`}
                   >
-                    <div className="min-w-0 pr-2">
-                      <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">{opt.name}</p>
-                      <p className="text-[11px] text-zinc-400 dark:text-zinc-500">{opt.size}</p>
-                      <p className="text-xs font-black text-brand-600 dark:text-brand-400 mt-1">{formatPrice(opt.price)}</p>
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <p className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate">{opt.name}</p>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                        isSelected ? "bg-brand-500 text-white" : "border border-zinc-300 dark:border-zinc-600"
+                      }`}>
+                        {isSelected && <Check size={12} />}
+                      </div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                      isSelected ? "bg-brand-500 text-white" : "border border-zinc-300 dark:border-zinc-600"
-                    }`}>
-                      {isSelected && <Check size={12} />}
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-zinc-100/80 dark:border-zinc-700/60 text-xs">
+                      <span className="text-zinc-500 dark:text-zinc-400 font-medium truncate">{opt.size}</span>
+                      <span className="font-black text-brand-600 dark:text-brand-400 shrink-0">{formatPrice(opt.price)}</span>
                     </div>
                   </button>
                 )
@@ -168,21 +176,23 @@ export default function ComboBuilder() {
                     type="button"
                     key={opt.id}
                     onClick={() => setSelectedHealth(isSelected ? null : opt)}
-                    className={`w-full p-3 rounded-xl border text-left flex items-center justify-between transition-all ${
+                    className={`w-full p-3.5 rounded-xl border text-left transition-all ${
                       isSelected
                         ? "bg-white dark:bg-zinc-800 border-brand-500 shadow-sm ring-1 ring-brand-500"
                         : "bg-white/60 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-white dark:hover:bg-zinc-800"
                     }`}
                   >
-                    <div className="min-w-0 pr-2">
-                      <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">{opt.name}</p>
-                      <p className="text-[11px] text-zinc-400 dark:text-zinc-500">{opt.size}</p>
-                      <p className="text-xs font-black text-brand-600 dark:text-brand-400 mt-1">{formatPrice(opt.price)}</p>
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <p className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate">{opt.name}</p>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                        isSelected ? "bg-brand-500 text-white" : "border border-zinc-300 dark:border-zinc-600"
+                      }`}>
+                        {isSelected && <Check size={12} />}
+                      </div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                      isSelected ? "bg-brand-500 text-white" : "border border-zinc-300 dark:border-zinc-600"
-                    }`}>
-                      {isSelected && <Check size={12} />}
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-zinc-100/80 dark:border-zinc-700/60 text-xs">
+                      <span className="text-zinc-500 dark:text-zinc-400 font-medium truncate">{opt.size}</span>
+                      <span className="font-black text-brand-600 dark:text-brand-400 shrink-0">{formatPrice(opt.price)}</span>
                     </div>
                   </button>
                 )

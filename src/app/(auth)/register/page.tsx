@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Lock, Mail, User, Phone, CheckCircle2, ShieldCheck, ArrowRight, RefreshCw, MessageSquare } from "lucide-react"
 import { toast } from "sonner"
 
@@ -60,9 +61,9 @@ export default function RegisterPage() {
       setResendTimer(60)
       toast.success("Verification code sent to your email! Please check your inbox.")
       
-      // Auto-fill dev code if available in dev mode
-      if (data.devCode) {
-        console.log("Dev verification code:", data.devCode)
+      // Auto-fill dev code only strictly in development environment
+      if (process.env.NODE_ENV === "development" && data.devCode) {
+        // Dev assistance only
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to send code")
@@ -143,13 +144,15 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="inline-flex items-center gap-2 mb-4 group">
-          <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
-            <span className="font-black text-lg text-white italic">N</span>
-          </div>
-          <span className="font-display text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase">
-            NUTRA<span className="text-brand-500">TEIN</span>
-          </span>
+        <Link href="/" className="inline-flex items-center mb-4 group py-1" aria-label="NutraTein Home">
+          <Image
+            src="/assets/logos/nutratein-logo.png"
+            alt="NutraTein"
+            width={180}
+            height={80}
+            className="h-10 w-auto object-contain dark:invert transition-transform group-hover:scale-105"
+            priority
+          />
         </Link>
         <h2 className="text-2xl font-black text-zinc-900 dark:text-white">Create an Account</h2>
         <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
@@ -268,7 +271,7 @@ export default function RegisterPage() {
             {/* Phone Number */}
             <div>
               <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                Phone Number (For WhatsApp & SMS updates)
+                Phone Number (For Delivery Coordination)
               </label>
               <div className="relative">
                 <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -281,27 +284,6 @@ export default function RegisterPage() {
                   required
                 />
               </div>
-            </div>
-
-            {/* WhatsApp Updates Checkbox */}
-            <div className="p-3 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/50">
-              <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={formData.whatsappOptIn}
-                  onChange={(e) => setFormData({ ...formData, whatsappOptIn: e.target.checked })}
-                  className="mt-0.5 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800"
-                />
-                <div className="text-xs">
-                  <span className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                    Get updates on WhatsApp
-                  </span>
-                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    Receive instant tracking details, dispatch manifest, and new supplement deals directly on WhatsApp.
-                  </p>
-                </div>
-              </label>
             </div>
 
             {/* Password */}
@@ -343,7 +325,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading || !isEmailVerified}
-              className="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full min-h-[44px] py-3 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer touch-manipulation"
             >
               {loading ? (
                 <>

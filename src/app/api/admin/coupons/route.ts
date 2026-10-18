@@ -1,13 +1,11 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 
 export async function GET() {
   try {
-    const session = await auth()
-    if ((session?.user as any)?.role !== "ADMIN") {
-      // allow internal admin read
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const coupons = await prisma.coupon.findMany({
       orderBy: { createdAt: "desc" },
@@ -20,10 +18,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await auth()
-    if ((session?.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const body = await req.json()
     const {
@@ -82,10 +78,8 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const session = await auth()
-    if ((session?.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { id, isActive, ...updateFields } = await req.json()
     if (!id) {
@@ -112,10 +106,8 @@ export async function PATCH(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const session = await auth()
-    if ((session?.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { searchParams } = new URL(req.url)
     const id = searchParams.get("id")

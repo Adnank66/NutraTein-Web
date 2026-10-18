@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendMail } from '@/lib/sendEmail'
+import { generateOtp, hashOtp } from '@/lib/otp'
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit'
 
 export async function POST(req: Request) {
   try {
+    const rate = checkRateLimit(`phone-otp:${getClientIdentifier(req)}`, 5, 15 * 60 * 1000)
+    if (!rate.success) return NextResponse.json({ error: 'Too many verification requests. Please try again later.' }, { status: 429 })
+
     const { phone } = await req.json()
     
     if (!phone || typeof phone !== 'string') {
@@ -18,8 +23,21 @@ export async function POST(req: Request) {
     const cleanPhone = cleanDigits.slice(-10)
     const intlPhone = `+91${cleanPhone}`
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    // Do not issue a usable OTP unless there is a configured delivery channel.
+    const user = await prisma.user.findFirst({ where: { phone: cleanPhone } })
+    const hasSmsGateway = Boolean(
+      process.env.FAST2SMS_API_KEY ||
+      (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER)
+    )
+    if (!hasSmsGateway && !user?.email) {
+      return NextResponse.json(
+        { error: 'Phone verification is temporarily unavailable. Please use email sign-in.' },
+        { status: 503 }
+      )
+    }
+
+    // Generate and persist only a cryptographic hash of the one-time password.
+    const otp = generateOtp()
     
     // Clean up previous OTPs for this phone
     await prisma.phoneOTP.deleteMany({
@@ -30,7 +48,7 @@ export async function POST(req: Request) {
     await prisma.phoneOTP.create({
       data: {
         phone: cleanPhone,
-        code: otp,
+        code: hashOtp(otp),
         expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 mins
       }
     })
@@ -79,14 +97,11 @@ export async function POST(req: Request) {
     }
 
     // If user has email linked to this phone, also send backup email OTP
-    const user = await prisma.user.findFirst({
-      where: { phone: { contains: cleanPhone } }
-    })
     if (user && user.email) {
       await prisma.emailOTP.create({
         data: {
           email: user.email.toLowerCase().trim(),
-          code: otp,
+          code: hashOtp(otp),
           expiresAt: new Date(Date.now() + 10 * 60 * 1000)
         }
       }).catch(() => {})
@@ -98,22 +113,12 @@ export async function POST(req: Request) {
       ).catch(() => {})
     }
 
-    // Build direct Native SMS App Link and WhatsApp Web Link for the user
-    // Android/iOS SMS intent: sms:+919876543210?&body=...
-    const smsLink = `sms:${intlPhone}?&body=${encodeURIComponent(messageText)}`
-    const waLink = `https://api.whatsapp.com/send?phone=91${cleanPhone}&text=${encodeURIComponent(messageText)}`
-
     return NextResponse.json({
       success: true,
-      message: 'Verification code generated.',
-      otp,
-      devCode: otp,
-      smsLink,
-      waLink,
-      phone: cleanPhone
+      message: 'If a delivery channel is available, a verification code has been sent.'
     })
   } catch (error: any) {
-    console.error('Phone OTP error:', error)
-    return NextResponse.json({ error: error.message || 'Failed to send OTP' }, { status: 500 })
+    console.error('Phone OTP error')
+    return NextResponse.json({ error: 'Failed to send OTP' }, { status: 500 })
   }
 }

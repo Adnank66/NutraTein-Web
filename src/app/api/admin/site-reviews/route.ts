@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 import fs from "fs"
 import path from "path"
 
@@ -24,10 +24,8 @@ function saveReviews(reviews: any[]) {
 
 export async function GET(req: Request) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
     const reviews = getReviews()
     return NextResponse.json({ reviews })
   } catch (err: any) {
@@ -37,10 +35,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
     const { id, status } = await req.json()
     const reviews = getReviews()
     const idx = reviews.findIndex((r: any) => String(r.id) === String(id))
@@ -56,10 +52,8 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
     const { searchParams } = new URL(req.url)
     const id = searchParams.get("id")
     let reviews = getReviews()

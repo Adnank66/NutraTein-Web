@@ -75,7 +75,7 @@ const INITIAL_LOGS: LogEntry[] = [
     id: "log-6",
     action: "Administrator Session Verified",
     module: "SECURITY",
-    adminUser: "adnankazi275@gmail.com",
+    adminUser: "nutratein@gmail.com",
     details: "Direct administrator login authorized via verified credentials",
     timestamp: "Yesterday",
     severity: "SUCCESS",

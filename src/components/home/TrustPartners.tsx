@@ -23,7 +23,7 @@ export default function TrustPartners() {
             >
               <Icon size={20} className="text-brand-600 dark:text-brand-400 mb-1" />
               <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{label}</p>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">{sub}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{sub}</p>
             </div>
           ))}
         </div>

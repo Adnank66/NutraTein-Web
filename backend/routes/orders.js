@@ -43,7 +43,16 @@ router.post('/', protect, async (req, res) => {
         product = await Product.findById(item.productId);
       }
 
-      let effectivePrice = product ? (product.variants?.[0]?.price || product.basePrice) : Number(item.price);
+      if (!product) {
+        return res.status(400).json({ success: false, message: 'One or more products are unavailable.' });
+      }
+
+      const qty = Number(item.quantity);
+      if (!Number.isInteger(qty) || qty < 1 || qty > 10) {
+        return res.status(400).json({ success: false, message: 'Each item quantity must be between 1 and 10.' });
+      }
+
+      let effectivePrice = product.variants?.[0]?.price || product.basePrice;
       if (mockDb.flashSales) {
         const now = new Date();
         const activeSale = mockDb.flashSales.find(s => 
@@ -60,10 +69,9 @@ router.post('/', protect, async (req, res) => {
         }
       }
       const price = effectivePrice;
-      const costPrice = product && product.costPrice ? product.costPrice : Math.round(price * 0.6);
-      const name = product ? product.name : item.name;
-      const image = product && product.images && product.images[0] ? product.images[0].url : item.image;
-      const qty = Number(item.quantity) || 1;
+      const costPrice = product.costPrice ? product.costPrice : Math.round(price * 0.6);
+      const name = product.name;
+      const image = product.images && product.images[0] ? product.images[0].url : '';
 
       subtotal += price * qty;
       costAmount += costPrice * qty;
@@ -148,7 +156,7 @@ router.post('/', protect, async (req, res) => {
         items: orderItems,
         shippingAddress,
         paymentMethod: paymentMethod || 'COD',
-        paymentStatus: paymentMethod === 'COD' ? 'PENDING' : 'PAID',
+        paymentStatus: 'PENDING',
         subtotal,
         discountAmount: Math.round(discountAmount),
         couponCode: appliedCoupon ? appliedCoupon.code : null,
@@ -215,7 +223,7 @@ router.post('/', protect, async (req, res) => {
       items: orderItems,
       shippingAddress,
       paymentMethod,
-      paymentStatus: paymentMethod === 'COD' ? 'PENDING' : 'PAID',
+      paymentStatus: 'PENDING',
       subtotal,
       discountAmount,
       couponCode: appliedCoupon ? appliedCoupon.code : null,

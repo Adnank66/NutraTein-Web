@@ -129,9 +129,21 @@ export default function SocialLinksPage() {
                 type="text"
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
-                placeholder="e.g. Instagram"
+                placeholder="e.g. YouTube, Facebook, Videos, Instagram"
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-500"
               />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {["YouTube", "Facebook", "Videos", "Instagram", "WhatsApp", "X (Twitter)"].map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPlatform(p)}
+                    className="px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+                  >
+                    + {p}
+                  </button>
+                ))}
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-1">URL</label>

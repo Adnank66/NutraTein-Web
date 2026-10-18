@@ -4,8 +4,12 @@ import SessionProvider from "@/components/providers/SessionProvider"
 import { Toaster } from "sonner"
 import NutraTeinLoader from "@/components/ui/NutraTeinLoader"
 import CookieConsentBanner from "@/components/CookieConsentBanner"
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics"
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nutratein.in"
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "NUTRA TEIN – Premium Fitness Supplements",
     template: "%s | NUTRA TEIN",
@@ -16,9 +20,25 @@ export const metadata: Metadata = {
   openGraph: {
     title: "NUTRA TEIN – Premium Fitness Supplements",
     description: "Fuel Your Strength. Build Your Future.",
+    url: siteUrl,
     type: "website",
     locale: "en_IN",
     siteName: "NUTRA TEIN",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "NUTRA TEIN – Premium Fitness Supplements",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NUTRA TEIN – Premium Fitness Supplements",
+    description: "Fuel Your Strength. Build Your Future.",
+    creator: "@nutratein",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
@@ -37,7 +57,13 @@ export default function RootLayout({
         {/* Proper mobile viewport — critical for phone responsiveness */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
         <meta name="theme-color" content="#ffffff" />
-        <link rel="stylesheet" href="/nutra-tein-loader/loader.css" />
+
+        {/* Priority hints: Preconnect & DNS-Prefetch for connection reuse */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{document.documentElement.classList.remove('dark');localStorage.setItem('theme', 'light')}catch(e){}})()`,
@@ -51,6 +77,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased text-dark-900 bg-white selection:bg-brand-500 selection:text-white transition-colors duration-150">
+        <GoogleAnalytics />
         <NutraTeinLoader />
         <CookieConsentBanner />
         <SessionProvider>

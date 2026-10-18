@@ -29,7 +29,7 @@ const INITIAL_STAFF: StaffMember[] = [
   {
     id: "staff-1",
     name: "Adnan Kazi",
-    email: "adnankazi275@gmail.com",
+    email: "nutratein@gmail.com",
     role: "SUPER_ADMIN",
     status: "ACTIVE",
     lastLogin: "Active Now",

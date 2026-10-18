@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { formatPrice } from "@/lib/utils"
 import {
   Search,
@@ -75,6 +75,7 @@ export interface OrderType {
 const STATUS_TABS = [
   "ALL",
   "OVERDUE",
+  "CANCEL_REQUESTED",
   "ORDER_PLACED",
   "CONFIRMED",
   "PACKED",
@@ -92,6 +93,7 @@ const DELIVERY_STATUS_OPTIONS = [
   { value: "SHIPPED", label: "Shipped" },
   { value: "OUT_FOR_DELIVERY", label: "Out for Delivery" },
   { value: "DELIVERED", label: "Delivered" },
+  { value: "CANCEL_REQUESTED", label: "⚠️ Cancel Requested" },
   { value: "CANCELLED", label: "Cancelled" },
   { value: "RETURNED", label: "Returned" },
 ]
@@ -115,6 +117,10 @@ const TIME_SLOT_PRESETS = [
 
 export default function OrdersTable({ initialOrders }: { initialOrders: OrderType[] }) {
   const [orders, setOrders] = useState<OrderType[]>(initialOrders)
+
+  useEffect(() => {
+    setOrders(initialOrders)
+  }, [initialOrders])
   const [activeTab, setActiveTab] = useState("ALL")
   const [searchQuery, setSearchQuery] = useState("")
   const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -390,7 +396,7 @@ export default function OrdersTable({ initialOrders }: { initialOrders: OrderTyp
   }
 
   // Quick Inline Status Change
-  const handleQuickStatusChange = async (orderId: string, newStatus: string) => {
+  const handleQuickStatusChange = async (orderId: string, newStatus: string, note?: string) => {
     setUpdatingId(orderId)
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -403,8 +409,13 @@ export default function OrdersTable({ initialOrders }: { initialOrders: OrderTyp
               ? "DELIVERED"
               : newStatus === "SHIPPED" || newStatus === "OUT_FOR_DELIVERY"
               ? "SHIPPED"
+              : newStatus === "CANCELLED"
+              ? "CANCELLED"
+              : newStatus === "CONFIRMED"
+              ? "CONFIRMED"
               : undefined,
-          restock: newStatus === "RETURNED" || newStatus === "REFUNDED",
+          restock: newStatus === "RETURNED" || newStatus === "REFUNDED" || newStatus === "CANCELLED",
+          note,
         }),
       })
 
@@ -422,13 +433,23 @@ export default function OrdersTable({ initialOrders }: { initialOrders: OrderTyp
                     ? "DELIVERED"
                     : newStatus === "SHIPPED"
                     ? "SHIPPED"
+                    : newStatus === "CANCELLED"
+                    ? "CANCELLED"
+                    : newStatus === "CONFIRMED"
+                    ? "CONFIRMED"
                     : o.status,
               }
             : o
         )
       )
 
-      toast.success(`Delivery status updated to ${newStatus}`)
+      toast.success(
+        newStatus === "CANCELLED"
+          ? "Cancellation accepted! Inventory restocked & email sent to customer."
+          : newStatus === "CONFIRMED" && note?.includes("rejected")
+          ? "Cancellation rejected. Order status set to Confirmed."
+          : `Delivery status updated to ${newStatus}`
+      )
     } catch (err: any) {
       toast.error(err.message || "Failed to update status")
     } finally {
@@ -820,6 +841,8 @@ export default function OrdersTable({ initialOrders }: { initialOrders: OrderTyp
                               ? "bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800"
                               : curDeliveryStatus === "PACKED"
                               ? "bg-indigo-50 border-indigo-300 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800"
+                              : curDeliveryStatus === "CANCEL_REQUESTED"
+                              ? "bg-rose-100 border-rose-400 text-rose-900 dark:bg-rose-950/80 dark:text-rose-200 dark:border-rose-700 font-extrabold"
                               : curDeliveryStatus === "CANCELLED"
                               ? "bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800"
                               : "bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white"
@@ -831,6 +854,28 @@ export default function OrdersTable({ initialOrders }: { initialOrders: OrderTyp
                             </option>
                           ))}
                         </select>
+
+                        {/* Quick Action Buttons for Cancellation Request */}
+                        {curDeliveryStatus === "CANCEL_REQUESTED" && (
+                          <div className="flex items-center gap-1.5 mt-2">
+                            <button
+                              type="button"
+                              onClick={() => handleQuickStatusChange(o.id, "CANCELLED", "Cancellation approved by admin")}
+                              className="px-2 py-1 rounded text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition"
+                              title="Accept cancellation, restock and send email"
+                            >
+                              ✓ Accept
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleQuickStatusChange(o.id, "CONFIRMED", "Cancellation rejected - order in dispatch")}
+                              className="px-2 py-1 rounded text-[10px] font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition"
+                              title="Reject cancellation and keep order"
+                            >
+                              ✕ Reject
+                            </button>
+                          </div>
+                        )}
                       </td>
 
                       {/* Actions */}

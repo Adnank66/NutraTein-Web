@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import Image from "next/image"
 import { Printer, X, Zap } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 
@@ -122,15 +123,16 @@ export default function InvoiceModal({
               {/* Top brand & meta */}
               <div className="flex justify-between items-start pb-6 border-b border-zinc-200">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-7 h-7 rounded-lg bg-zinc-950 flex items-center justify-center">
-                      <Zap size={14} className="text-brand-500 fill-brand-500" />
-                    </div>
-                    <span className="font-display text-lg font-black tracking-tight text-zinc-950">
-                      PROTEIN<span className="text-brand-600">X</span>
-                    </span>
+                  <div className="mb-2">
+                    <Image
+                      src="/assets/logos/nutratein-logo.png"
+                      alt="NutraTein"
+                      width={140}
+                      height={60}
+                      className="h-7 w-auto object-contain"
+                    />
                   </div>
-                  <p className="text-zinc-500 text-[11px]">PROTEINX Nutrition Private Limited</p>
+                  <p className="text-zinc-500 text-[11px]">NUTRATEIN Nutrition Private Limited</p>
                   <p className="text-zinc-500 text-[11px]">GSTIN: 27AABCP1234F1Z5</p>
                   <p className="text-zinc-500 text-[11px]">Kalyan West, Mumbai, Maharashtra 421311</p>
                 </div>
@@ -235,7 +237,7 @@ export default function InvoiceModal({
               {/* Footer notes */}
               <div className="pt-6 border-t border-zinc-200 text-center text-[10px] text-zinc-400 space-y-1">
                 <p>This is a computer-generated tax invoice and requires no physical signature.</p>
-                <p>For order or delivery queries, contact adnankazi275@gmail.com or WhatsApp support.</p>
+                <p>For order or delivery queries, contact nutratein@gmail.com or WhatsApp support.</p>
               </div>
             </div>
           </div>

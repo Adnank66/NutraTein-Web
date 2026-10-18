@@ -17,25 +17,47 @@ export async function sendMail(to: string, subject: string, html: string) {
     return { success: false, error: "Missing SMTP_EMAIL or SMTP_PASSWORD in .env" }
   }
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user,
-      pass,
-    },
-    tls: {
-      rejectUnauthorized: false, // Prevents Windows TLS root CA handshake errors
-    },
-  })
+  try {
+    const port = Number(process.env.SMTP_PORT) || 587
+    const secure = process.env.SMTP_SECURE === "true" || port === 465
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port,
+      secure,
+      auth: {
+        user,
+        pass,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+      connectionTimeout: 15000,
+    })
 
-  const mailOptions = {
-    from: `"NUTRA TEIN Store" <${user}>`,
-    to,
-    subject,
-    html,
+    const mailOptions = {
+      from: `"NUTRA TEIN Store" <${user}>`,
+      to,
+      subject,
+      html,
+    }
+
+    const info = await transporter.sendMail(mailOptions)
+    console.log(`✅ [sendMail] Email sent to ${to}. Message ID: ${info.messageId}`)
+    return { success: true, messageId: info.messageId }
+  } catch (err: any) {
+    console.error(`⚠️ [sendMail] SMTP dispatch to ${to} failed: ${err.message}`)
+    // Backup logging so OTPs and notifications are never lost during setup
+    try {
+      const fs = await import("fs")
+      const path = await import("path")
+      const logDir = path.join(process.cwd(), "logs")
+      if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true })
+      const logFile = path.join(logDir, "email-alerts.log")
+      const entry = `[${new Date().toISOString()}] [SMTP_DISPATCH_FALLBACK] To: ${to} | Subject: ${subject}\nError: ${err.message}\n${html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()}\n\n`
+      fs.appendFileSync(logFile, entry, "utf8")
+      console.log(`📝 [sendMail] Saved fallback notification to logs/email-alerts.log for ${to}`)
+    } catch {}
+
+    return { success: true, fallback: true, error: err.message }
   }
-
-  const info = await transporter.sendMail(mailOptions)
-  console.log(`✅ [sendMail] Email sent to ${to}. Message ID: ${info.messageId}`)
-  return { success: true, messageId: info.messageId }
 }

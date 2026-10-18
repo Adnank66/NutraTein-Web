@@ -61,8 +61,8 @@ const DEFAULT_TOP_SELLERS: TopProductItem[] = [
     poster: "/assets/top-sellers/shredtein-lean-protein.png",
     price: 4499,
     mrp: 5499,
-    rating: 5.0,
-    reviewsCount: 92,
+    rating: 0,
+    reviewsCount: 0,
     servings: "30 Servings",
     bgGradient: "bg-[#1c1204]",
   },
@@ -81,8 +81,8 @@ const DEFAULT_TOP_SELLERS: TopProductItem[] = [
     poster: "/assets/top-sellers/nitrotein-performance-whey.png",
     price: 2999,
     mrp: 3699,
-    rating: 5.0,
-    reviewsCount: 114,
+    rating: 0,
+    reviewsCount: 0,
     servings: "30 Servings",
     bgGradient: "bg-[#1a0808]",
   },
@@ -249,8 +249,8 @@ export default function TopProducts() {
               poster: v.poster || v.productImage || "",
               price: Number(v.price) || 2499,
               mrp: Number(v.mrp) || 2999,
-              rating: 5.0,
-              reviewsCount: 120,
+              rating: Number(v.rating) || 0,
+              reviewsCount: Number(v.reviewsCount) || 0,
               servings: v.servings || "30 Servings",
               bgGradient: "bg-[#180a0a]",
             }))
@@ -342,7 +342,7 @@ export default function TopProducts() {
 
   const handleBuyNow = (item: TopProductItem) => {
     handleAddToCart(item)
-    openCart()
+    router.push("/checkout")
   }
 
   const liveReview = liveRatings[activeItem.slug] || liveRatings[activeItem.id]
@@ -544,19 +544,25 @@ export default function TopProducts() {
 
                 {/* Rating & Authenticity Strip */}
                 <div className="flex items-center justify-between pt-4 pb-2 border-b border-zinc-100 dark:border-zinc-800">
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={13} className="fill-amber-400 stroke-amber-400" />
-                      ))}
+                  {displayCount && displayCount > 0 ? (
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex text-amber-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={13} className="fill-amber-400 stroke-amber-400" />
+                        ))}
+                      </div>
+                      <span className="text-xs font-black text-zinc-900 dark:text-zinc-100">
+                        {displayRating.toFixed(1)}
+                      </span>
+                      <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+                        ({displayCount} {t("product.reviews").toLowerCase()})
+                      </span>
                     </div>
-                    <span className="text-xs font-black text-zinc-900 dark:text-zinc-100">
-                      {displayRating.toFixed(1)}
+                  ) : (
+                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                      ★ Top Seller Formula
                     </span>
-                    <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
-                      ({displayCount} {t("product.reviews").toLowerCase()})
-                    </span>
-                  </div>
+                  )}
 
                   <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                     <ShieldCheck size={12} /> {t("home.authentic")}
@@ -569,9 +575,9 @@ export default function TopProducts() {
                     {activeItem.kicker}
                   </span>
                   <Link href={`/shop/${activeItem.slug}`}>
-                    <h4 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white leading-tight hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                    <h3 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white leading-tight hover:text-red-600 dark:hover:text-red-400 transition-colors">
                       {activeItem.name}
-                    </h4>
+                    </h3>
                   </Link>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed pt-0.5">
                     {activeItem.description}

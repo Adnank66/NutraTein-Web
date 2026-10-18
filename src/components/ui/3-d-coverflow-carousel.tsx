@@ -524,7 +524,7 @@ export default function CoverflowCarousel({
                 </div>
 
                 {/* Supplement Tub Container with Backlight Glow */}
-                <div className="relative w-full h-[155px] sm:h-[165px] lg:h-[175px] rounded-xl bg-zinc-950 flex items-center justify-center overflow-hidden border border-zinc-200 dark:border-zinc-800 shrink-0">
+                <div className="relative w-full aspect-[4/3] rounded-xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-black flex items-center justify-center overflow-hidden border border-zinc-200/80 dark:border-zinc-800 shrink-0">
                   {/* Subtle radial spotlight behind tub */}
                   <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-500/10 via-transparent to-transparent pointer-events-none" />
 
@@ -567,17 +567,15 @@ export default function CoverflowCarousel({
                       {product.brand || "NUTRATEIN"}
                     </span>
                     {/* Rating stars */}
-                    {product.rating !== undefined && (
+                    {product.reviewCount && product.reviewCount > 0 ? (
                       <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 border border-amber-200/60 dark:border-amber-800/60">
                         <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
                         <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300">
-                          {product.rating.toFixed(1)}
+                          {(product.rating ?? 0).toFixed(1)}
                         </span>
-                        {product.reviewCount !== undefined && (
-                          <span className="text-[9px] text-zinc-400">({product.reviewCount})</span>
-                        )}
+                        <span className="text-[9px] text-zinc-400">({product.reviewCount})</span>
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   <h3 className="font-extrabold text-xs sm:text-sm text-zinc-900 dark:text-white line-clamp-1 leading-snug">
@@ -618,7 +616,7 @@ export default function CoverflowCarousel({
                         })}
                       </div>
                     ) : (
-                      <span className="text-[10px] text-zinc-400 font-medium tracking-tight">
+                      <span className="text-xs text-zinc-400 font-medium tracking-tight">
                         Standard Authentic Formula
                       </span>
                     )}
@@ -665,21 +663,21 @@ export default function CoverflowCarousel({
                   </div>
 
                   {/* Action Buttons: Add to Cart + Buy Now */}
-                  <div className="pt-1 grid grid-cols-2 gap-1.5">
+                  <div className="pt-1.5 grid grid-cols-2 gap-2">
                     <button
                       onClick={(e) => handleAddToCart(e, product)}
                       disabled={displayStock === 0}
-                      className="w-full py-1.5 px-2 rounded-lg bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white text-[10px] sm:text-[11px] font-bold shadow-sm transition-all flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-2 px-3 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <ShoppingCart className="w-3 h-3" />
+                      <ShoppingCart className="w-3.5 h-3.5" />
                       Add to Cart
                     </button>
                     <button
                       onClick={(e) => handleBuyNow(e, product)}
                       disabled={displayStock === 0}
-                      className="w-full py-1.5 px-2 rounded-lg bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-[10px] sm:text-[11px] font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                      className="w-full py-2 px-3 rounded-xl bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                     >
-                      <Zap className="w-3 h-3 fill-current" />
+                      <Zap className="w-3.5 h-3.5 fill-current text-amber-400 dark:text-amber-600" />
                       Buy Now
                     </button>
                   </div>
@@ -706,18 +704,22 @@ export default function CoverflowCarousel({
         </div>
 
         {/* Bottom Pagination Dots */}
-        <div className="mt-8 flex items-center justify-center gap-2">
+        <div className="mt-8 flex items-center justify-center gap-1">
           {items.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
               aria-label={`Jump to product ${idx + 1}`}
-              className={`transition-all duration-300 rounded-full ${
-                idx === activeIndex
-                  ? "w-8 h-2.5 bg-brand-600 shadow-sm"
-                  : "w-2.5 h-2.5 bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400"
-              }`}
-            />
+              className="p-2 sm:p-2.5 flex items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              <span
+                className={`block transition-all duration-300 rounded-full ${
+                  idx === activeIndex
+                    ? "w-8 h-2.5 bg-red-600 shadow-sm"
+                    : "w-2.5 h-2.5 bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400"
+                }`}
+              />
+            </button>
           ))}
         </div>
       </div>

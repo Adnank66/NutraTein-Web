@@ -13,6 +13,7 @@ import {
   Check,
   Phone,
   Zap,
+  Trash2,
 } from "lucide-react"
 import { useCartStore } from "@/store/cart"
 import { toast } from "sonner"
@@ -118,6 +119,21 @@ export default function AiWhatsAppChatWidget() {
     const text = customMsg || "Hello Nutratein, I need assistance with product recommendations."
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`
     window.open(url, "_blank", "noopener,noreferrer")
+  }
+
+  const handleClearChat = () => {
+    setMessages([
+      {
+        id: "msg-welcome",
+        sender: "ai",
+        text: GREETINGS[language],
+        suggestions: DEFAULT_SUGGESTIONS[language],
+      },
+    ])
+    try {
+      localStorage.removeItem("nutratein_ai_chat_history")
+    } catch {}
+    toast.success("Chat history deleted")
   }
 
   const handleSendMessage = async (textToSend?: string) => {
@@ -244,7 +260,7 @@ export default function AiWhatsAppChatWidget() {
   return (
     <>
       {/* ── FLOATING ACTION LAUNCHERS (Bottom-Right) ────────────────────────── */}
-      <div className="fixed bottom-6 right-4 sm:right-6 z-50 flex flex-col items-end gap-3 pointer-events-auto">
+      <div className="fixed bottom-4 right-3 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-2.5 pointer-events-auto">
         
         {/* Tooltip Bubble — animated pop-up for 5 to 10 seconds on reload */}
         {!isOpen && showTooltip && (
@@ -281,12 +297,12 @@ export default function AiWhatsAppChatWidget() {
           </div>
         )}
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           {/* 1. Quick WhatsApp Launcher Button - only visible when chat is open */}
           {isOpen && (
             <button
               onClick={() => openWhatsApp()}
-              className="group relative flex items-center justify-center bg-[#25D366] hover:bg-[#20ba59] text-white w-10 h-10 rounded-full shadow-[0_6px_20px_rgb(37,211,102,0.35)] transition-all duration-300 hover:scale-110 active:scale-95 border border-white/40 animate-fade-in-up"
+              className="group relative flex items-center justify-center bg-[#25D366] hover:bg-[#20ba59] text-white w-11 h-11 sm:w-10 sm:h-10 rounded-full shadow-[0_6px_20px_rgb(37,211,102,0.35)] transition-all duration-300 hover:scale-110 active:scale-95 border border-white/40 animate-fade-in-up touch-manipulation"
               title={`Chat with us on WhatsApp (${WHATSAPP_DISPLAY})`}
               aria-label={t("chat.whatsappSupport", undefined) || "WhatsApp Support"}
             >
@@ -305,7 +321,7 @@ export default function AiWhatsAppChatWidget() {
           {/* 2. Main AI Chat Launcher Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`flex items-center gap-2 px-3 h-10 rounded-full shadow-[0_6px_20px_rgb(234,88,12,0.25)] transition-all duration-300 hover:scale-105 active:scale-95 border ${
+            className={`flex items-center gap-2 px-3.5 sm:px-3 min-h-[44px] h-11 sm:h-10 rounded-full shadow-[0_6px_20px_rgb(234,88,12,0.25)] transition-all duration-300 hover:scale-105 active:scale-95 border touch-manipulation ${
               isOpen
                 ? "bg-zinc-900 border-zinc-700 text-white hover:bg-zinc-800"
                 : "bg-gradient-to-r from-brand-600 via-orange-500 to-amber-500 border-white/40 text-white"
@@ -330,14 +346,14 @@ export default function AiWhatsAppChatWidget() {
 
       {/* ── AI CHAT FLOATING WINDOW ────────────────────────────────────────── */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 sm:right-6 w-[calc(100vw-32px)] sm:w-[420px] max-h-[85vh] h-[640px] bg-white rounded-3xl shadow-2xl border border-zinc-200 flex flex-col z-50 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-20 sm:bottom-24 right-2 sm:right-6 w-[calc(100vw-16px)] sm:w-[420px] max-h-[82vh] sm:max-h-[85vh] h-[580px] sm:h-[640px] bg-white rounded-3xl shadow-2xl border border-zinc-200 flex flex-col z-50 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
           
           {/* Header */}
           <div className="bg-zinc-950 text-white p-4 flex items-center justify-between border-b border-zinc-800">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-500 to-amber-500 flex items-center justify-center font-black text-white text-sm shadow-md">
-                  NX
+                  NT
                 </div>
                 <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-zinc-950" />
               </div>
@@ -352,8 +368,19 @@ export default function AiWhatsAppChatWidget() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <button
+                type="button"
+                onClick={handleClearChat}
+                className="p-1.5 text-zinc-400 hover:text-red-400 rounded-lg hover:bg-zinc-900 transition-colors flex items-center gap-1 group"
+                title="Delete chat history"
+                aria-label="Delete chat history"
+              >
+                <Trash2 size={15} className="group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-bold text-zinc-400 group-hover:text-red-400 hidden sm:inline">Delete</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => setIsOpen(false)}
                 className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-900 transition-colors"
                 title={t("common.close")}

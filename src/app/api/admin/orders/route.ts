@@ -1,15 +1,13 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 import { getBackupOrders } from "@/lib/orders-store"
 import { withFastTimeout } from "@/lib/fast-data"
 
 export async function GET() {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     let dbOrders: any[] = []
     try {
@@ -23,7 +21,7 @@ export async function GET() {
           orderBy: { createdAt: "desc" },
         }),
         [],
-        2500
+        6000
       )
     } catch {
       dbOrders = []
@@ -48,10 +46,8 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { orderId, status } = await req.json()
     const updated = await prisma.order.update({

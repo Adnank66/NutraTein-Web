@@ -20,8 +20,8 @@ import { toast } from "sonner"
 export default function StoreSettingsManager() {
   const [storeName, setStoreName] = useState("PROTEINX Nutrition")
   const [tagline, setTagline] = useState("India's Most Trusted Pure Fitness Supplements")
-  const [supportPhone, setSupportPhone] = useState("+91 9321598094")
-  const [supportEmail, setSupportEmail] = useState("adnankazi275@gmail.com")
+  const [supportPhone, setSupportPhone] = useState("+91 7030407080")
+  const [supportEmail, setSupportEmail] = useState("nutratein@gmail.com")
   const [upiId, setUpiId] = useState("9321598094@ybl")
   const [payeeName, setPayeeName] = useState("ADNAN KAZI")
   const [enableCod, setEnableCod] = useState(true)

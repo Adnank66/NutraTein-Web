@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 import { prisma } from "@/lib/prisma"
 
 export async function GET() {
-  const session = await auth()
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
   try {
     const bundles = await prisma.bundle.findMany({
       orderBy: { createdAt: "desc" }
@@ -33,10 +31,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
   try {
     const { productId, relatedIds, discountPercent } = await req.json()
     if (!productId || !relatedIds?.length) {
@@ -66,10 +62,8 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const session = await auth()
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
   const { searchParams } = new URL(req.url)
   const id = searchParams.get("id")
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 })

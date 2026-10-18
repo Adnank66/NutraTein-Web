@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai"
 import { getProducts, searchProducts, getProductById, getOrderStatus, getActiveCoupons, getLegalPage } from "@/lib/ai-tools"
+import { checkRateLimit, getClientIdentifier } from "@/lib/rate-limit"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -31,6 +32,18 @@ export async function POST(req: Request) {
     const session = await auth()
     const { messages, language } = await req.json()
 
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 20 ||
+      messages.some((message) => !message || typeof message.text !== "string" || message.text.length > 2_000)) {
+      return NextResponse.json({ success: false, message: "Invalid chat request." }, { status: 400 })
+    }
+
+    // Limits apply per authenticated account, with an IP fallback for guests.
+    const identifier = session?.user?.id || getClientIdentifier(req)
+    const rate = checkRateLimit(`ai-chat:${identifier}`, 20, 60 * 60 * 1000)
+    if (!rate.success) {
+      return NextResponse.json({ success: false, message: "AI request limit reached. Please try again later." }, { status: 429 })
+    }
+
     if (!process.env.GEMINI_API_KEY) {
       // Fallback if no API key is set
       return NextResponse.json({
@@ -44,6 +57,10 @@ export async function POST(req: Request) {
     const model = genAI.getGenerativeModel({
       model: "gemini-3.1-flash-lite",
       systemInstruction,
+      generationConfig: {
+        maxOutputTokens: 512,
+        temperature: 0.4,
+      },
       tools: [
         {
           functionDeclarations: [
@@ -177,9 +194,9 @@ export async function POST(req: Request) {
     })
 
   } catch (err: any) {
-    console.error("AI Chat Error:", err)
+    console.error("AI Chat Error")
     return NextResponse.json(
-      { success: false, message: err.message || "Failed to process chat" },
+      { success: false, message: "Failed to process chat" },
       { status: 500 }
     )
   }

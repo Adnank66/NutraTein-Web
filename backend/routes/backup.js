@@ -8,8 +8,9 @@ const { logAdminAction } = require('../utils/adminLogger');
 // ── Super Admin check (only role: 'admin' for now, extendable) ──
 function requireSuperAdmin(req, res, next) {
   const user = req.user;
-  // Accept adminRole === 'super_admin' or the designated admin email
-  if (user && (user.adminRole === 'super_admin' || user.email === (process.env.ADMIN_EMAIL || 'admin@proteinx.in'))) {
+  // Super-admin authority must come from the database-backed role, never an
+  // email-address allowlist.
+  if (user && (user.adminRole === 'super_admin' || user.role === 'super_admin')) {
     return next();
   }
   return res.status(403).json({ success: false, message: 'Super Admin access required for backup/restore.' });

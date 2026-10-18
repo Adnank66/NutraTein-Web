@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import {
   Star, ShoppingBag, Heart, ShieldCheck, Truck, RotateCcw,
   Check, Sparkles, AlertCircle, ArrowLeftRight, Flame, Scale
@@ -35,6 +36,7 @@ import { useSession } from "next-auth/react"
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
   const { data: session, status } = useSession()
+  const router = useRouter()
 
   // Extract distinct flavors from catalog/product or variants
   const availableFlavors = useMemo(() => {
@@ -68,6 +70,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
   const addItem = useCartStore((s) => s.addItem)
   const openCart = useCartStore((s) => s.openCart)
+  const closeCart = useCartStore((s) => s.closeCart)
   const { isWishlisted, toggleWishlist } = useWishlistStore()
   const wishlisted = isWishlisted(product.id)
   const { isInCompare, toggleCompare } = useCompareStore()
@@ -147,14 +150,41 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
       stock: currentStock,
       slug: product.slug,
     })
+    openCart()
     toast.success("Added to cart", {
       description: `${quantity}x ${product.name} • ${itemFlavor} • ${itemSize}`,
     })
   }
 
   const handleBuyNow = () => {
-    handleAddToCart()
-    openCart()
+    if (status === 'unauthenticated') {
+      toast.error('Please login first')
+      router.push(`/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`)
+      return
+    }
+    const itemFlavor = selectedFlavor || selectedVariant?.flavor || product.flavor || "Standard"
+    const itemSize = selectedVariant?.size || selectedVariant?.weight || "Standard"
+    const variantId = selectedVariant?.id
+      ? `${selectedVariant.id}-${itemFlavor.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`
+      : `${product.id}-${itemFlavor.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`
+
+    addItem({
+      id: variantId,
+      productId: product.id,
+      variantId: selectedVariant?.id,
+      name: `${product.name} (${itemFlavor})`,
+      brand: product.brand,
+      price: currentPrice,
+      mrp: product.mrp,
+      image: selectedVariant?.image || images[0],
+      quantity,
+      flavor: itemFlavor,
+      size: itemSize,
+      stock: currentStock,
+      slug: product.slug,
+    })
+    closeCart()
+    router.push('/checkout')
   }
 
   const handleCompareToggle = () => {
@@ -207,16 +237,20 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             </h1>
 
             <div className="flex items-center gap-3 mt-3">
-              <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/80 px-2 py-0.5 rounded-md text-amber-700 dark:text-amber-400 text-xs font-bold">
-                <Star size={12} className="fill-amber-400 text-amber-400" />
-                <span>{product.rating.toFixed(1)}</span>
-              </div>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                ({product.reviewCount} customer reviews)
-              </span>
-              <span className="text-zinc-300 dark:text-zinc-700">•</span>
+              {product.reviewCount && product.reviewCount > 0 ? (
+                <>
+                  <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/80 px-2 py-0.5 rounded-md text-amber-700 dark:text-amber-400 text-xs font-bold">
+                    <Star size={12} className="fill-amber-400 text-amber-400" />
+                    <span>{product.rating.toFixed(1)}</span>
+                  </div>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    ({product.reviewCount} customer reviews)
+                  </span>
+                  <span className="text-zinc-300 dark:text-zinc-700">•</span>
+                </>
+              ) : null}
               <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                ✓ Verified Authentic
+                ✓ 100% Authentic & Lab Tested
               </span>
             </div>
           </div>
@@ -341,7 +375,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               <button
                 onClick={handleAddToCart}
                 disabled={currentStock <= 0}
-                className="btn-primary flex-1 py-3.5 text-xs sm:text-sm font-bold justify-center gap-2 shadow-lg shadow-brand-500/15"
+                className="btn-primary flex-1 min-h-[48px] py-3.5 text-xs sm:text-sm font-bold justify-center gap-2 shadow-lg shadow-brand-500/15 touch-manipulation"
               >
                 <ShoppingBag size={16} /> {t("product.addToCart") || "Add to Cart"}
               </button>
@@ -349,7 +383,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               <button
                 onClick={handleBuyNow}
                 disabled={currentStock <= 0}
-                className="btn-secondary py-3.5 px-5 text-xs sm:text-sm font-bold bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-900 dark:border-white hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
+                className="btn-secondary min-h-[48px] py-3.5 px-5 text-xs sm:text-sm font-bold bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-900 dark:border-white hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors touch-manipulation"
               >
                 {t("product.buyNow") || "Buy Now"}
               </button>
@@ -367,7 +401,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                     rating: product.rating,
                   })
                 }
-                className={`p-3.5 rounded-xl border transition-colors flex items-center justify-center ${
+                className={`min-h-[48px] min-w-[48px] p-3.5 rounded-xl border transition-colors flex items-center justify-center touch-manipulation ${
                   wishlisted
                     ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400"
                     : "bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700"

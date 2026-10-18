@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import {
   ShieldCheck, Banknote, QrCode, Copy, Check, Info, Tag, X,
-  Loader2, CreditCard, Smartphone, Wallet, CheckCircle2, ExternalLink, ChevronDown, ChevronUp, Clock,
+  Loader2, CreditCard, Smartphone, Wallet, CheckCircle2, ExternalLink, ChevronDown, ChevronUp, Clock, Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -16,17 +16,17 @@ import TrustBadges from "@/components/TrustBadges"
 
 // ── UPI app redirect deep-links ─────────────────────────────────────────────
 function buildUPILink(upiId: string, name: string, amount: number, orderRef: string) {
-  const base = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("PROTEINX Order " + orderRef)}`
+  const base = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("NUTRA TEIN Order " + orderRef)}`
   return base
 }
 function buildGPayLink(upiId: string, name: string, amount: number, orderRef: string) {
-  return `intent://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("PROTEINX " + orderRef)}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;S.browser_fallback_url=https%3A%2F%2Fpay.google.com;end`
+  return `intent://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("NUTRA TEIN " + orderRef)}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;S.browser_fallback_url=https%3A%2F%2Fpay.google.com;end`
 }
 function buildPhonePeLink(upiId: string, name: string, amount: number, orderRef: string) {
-  return `intent://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("PROTEINX " + orderRef)}#Intent;scheme=upi;package=com.phonepe.app;S.browser_fallback_url=https%3A%2F%2Fphonepe.com;end`
+  return `intent://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("NUTRA TEIN " + orderRef)}#Intent;scheme=upi;package=com.phonepe.app;S.browser_fallback_url=https%3A%2F%2Fphonepe.com;end`
 }
 function buildPaytmLink(upiId: string, name: string, amount: number, orderRef: string) {
-  return `intent://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("PROTEINX " + orderRef)}#Intent;scheme=upi;package=net.one97.paytm;S.browser_fallback_url=https%3A%2F%2Fpaytm.com;end`
+  return `intent://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("NUTRA TEIN " + orderRef)}#Intent;scheme=upi;package=net.one97.paytm;S.browser_fallback_url=https%3A%2F%2Fpaytm.com;end`
 }
 
 type PaymentMethodType = "COD" | "UPI" | "CASH"
@@ -82,8 +82,8 @@ const INDIAN_STATES = [
 ]
 
 const DEFAULT_SETTINGS: PaymentSettings = {
-  upiId: "proteinx@upi",
-  upiName: "PROTEINX Supplements Official",
+  upiId: "nutratein@upi",
+  upiName: "NUTRA TEIN Supplements Official",
   qrCodeImage: "/assets/payment/upi-qr.svg",
   instructions: "Scan the QR code with any UPI app (Google Pay, PhonePe, Paytm, BHIM) and enter the 12-digit UTR/Txn ID below.",
   enableCOD: true,
@@ -94,7 +94,7 @@ const DEFAULT_SETTINGS: PaymentSettings = {
 export default function CheckoutPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
-  const { items, getSubtotal, clearCart } = useCartStore()
+  const { items, getSubtotal, clearCart, updateQuantity, removeItem } = useCartStore()
   const { t } = useTranslation()
   const [isMobile, setIsMobile] = useState(false)
 
@@ -143,6 +143,7 @@ export default function CheckoutPage() {
   const [isSubmittingUTR, setIsSubmittingUTR] = useState(false)
   const [postOffices, setPostOffices] = useState<string[]>([])
   const [isLoadingPincode, setIsLoadingPincode] = useState(false)
+  const [mobileOrderOpen, setMobileOrderOpen] = useState(false)
 
   // Auto-fetch city and state based on pincode
   useEffect(() => {
@@ -427,8 +428,6 @@ export default function CheckoutPage() {
     )
   }
 
-  const [mobileOrderOpen, setMobileOrderOpen] = useState(false)
-
   if (placedOrderNumber) {
     const payAmount = placedOrderInfo?.totalAmount || total
     return (
@@ -605,18 +604,43 @@ export default function CheckoutPage() {
             {mobileOrderOpen && (
               <div className="px-4 pb-4 space-y-3 border-t border-dark-100 dark:border-zinc-800 pt-3">
                 {items.map((i) => (
-                  <div key={`mob-${i.id || i.productId}-${i.flavor || ""}-${i.size || ""}`} className="flex gap-3 text-xs">
+                  <div key={`mob-${i.id || i.productId}-${i.flavor || ''}-${i.size || ''}`} className="flex gap-3 text-xs">
                     <div className="relative w-10 h-10 rounded-lg bg-white dark:bg-zinc-800 border border-dark-100 dark:border-zinc-700 overflow-hidden shrink-0">
                       <Image src={i.image} alt={i.name} fill className="object-contain p-1" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-dark-900 dark:text-zinc-100 truncate">{i.name}</p>
                       {(i.flavor || i.size) && (
-                        <p className="text-[10px] text-brand-600 dark:text-brand-400">{[i.flavor, i.size].filter(Boolean).join(" • ")}</p>
+                        <p className="text-[10px] text-brand-600 dark:text-brand-400">{[i.flavor, i.size].filter(Boolean).join(' • ')}</p>
                       )}
-                      <p className="text-dark-400 dark:text-zinc-500 text-[11px]">{i.quantity} × {formatPrice(i.price)}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(i.id || i.productId, i.variantId, i.quantity - 1)}
+                          className="w-5 h-5 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-600 text-xs font-bold"
+                          title="Decrease quantity (0 to remove)"
+                        >−</button>
+                        <span className="text-[11px] font-bold text-dark-900 dark:text-zinc-100 min-w-[16px] text-center">{i.quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(i.id || i.productId, i.variantId, i.quantity + 1)}
+                          className="w-5 h-5 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-600 text-xs font-bold"
+                          title="Increase quantity"
+                        >+</button>
+                        <span className="text-dark-400 dark:text-zinc-500 text-[10px]">{formatPrice(i.price)}/ea</span>
+                      </div>
                     </div>
-                    <span className="font-bold text-dark-900 dark:text-zinc-100 shrink-0">{formatPrice(i.price * i.quantity)}</span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="font-bold text-dark-900 dark:text-zinc-100">{formatPrice(i.price * i.quantity)}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(i.id || i.productId, i.variantId)}
+                        className="text-zinc-400 hover:text-red-500 p-1 transition-colors"
+                        title="Remove item"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
                 ))}
                 <div className="border-t border-dark-100 dark:border-zinc-800 pt-3 space-y-1.5 text-xs">
@@ -942,7 +966,7 @@ export default function CheckoutPage() {
 
                 <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                   {items.map((i) => (
-                    <div key={`${i.id || i.productId}-${i.flavor || ""}-${i.size || ""}`} className="flex gap-3 text-xs">
+                    <div key={`${i.id || i.productId}-${i.flavor || ''}-${i.size || ''}`} className="flex gap-3 text-xs">
                       <div className="relative w-12 h-12 rounded-lg bg-white dark:bg-zinc-800 border border-dark-100 dark:border-zinc-700 overflow-hidden shrink-0">
                         <Image src={i.image} alt={i.name} fill className="object-contain p-1" />
                       </div>
@@ -950,12 +974,37 @@ export default function CheckoutPage() {
                         <p className="font-semibold text-dark-900 dark:text-zinc-100 truncate">{i.name}</p>
                         {(i.flavor || i.size) && (
                           <p className="text-[10px] text-brand-600 dark:text-brand-400 font-medium">
-                            {[i.flavor, i.size].filter(Boolean).join(" • ")}
+                            {[i.flavor, i.size].filter(Boolean).join(' • ')}
                           </p>
                         )}
-                        <p className="text-dark-400 dark:text-zinc-500 text-[11px]">{i.quantity} × {formatPrice(i.price)}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(i.id || i.productId, i.variantId, i.quantity - 1)}
+                            className="w-5 h-5 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-600 text-xs font-bold"
+                            title="Decrease quantity (0 to remove)"
+                          >−</button>
+                          <span className="text-[11px] font-bold text-dark-900 dark:text-zinc-100 min-w-[16px] text-center">{i.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(i.id || i.productId, i.variantId, i.quantity + 1)}
+                            className="w-5 h-5 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-600 text-xs font-bold"
+                            title="Increase quantity"
+                          >+</button>
+                          <span className="text-dark-400 dark:text-zinc-500 text-[10px]">{formatPrice(i.price)}/ea</span>
+                        </div>
                       </div>
-                      <span className="font-bold text-dark-900 dark:text-zinc-100">{formatPrice(i.price * i.quantity)}</span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="font-bold text-dark-900 dark:text-zinc-100">{formatPrice(i.price * i.quantity)}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(i.id || i.productId, i.variantId)}
+                          className="text-zinc-400 hover:text-red-500 p-1 transition-colors"
+                          title="Remove item"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1016,7 +1065,7 @@ export default function CheckoutPage() {
                   <button
                     onClick={handlePlaceOrder}
                     disabled={isSubmitting}
-                    className="btn-primary w-full justify-center py-3.5 text-sm font-bold shadow-lg shadow-brand-500/20 flex items-center gap-2"
+                    className="btn-primary w-full justify-center min-h-[48px] py-3.5 text-sm font-bold shadow-lg shadow-brand-500/20 flex items-center gap-2 touch-manipulation"
                   >
                     {isSubmitting ? (
                       <><Loader2 size={16} className="animate-spin" /> Processing...</>
@@ -1035,13 +1084,13 @@ export default function CheckoutPage() {
                     <div className="flex flex-col gap-2 pt-1">
                       <button
                         onClick={() => router.push(`/order-confirmation/${placedOrderNumber}?status=upi_pending`)}
-                        className="btn-primary w-full justify-center py-2.5 text-xs font-bold"
+                        className="btn-primary w-full justify-center min-h-[44px] py-2.5 text-xs font-bold touch-manipulation"
                       >
                         <CheckCircle2 size={14} /> View Order Confirmation
                       </button>
                       <button
                         onClick={() => router.push("/account/orders")}
-                        className="btn-secondary w-full justify-center py-2.5 text-xs font-bold"
+                        className="btn-secondary w-full justify-center min-h-[44px] py-2.5 text-xs font-bold touch-manipulation"
                       >
                         <Clock size={14} /> Go to My Orders (Pay Later)
                       </button>

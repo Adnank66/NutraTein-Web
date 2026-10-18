@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 import { prisma } from "@/lib/prisma"
 import fs from "fs"
 import path from "path"
@@ -20,10 +20,8 @@ function saveLoyaltyConfig(config: any) {
 }
 
 export async function GET() {
-  const session = await auth()
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
 
   const config = getLoyaltyConfig()
   const accounts = await prisma.loyaltyAccount.findMany({
@@ -45,10 +43,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
 
   const body = await req.json()
 
@@ -88,7 +84,7 @@ export async function POST(req: Request) {
         points,
         type: "ADJUSTED",
         reason,
-        adminId: (session.user as any)?.id || null,
+        adminId: guard.user?.id || null,
         balanceBefore,
         balanceAfter: newBalance,
       },

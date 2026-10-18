@@ -35,8 +35,7 @@ atlas-credentials*.env
 .env.production
 .env.staging
 
-# vercel
-.vercel
+# build / deployment
 
 # typescript
 *.tsbuildinfo
@@ -49,7 +48,7 @@ next-env.d.ts
 # prisma
 /prisma/migrations
 
-# large media / demo folders (not needed on Vercel)
+# large media / demo folders (not needed in production)
 recomm animation video/
 top sellers animation/assets/*.mp4
 frontend/Nutra Tein Website/
@@ -59,3 +58,11 @@ frontend/NutraTein-Web/
 # OS files
 Thumbs.db
 desktop.ini
+
+# logs
+logs/
+*.log
+
+# sensitive local data & uploads
+public/uploads/
+src/data/orders-backup.json

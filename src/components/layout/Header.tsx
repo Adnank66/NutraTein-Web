@@ -1,11 +1,12 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import {
   ShoppingCart, Heart, Search, User, Menu, X, ChevronDown,
-  Package, LogOut, Settings, LayoutDashboard, Zap
+  Package, LogOut, Settings, LayoutDashboard, Zap, Mail, Phone
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCartStore } from "@/store/cart"
@@ -13,7 +14,6 @@ import { useWishlistStore } from "@/store/wishlist"
 import CartDrawer from "@/components/cart/CartDrawer"
 import SmartSearchModal from "@/components/search/SmartSearchModal"
 import ThemeToggle from "@/components/layout/ThemeToggle"
-import LanguageSwitcher from "@/components/layout/LanguageSwitcher"
 import StorefrontAnnouncementBar from "@/components/layout/StorefrontAnnouncementBar"
 import NotificationsDropdown from "@/components/layout/NotificationsDropdown"
 import { useTranslation } from "@/hooks/useTranslation"
@@ -21,12 +21,12 @@ import { useTranslation } from "@/hooks/useTranslation"
 
 
 const DEFAULT_PRODUCT_CATS = [
-  { label: "Whey", href: "/shop?category=whey-protein" },
-  { label: "Mass Gainer", href: "/shop?category=mass-gainer" },
+  { label: "Whey Protein", href: "/shop?category=whey-protein" },
+  { label: "Mass Gainers", href: "/shop?category=mass-gainers" },
   { label: "Creatine", href: "/shop?category=creatine" },
-  { label: "Vitamin", href: "/shop?category=vitamins" },
-  { label: "Health", href: "/shop?category=health" },
-  { label: "Creatine Accessories", href: "/shop?category=accessories" },
+  { label: "Pre-Workout", href: "/shop?category=pre-workout" },
+  { label: "Vitamins & Health", href: "/shop?category=vitamins" },
+  { label: "Gym Accessories", href: "/shop?category=accessories" },
 ]
 
 const DEFAULT_GOAL_CATS = [
@@ -50,6 +50,7 @@ export default function Header() {
   const [visible, setVisible] = useState(true)
   const [mounted, setMounted] = useState(false)
   const lastScrollY = useRef(0)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   const cartCount = useCartStore((s) => s.getTotalItems())
   const wishlistCount = useWishlistStore((s) => s.items.length)
@@ -116,6 +117,27 @@ export default function Header() {
     setActiveDropdown(null)
   }, [pathname])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileOpen(false)
+        setUserMenuOpen(false)
+        setActiveDropdown(null)
+      }
+    }
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false)
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    document.addEventListener("mousedown", handleOutsideClick)
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      document.removeEventListener("mousedown", handleOutsideClick)
+    }
+  }, [])
+
   return (
     <>
       <StorefrontAnnouncementBar />
@@ -130,13 +152,15 @@ export default function Header() {
       >
         <div className="container-custom">
           <div className="flex items-center justify-between gap-4">
-            <Link href="/" className="flex items-center gap-2 shrink-0 group">
-              <div className="w-7 h-7 rounded-lg bg-zinc-950 dark:bg-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm">
-                <span className="font-black text-sm text-brand-600 dark:text-zinc-950 italic">N</span>
-              </div>
-              <span className="font-display text-lg font-black tracking-tight text-zinc-950 dark:text-white uppercase">
-                NUTRA<span className="text-brand-600"> TEIN</span>
-              </span>
+            <Link href="/" className="flex items-center shrink-0 group py-1" aria-label="NutraTein Home">
+              <Image
+                src="/assets/logos/nutratein-logo.png"
+                alt="NutraTein"
+                width={150}
+                height={70}
+                className="h-8 sm:h-9 w-auto object-contain dark:invert transition-transform group-hover:scale-105"
+                priority
+              />
             </Link>
 
             <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
@@ -154,12 +178,18 @@ export default function Header() {
               {/* 2. Shop by Product Dropdown */}
               <div
                 className="relative group"
-                onMouseEnter={() => setActiveDropdown("PRODUCT")}
+                onMouseEnter={() => {
+                  setActiveDropdown("PRODUCT")
+                  setUserMenuOpen(false)
+                }}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
                 <button
                   type="button"
-                  onClick={() => setActiveDropdown(activeDropdown === "PRODUCT" ? null : "PRODUCT")}
+                  onClick={() => {
+                    setActiveDropdown(activeDropdown === "PRODUCT" ? null : "PRODUCT")
+                    setUserMenuOpen(false)
+                  }}
                   className={cn(
                     "px-3 py-2 rounded-lg flex items-center gap-1 transition-colors",
                     pathname.startsWith("/shop") && activeDropdown === "PRODUCT"
@@ -195,12 +225,18 @@ export default function Header() {
               {/* 3. Shop by Goal Dropdown */}
               <div
                 className="relative group"
-                onMouseEnter={() => setActiveDropdown("GOAL")}
+                onMouseEnter={() => {
+                  setActiveDropdown("GOAL")
+                  setUserMenuOpen(false)
+                }}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
                 <button
                   type="button"
-                  onClick={() => setActiveDropdown(activeDropdown === "GOAL" ? null : "GOAL")}
+                  onClick={() => {
+                    setActiveDropdown(activeDropdown === "GOAL" ? null : "GOAL")
+                    setUserMenuOpen(false)
+                  }}
                   className={cn(
                     "px-3 py-2 rounded-lg flex items-center gap-1 transition-colors",
                     pathname.startsWith("/shop") && activeDropdown === "GOAL"
@@ -233,26 +269,104 @@ export default function Header() {
                 )}
               </div>
 
-              {/* 4. Deals, About, Contact, Write Review */}
-              {[
-                { label: "Deals", href: "/deals" },
-                { label: "About", href: "/about" },
-                { label: "Contact", href: "/contact" },
-                { label: "Write Review", href: "/write-review" },
-              ].map((item) => (
+              {/* 4. Deals, About */}
+              <Link
+                href="/deals"
+                className={cn(
+                  "px-3 py-2 rounded-lg transition-colors",
+                  pathname === "/deals"
+                    ? "text-brand-600 bg-brand-50/70 dark:bg-brand-950/40"
+                    : "hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                )}
+              >
+                Deals
+              </Link>
+
+              <Link
+                href="/about"
+                className={cn(
+                  "px-3 py-2 rounded-lg transition-colors",
+                  pathname === "/about"
+                    ? "text-brand-600 bg-brand-50/70 dark:bg-brand-950/40"
+                    : "hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                )}
+              >
+                About
+              </Link>
+
+              {/* 5. Contact with Support Info Hover Popover */}
+              <div
+                className="relative group"
+                onMouseEnter={() => {
+                  setActiveDropdown("CONTACT")
+                  setUserMenuOpen(false)
+                }}
+                onMouseLeave={() => setActiveDropdown(null)}
+              >
                 <Link
-                  key={item.label}
-                  href={item.href}
+                  href="/contact"
                   className={cn(
-                    "px-3 py-2 rounded-lg transition-colors",
-                    pathname === item.href
+                    "px-3 py-2 rounded-lg flex items-center gap-1 transition-colors",
+                    pathname === "/contact"
                       ? "text-brand-600 bg-brand-50/70 dark:bg-brand-950/40"
                       : "hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900"
                   )}
                 >
-                  {item.label}
+                  <span>Contact</span>
+                  <ChevronDown
+                    size={13}
+                    className={cn(
+                      "text-zinc-400 transition-transform duration-200",
+                      activeDropdown === "CONTACT" && "rotate-180"
+                    )}
+                  />
                 </Link>
-              ))}
+
+                {activeDropdown === "CONTACT" && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-64 animate-scale-in z-50">
+                    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-3 space-y-2">
+                      <div className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 border-b border-zinc-100 dark:border-zinc-800 pb-1.5 flex items-center justify-between">
+                        <span>Direct Support</span>
+                        <span className="text-[9px] text-emerald-600 font-bold">Online</span>
+                      </div>
+                      <a
+                        href="mailto:nutratein@gmail.com"
+                        className="flex items-center gap-2 p-2 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
+                      >
+                        <Mail size={14} className="text-brand-500 shrink-0" />
+                        <span className="truncate">nutratein@gmail.com</span>
+                      </a>
+                      <a
+                        href="tel:+917030407080"
+                        className="flex items-center gap-2 p-2 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
+                      >
+                        <Phone size={14} className="text-emerald-500 shrink-0" />
+                        <span>+91 7030407080</span>
+                      </a>
+                      <Link
+                        href="/contact"
+                        onClick={() => setActiveDropdown(null)}
+                        className="block text-center text-[11px] font-bold text-brand-600 bg-brand-50 dark:bg-brand-950/40 hover:bg-brand-100 dark:hover:bg-brand-900/50 py-1.5 rounded-xl transition-colors"
+                      >
+                        Open Contact Page →
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 6. Write Review */}
+              <Link
+                href="/write-review"
+                className={cn(
+                  "px-3 py-2 rounded-lg transition-colors",
+                  pathname === "/write-review"
+                    ? "text-brand-600 bg-brand-50/70 dark:bg-brand-950/40"
+                    : "hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                )}
+              >
+                Write Review
+              </Link>
             </nav>
 
             <div className="flex items-center gap-1 sm:gap-2">
@@ -296,16 +410,20 @@ export default function Header() {
                     <NotificationsDropdown />
                   </div>
 
-                  <div className="hidden sm:block">
-                    <LanguageSwitcher />
-                  </div>
-                  
                   <ThemeToggle />
 
-                  <div className="relative">
+                  <div ref={userMenuRef} className="relative">
                     <button
-                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      onClick={() => {
+                        const next = !userMenuOpen
+                        setUserMenuOpen(next)
+                        if (next) {
+                          setMobileOpen(false)
+                          setActiveDropdown(null)
+                        }
+                      }}
                       className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                      aria-label="User account menu"
                     >
                       <div className="w-8 h-8 rounded-xl bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 font-bold text-xs flex items-center justify-center">
                         {session.user?.name?.charAt(0).toUpperCase() || "U"}
@@ -320,21 +438,12 @@ export default function Header() {
                             <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{session.user?.name}</p>
                             <p className="text-[11px] text-zinc-400 truncate">{session.user?.email}</p>
                           </div>
-                          {(session.user as any)?.role === "ADMIN" && (
-                            <Link
-                              href="/admin"
-                              className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-purple-700 bg-purple-50 dark:bg-purple-950/40 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-xl mb-1"
-                              onClick={() => setUserMenuOpen(false)}
-                            >
-                              <LayoutDashboard size={14} /> Admin Dashboard
-                            </Link>
-                          )}
                           <Link
                             href="/account"
                             className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl"
                             onClick={() => setUserMenuOpen(false)}
                           >
-                            <User size={14} /> Dashboard
+                            <User size={14} /> My Profile
                           </Link>
                           <Link
                             href="/account/orders"
@@ -361,9 +470,6 @@ export default function Header() {
                             <div className="w-full">
                               <NotificationsDropdown showLabel label="Updates" />
                             </div>
-                            <div className="px-2 py-1">
-                              <LanguageSwitcher />
-                            </div>
                           </div>
 
                           <Link
@@ -386,7 +492,6 @@ export default function Header() {
                 </>
               ) : (
                 <div className="flex items-center gap-1.5">
-                  <LanguageSwitcher />
                   <ThemeToggle />
                   <Link
                     href="/login"
@@ -398,9 +503,18 @@ export default function Header() {
               )}
 
               <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className="btn-ghost p-2 lg:hidden text-zinc-800 dark:text-zinc-200"
-                aria-label="Menu"
+                onClick={() => {
+                  const next = !mobileOpen
+                  setMobileOpen(next)
+                  if (next) {
+                    setUserMenuOpen(false)
+                    setActiveDropdown(null)
+                  }
+                }}
+                className="btn-ghost p-2 lg:hidden text-zinc-800 dark:text-zinc-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-navigation"
               >
                 {mobileOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
@@ -408,15 +522,27 @@ export default function Header() {
           </div>
         </div>
 
+        {/* Mobile menu backdrop for outside click dismiss */}
+        {mobileOpen && (
+          <div
+            className="fixed inset-0 top-[60px] z-30 bg-black/40 backdrop-blur-xs lg:hidden animate-fade-in"
+            onClick={() => setMobileOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
         {/* Mobile nav — slide-down animation */}
         {mobileOpen && (
-          <div className="lg:hidden border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 animate-slide-down">
+          <div
+            id="mobile-navigation"
+            className="lg:hidden relative z-40 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 animate-slide-down max-h-[calc(100vh-80px)] overflow-y-auto"
+          >
             <div className="container-custom py-4 space-y-1">
               {/* Home */}
               <Link
                 href="/"
                 className={cn(
-                  "block px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors",
+                  "flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors",
                   pathname === "/" ? "text-brand-600 bg-brand-50 dark:bg-brand-950/40" : "text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-900"
                 )}
                 onClick={() => setMobileOpen(false)}
@@ -429,7 +555,8 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setMobileExpanded(p => ({ ...p, product: !p.product }))}
-                  className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold text-zinc-800 dark:text-zinc-200 bg-zinc-50/50 dark:bg-zinc-900/50"
+                  className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-2.5 text-xs font-semibold text-zinc-800 dark:text-zinc-200 bg-zinc-50/50 dark:bg-zinc-900/50"
+                  aria-expanded={!!mobileExpanded.product}
                 >
                   <span>Shop by Product</span>
                   <ChevronDown size={14} className={cn("text-zinc-400 transition-transform duration-200", mobileExpanded.product && "rotate-180")} />
@@ -441,7 +568,7 @@ export default function Header() {
                         key={`m-prod-${idx}`}
                         href={opt.href}
                         onClick={() => setMobileOpen(false)}
-                        className="block px-3 py-2 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                        className="flex items-center min-h-[40px] px-3 py-2 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
                       >
                         {opt.label}
                       </Link>
@@ -455,7 +582,8 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setMobileExpanded(p => ({ ...p, goal: !p.goal }))}
-                  className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold text-zinc-800 dark:text-zinc-200 bg-zinc-50/50 dark:bg-zinc-900/50"
+                  className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-2.5 text-xs font-semibold text-zinc-800 dark:text-zinc-200 bg-zinc-50/50 dark:bg-zinc-900/50"
+                  aria-expanded={!!mobileExpanded.goal}
                 >
                   <span>Shop by Goal</span>
                   <ChevronDown size={14} className={cn("text-zinc-400 transition-transform duration-200", mobileExpanded.goal && "rotate-180")} />
@@ -467,7 +595,7 @@ export default function Header() {
                         key={`m-goal-${idx}`}
                         href={opt.href}
                         onClick={() => setMobileOpen(false)}
-                        className="block px-3 py-2 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                        className="flex items-center min-h-[40px] px-3 py-2 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
                       >
                         {opt.label}
                       </Link>
@@ -478,16 +606,17 @@ export default function Header() {
 
               {/* Other standard nav links */}
               {[
-                { label: "Deals", href: "/deals" },
-                { label: "About", href: "/about" },
-                { label: "Contact", href: "/contact" },
-                { label: "Write Review", href: "/write-review" },
+                { label: "Deals & Offers", href: "/deals" },
+                { label: "Track Your Order", href: "/track" },
+                { label: "About Nutratein", href: "/about" },
+                { label: "Contact Support", href: "/contact" },
+                { label: "Write a Review", href: "/write-review" },
               ].map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
                   className={cn(
-                    "block px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors",
+                    "flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors",
                     pathname === item.href
                       ? "text-brand-600 bg-brand-50 dark:bg-brand-950/40"
                       : "text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-900"
@@ -497,12 +626,58 @@ export default function Header() {
                   {item.label}
                 </Link>
               ))}
-              {!session && (
+
+              {/* Direct Contact Support Box */}
+              <div className="my-2 p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between pb-1 border-b border-zinc-200/50 dark:border-zinc-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Direct Support</span>
+                  <span className="text-[9px] text-emerald-600 font-bold">Online</span>
+                </div>
+                <a
+                  href="mailto:nutratein@gmail.com"
+                  className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300 hover:text-brand-600 text-xs font-medium py-0.5"
+                >
+                  <Mail size={13} className="text-brand-500 shrink-0" />
+                  <span className="truncate">nutratein@gmail.com</span>
+                </a>
+                <a
+                  href="tel:+917030407080"
+                  className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 text-xs font-medium py-0.5"
+                >
+                  <Phone size={13} className="text-emerald-500 shrink-0" />
+                  <span>+91 7030407080</span>
+                </a>
+              </div>
+
+              {session ? (
+                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+                  <div className="px-3 py-1">
+                    <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{session.user?.name}</p>
+                    <p className="text-[10px] text-zinc-400 truncate">{session.user?.email}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href="/account"
+                      onClick={() => setMobileOpen(false)}
+                      className="btn-secondary min-h-[44px] text-xs justify-center items-center"
+                    >
+                      <User size={13} /> My Profile
+                    </Link>
+                    <Link
+                      href="/account/orders"
+                      onClick={() => setMobileOpen(false)}
+                      className="btn-secondary min-h-[44px] text-xs justify-center items-center"
+                    >
+                      <Package size={13} /> My Orders
+                    </Link>
+                  </div>
+                </div>
+              ) : (
                 <div className="pt-3 flex gap-2 border-t border-zinc-100 dark:border-zinc-800">
-                  <Link href="/login" className="btn-secondary flex-1 text-xs justify-center" onClick={() => setMobileOpen(false)}>
+                  <Link href="/login" className="btn-secondary flex-1 min-h-[44px] text-xs justify-center items-center" onClick={() => setMobileOpen(false)}>
                     Sign In
                   </Link>
-                  <Link href="/register" className="btn-primary flex-1 text-xs justify-center" onClick={() => setMobileOpen(false)}>
+                  <Link href="/register" className="btn-primary flex-1 min-h-[44px] text-xs justify-center items-center" onClick={() => setMobileOpen(false)}>
                     Register
                   </Link>
                 </div>

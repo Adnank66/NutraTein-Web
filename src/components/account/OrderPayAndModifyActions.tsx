@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { QrCode, CreditCard, Copy, Check, Edit3, X, Smartphone, CheckCircle2, Phone, AlertCircle, RefreshCw } from "lucide-react"
+import { QrCode, CreditCard, Copy, Check, Edit3, X, Smartphone, CheckCircle2, Phone, AlertCircle, RefreshCw, Clock } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -25,8 +25,13 @@ export default function OrderPayAndModifyActions({
   shippingAddress = "",
 }: OrderPayAndModifyActionsProps) {
   const [paymentStatus, setPaymentStatus] = useState(initialPaymentStatus)
+  const [currentStatus, setCurrentStatus] = useState(deliveryStatus)
   const [showPayModal, setShowPayModal] = useState(false)
   const [showModifyModal, setShowModifyModal] = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [cancelReason, setCancelReason] = useState("Ordered by mistake")
+  const [cancelCustomNotes, setCancelCustomNotes] = useState("")
+  const [isCancelling, setIsCancelling] = useState(false)
   const [copiedUpi, setCopiedUpi] = useState(false)
   const [txnId, setTxnId] = useState("")
   const [isVerifying, setIsVerifying] = useState(false)
@@ -36,8 +41,8 @@ export default function OrderPayAndModifyActions({
     qrCodeImage: string
     instructions?: string
   }>({
-    upiId: "proteinx@upi",
-    upiName: "PROTEINX Supplements Official",
+    upiId: "nutratein@upi",
+    upiName: "NUTRA TEIN Supplements Official",
     qrCodeImage: "/assets/payment/upi-qr.svg",
     instructions: "Scan the QR code with any UPI app and enter the 12-digit UTR/Txn reference below.",
   })
@@ -49,7 +54,7 @@ export default function OrderPayAndModifyActions({
 
   // Lock background scroll when any modal is open
   useEffect(() => {
-    if (showPayModal || showModifyModal) {
+    if (showPayModal || showModifyModal || showCancelModal) {
       document.body.style.overflow = "hidden"
     } else {
       document.body.style.overflow = ""
@@ -57,7 +62,7 @@ export default function OrderPayAndModifyActions({
     return () => {
       document.body.style.overflow = ""
     }
-  }, [showPayModal, showModifyModal])
+  }, [showPayModal, showModifyModal, showCancelModal])
 
   // Fetch admin configured live payment settings
   useEffect(() => {
@@ -149,14 +154,51 @@ export default function OrderPayAndModifyActions({
   }
 
   const isPaid = paymentStatus === "PAID"
-  const isCancelled = deliveryStatus === "CANCELLED"
+  const isCancelled = currentStatus === "CANCELLED" || deliveryStatus === "CANCELLED"
+  const isCancelRequested = currentStatus === "CANCEL_REQUESTED" || deliveryStatus === "CANCEL_REQUESTED"
 
-  if (isCancelled) return null
+  const handleCancelOrder = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsCancelling(true)
+    try {
+      const fullReason = cancelCustomNotes.trim()
+        ? `${cancelReason}: ${cancelCustomNotes.trim()}`
+        : cancelReason
+      const res = await fetch("/api/orders/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumber,
+          reason: fullReason,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast.success("Cancellation request submitted! Email confirmation sent.")
+        setCurrentStatus("CANCEL_REQUESTED")
+        setShowCancelModal(false)
+      } else {
+        toast.error(data.error || "Failed to submit cancellation request")
+      }
+    } catch {
+      toast.error("Network error while submitting cancellation")
+    } finally {
+      setIsCancelling(false)
+    }
+  }
+
+  if (isCancelled) {
+    return (
+      <span className="text-xs font-bold py-1 px-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
+        Cancelled
+      </span>
+    )
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* 1. Pay Now Button for Unpaid/Pending Orders */}
-      {!isPaid && (
+      {!isPaid && !isCancelRequested && (
         <button
           type="button"
           onClick={() => setShowPayModal(true)}
@@ -168,7 +210,7 @@ export default function OrderPayAndModifyActions({
       )}
 
       {/* 2. Change / Modify Order Button */}
-      {deliveryStatus !== "DELIVERED" && (
+      {currentStatus !== "DELIVERED" && currentStatus !== "SHIPPED" && !isCancelRequested && (
         <button
           type="button"
           onClick={() => setShowModifyModal(true)}
@@ -177,6 +219,24 @@ export default function OrderPayAndModifyActions({
           <Edit3 size={13} />
           <span>Change Order</span>
         </button>
+      )}
+
+      {/* 3. Cancellation Status Badge or Request Cancel Button */}
+      {isCancelRequested ? (
+        <span className="text-xs font-bold py-1 px-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center gap-1">
+          <Clock size={12} /> Cancellation Pending Approval
+        </span>
+      ) : (
+        currentStatus !== "DELIVERED" && currentStatus !== "SHIPPED" && (
+          <button
+            type="button"
+            onClick={() => setShowCancelModal(true)}
+            className="text-xs py-1.5 px-3 flex items-center justify-center gap-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 font-bold rounded-lg border border-rose-200 dark:border-rose-800 transition-colors"
+          >
+            <X size={13} />
+            <span>Cancel Order</span>
+          </button>
+        )
       )}
 
       {/* ── PAY NOW MODAL ─────────────────────────────────────────────────── */}
@@ -351,7 +411,7 @@ export default function OrderPayAndModifyActions({
 
               <div className="flex gap-2 pt-2">
                 <a
-                  href={`https://wa.me/919999999999?text=${encodeURIComponent(`Hi NutraTein support, I want to change/modify Order #${orderNumber}. Total: ₹${totalAmount}`)}`}
+                  href={`https://wa.me/919321598094?text=${encodeURIComponent(`Hi NutraTein support, I want to change/modify Order #${orderNumber}. Total: ₹${totalAmount}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-secondary text-xs flex-1 justify-center py-2 border-emerald-500/50 text-emerald-700 dark:text-emerald-400"
@@ -364,6 +424,80 @@ export default function OrderPayAndModifyActions({
                   className="btn-primary text-xs flex-1 justify-center py-2 font-bold"
                 >
                   {isSavingChanges ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── CANCEL ORDER MODAL ────────────────────────────────────────────── */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex justify-center items-center p-4">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-scale-in">
+            <button
+              onClick={() => setShowCancelModal(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center font-bold shrink-0">
+                <AlertCircle size={16} />
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white">Cancel Order #{orderNumber}</h3>
+                <p className="text-xs text-zinc-500">Please select a reason for cancellation</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleCancelOrder} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1.5">Reason for Cancellation</label>
+                <select
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="input text-xs dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200 w-full"
+                >
+                  <option value="Ordered by mistake">Ordered by mistake</option>
+                  <option value="Found a better price / discount">Found a better price / discount</option>
+                  <option value="Incorrect shipping address entered">Incorrect shipping address entered</option>
+                  <option value="Delivery time is too long">Delivery time is too long</option>
+                  <option value="Want to change flavor or size">Want to change flavor or size</option>
+                  <option value="Other reason">Other reason</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1.5">Additional Comments (Optional)</label>
+                <textarea
+                  value={cancelCustomNotes}
+                  onChange={(e) => setCancelCustomNotes(e.target.value)}
+                  placeholder="Tell us more about why you want to cancel..."
+                  className="input text-xs dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200 w-full min-h-[70px] resize-none"
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
+                <AlertCircle size={14} className="shrink-0 mt-0.5 text-amber-600" />
+                <span>Our dispatch team will review your cancellation request immediately. If already paid, your full refund will be processed to your original payment method.</span>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCancelModal(false)}
+                  className="btn-secondary text-xs flex-1 justify-center py-2.5 font-bold"
+                >
+                  Keep Order
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCancelling}
+                  className="btn-primary text-xs flex-1 justify-center py-2.5 font-bold bg-rose-600 hover:bg-rose-700 text-white"
+                >
+                  {isCancelling ? "Submitting..." : "Confirm Cancellation"}
                 </button>
               </div>
             </form>

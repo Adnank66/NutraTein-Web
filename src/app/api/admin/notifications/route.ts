@@ -1,16 +1,11 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 import { prisma } from "@/lib/prisma"
 
-async function requireAdmin() {
-  const session = await auth()
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden. Admin access required." }, { status: 403 })
-  }
-  return null
-}
-
 export async function GET() {
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
+
   try {
     const notifications = await prisma.siteNotification.findMany({
       orderBy: { createdAt: "desc" },
@@ -22,8 +17,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const err = await requireAdmin()
-  if (err) return err
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
 
   try {
     const { title, message, type = "OFFER", link, badge, isActive = true } = await req.json()
@@ -50,8 +45,8 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const err = await requireAdmin()
-  if (err) return err
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
 
   try {
     const { id } = await req.json()

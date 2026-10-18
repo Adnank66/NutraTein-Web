@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { requireAdmin } from "@/lib/security"
 import fs from "fs"
 import path from "path"
 
@@ -23,15 +23,10 @@ function saveSiteReviews(reviews: any[]) {
   } catch (err) {}
 }
 
-async function requireAdmin() {
-  const session = await auth()
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-  }
-  return null
-}
-
 export async function GET() {
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
+
   try {
     // 1. Fetch DB product reviews
     let dbReviews: any[] = []
@@ -82,8 +77,8 @@ export async function GET() {
 }
 
 export async function PATCH(req: Request) {
-  const err = await requireAdmin()
-  if (err) return err
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
   try {
     const { id, status, title, body } = await req.json()
     if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 })
@@ -116,8 +111,8 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const err = await requireAdmin()
-  if (err) return err
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
   try {
     const body = await req.json().catch(() => ({}))
     const { searchParams } = new URL(req.url)

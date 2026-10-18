@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from "react"
 import { signIn, getSession } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, Truck, FlaskConical, KeyRound, RefreshCw, ArrowRight, MessageSquare, Smartphone } from "lucide-react"
 import { toast } from "sonner"
 
@@ -39,6 +40,41 @@ const SOCIAL_LINKS = [
   },
 ]
 
+const MAX_LOGIN_ATTEMPTS = 5
+const LOGIN_LOCKOUT_MS = 5 * 60 * 1000 // 5 minutes
+
+function getStoredAttempts(): number[] {
+  if (typeof window === "undefined") return []
+  try {
+    const raw = localStorage.getItem("nutratein_login_fail_history")
+    if (!raw) return []
+    const timestamps: number[] = JSON.parse(raw)
+    const cutoff = Date.now() - LOGIN_LOCKOUT_MS
+    return timestamps.filter((t) => typeof t === "number" && t > cutoff)
+  } catch {
+    return []
+  }
+}
+
+function saveFailedAttempt(): number {
+  if (typeof window === "undefined") return 1
+  try {
+    const valid = getStoredAttempts()
+    valid.push(Date.now())
+    localStorage.setItem("nutratein_login_fail_history", JSON.stringify(valid))
+    return valid.length
+  } catch {
+    return 1
+  }
+}
+
+function resetLoginAttempts() {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.removeItem("nutratein_login_fail_history")
+  } catch {}
+}
+
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -53,6 +89,9 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
   const [whatsappOptIn, setWhatsappOptIn] = useState(false)
+
+  // Rate limiting (5 attempts in 5 minutes)
+  const [lockoutSeconds, setLockoutSeconds] = useState(0)
 
   // OTP login state
   const [otpCode, setOtpCode] = useState("")
@@ -70,6 +109,24 @@ function LoginForm() {
         setEmail(savedEmail)
       }
     } catch {}
+  }, [])
+
+  // Check rate limit lockout on mount and every second
+  useEffect(() => {
+    const checkLockout = () => {
+      const attempts = getStoredAttempts()
+      if (attempts.length >= MAX_LOGIN_ATTEMPTS) {
+        const oldest = attempts[0]
+        const remainingSec = Math.max(0, Math.ceil((oldest + LOGIN_LOCKOUT_MS - Date.now()) / 1000))
+        setLockoutSeconds(remainingSec)
+      } else {
+        setLockoutSeconds(0)
+      }
+    }
+
+    checkLockout()
+    const interval = setInterval(checkLockout, 1000)
+    return () => clearInterval(interval)
   }, [])
 
   // Timer countdown
@@ -115,6 +172,17 @@ function LoginForm() {
   // Handle form submission (Password or OTP)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Enforce 5 attempts per 5 minutes rate limit
+    const currentAttempts = getStoredAttempts()
+    if (currentAttempts.length >= MAX_LOGIN_ATTEMPTS) {
+      const oldest = currentAttempts[0]
+      const remainingSec = Math.max(1, Math.ceil((oldest + LOGIN_LOCKOUT_MS - Date.now()) / 1000))
+      setLockoutSeconds(remainingSec)
+      toast.error(`Rate limited: 5 attempts per 5 minutes reached. Please wait ${remainingSec}s.`)
+      return
+    }
+
     setLoading(true)
 
     const cleanEmail = email.trim().toLowerCase()
@@ -130,12 +198,28 @@ function LoginForm() {
       const res = await signIn("credentials", credentialsPayload)
 
       if (res?.error) {
-        toast.error(
-          authMode === "OTP"
-            ? "Invalid or expired verification code. Please try again."
-            : "Invalid email or password. Please verify and try again."
-        )
+        // ALWAYS clear password input field on incorrect credentials
+        setPassword("")
+        const totalFails = saveFailedAttempt()
+        if (totalFails >= MAX_LOGIN_ATTEMPTS) {
+          const attempts = getStoredAttempts()
+          const oldest = attempts[0] || Date.now()
+          const remainingSec = Math.max(1, Math.ceil((oldest + LOGIN_LOCKOUT_MS - Date.now()) / 1000))
+          setLockoutSeconds(remainingSec)
+          toast.error("Too many failed attempts (5 in 5 minutes). Login temporarily locked for your security.")
+        } else {
+          const remaining = MAX_LOGIN_ATTEMPTS - totalFails
+          toast.error(
+            authMode === "OTP"
+              ? `Invalid or expired verification code. (${remaining} attempt${remaining === 1 ? "" : "s"} left)`
+              : `Invalid email or password. Password field cleared. (${remaining} attempt${remaining === 1 ? "" : "s"} left before 5-minute lockout)`
+          )
+        }
       } else {
+        // Reset rate limit tracking upon successful sign-in
+        resetLoginAttempts()
+        setLockoutSeconds(0)
+
         // Save login email
         if (rememberMe) {
           document.cookie = `proteinx_user_email=${encodeURIComponent(cleanEmail)}; path=/; max-age=31536000; SameSite=Lax`
@@ -169,6 +253,7 @@ function LoginForm() {
         }
       }
     } catch {
+      setPassword("")
       toast.error("Failed to sign in. Please try again.")
     } finally {
       setLoading(false)
@@ -184,13 +269,15 @@ function LoginForm() {
 
         {/* Top — Brand logo */}
         <div className="relative z-10 p-10">
-          <Link href="/" className="inline-flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
-              <span className="font-black text-base text-zinc-950 italic">N</span>
-            </div>
-            <span className="font-display text-2xl font-black text-white tracking-tight uppercase">
-              NUTRA<span className="text-red-500"> TEIN</span>
-            </span>
+          <Link href="/" className="inline-flex items-center group py-1" aria-label="NutraTein Home">
+            <Image
+              src="/assets/logos/nutratein-logo.png"
+              alt="NutraTein"
+              width={180}
+              height={80}
+              className="h-10 w-auto object-contain invert brightness-200 transition-transform group-hover:scale-105"
+              priority
+            />
           </Link>
         </div>
 
@@ -202,7 +289,7 @@ function LoginForm() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500">Performance</span>
           </h1>
           <p className="mt-4 text-zinc-400 text-sm leading-relaxed max-w-sm">
-            Sign in to track your orders, receive WhatsApp courier updates, and unlock exclusive member deals.
+            Sign in to track your orders, receive live email courier updates, and unlock exclusive member deals.
           </p>
 
           {/* Social proof stats */}
@@ -223,7 +310,7 @@ function LoginForm() {
           <div className="mt-6 flex flex-col gap-2.5">
             {[
               { icon: ShieldCheck, text: "100% Lab Tested & Certified" },
-              { icon: Truck, text: "Same-Day Dispatch & Live WhatsApp Alerts" },
+              { icon: Truck, text: "Same-Day Dispatch & Live Email Alerts" },
               { icon: FlaskConical, text: "Zero Adulteration Guarantee" },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-2.5 text-xs text-zinc-400">
@@ -257,6 +344,20 @@ function LoginForm() {
       {/* ── RIGHT PANEL (Auth Form) ── */}
       <div className="w-full lg:w-1/2 xl:w-[45%] flex flex-col justify-center items-center p-6 sm:p-10 bg-zinc-950">
         <div className="w-full max-w-md space-y-6">
+          {/* Mobile-only brand logo linking to / */}
+          <div className="lg:hidden flex justify-center mb-2">
+            <Link href="/" className="inline-flex items-center group py-1" aria-label="NutraTein Home">
+              <Image
+                src="/assets/logos/nutratein-logo.png"
+                alt="NutraTein"
+                width={150}
+                height={65}
+                className="h-9 w-auto object-contain invert brightness-200"
+                priority
+              />
+            </Link>
+          </div>
+
           <div className="text-center space-y-2">
             <h2 className="text-2xl font-black text-white">Welcome Back</h2>
             <p className="text-xs text-zinc-400">Sign in with your password or instant email verification code</p>
@@ -267,7 +368,7 @@ function LoginForm() {
             <button
               type="button"
               onClick={() => setAuthMode("PASSWORD")}
-              className={`flex-1 py-2 text-[10px] sm:text-xs font-bold rounded-xl transition-all ${
+              className={`flex-1 min-h-[44px] py-2 text-[10px] sm:text-xs font-bold rounded-xl transition-all ${
                 authMode === "PASSWORD"
                   ? "bg-red-600 text-white shadow-md"
                   : "text-zinc-400 hover:text-white"
@@ -278,7 +379,7 @@ function LoginForm() {
             <button
               type="button"
               onClick={() => setAuthMode("OTP")}
-              className={`flex-1 py-2 text-[10px] sm:text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+              className={`flex-1 min-h-[44px] py-2 text-[10px] sm:text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                 authMode === "OTP"
                   ? "bg-red-600 text-white shadow-md"
                   : "text-zinc-400 hover:text-white"
@@ -392,26 +493,6 @@ function LoginForm() {
               </div>
             )}
 
-            {/* WhatsApp Updates Checkbox */}
-            <div className="p-3 rounded-2xl bg-zinc-900/90 border border-zinc-800/90 hover:border-emerald-500/40 transition-colors">
-              <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={whatsappOptIn}
-                  onChange={(e) => setWhatsappOptIn(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-emerald-500 focus:ring-emerald-500/20"
-                />
-                <div className="text-xs">
-                  <span className="font-bold text-zinc-200 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
-                    Get updates on WhatsApp
-                  </span>
-                  <p className="text-[11px] text-zinc-400 mt-0.5">
-                    Receive dispatch notifications, live tracking, and deals directly on WhatsApp.
-                  </p>
-                </div>
-              </label>
-            </div>
 
             <div className="flex items-center justify-between text-xs text-zinc-400">
               <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -425,14 +506,44 @@ function LoginForm() {
               </label>
             </div>
 
+            {/* Rate limit warning banner */}
+            {lockoutSeconds > 0 && (
+              <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/50 text-red-200 text-xs flex items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2.5">
+                  <Lock size={16} className="text-red-400 shrink-0" />
+                  <div>
+                    <span className="font-bold block text-red-200">Rate Limit Active (5 attempts in 5 mins)</span>
+                    <span className="text-zinc-300">
+                      Too many attempts. Wait {Math.floor(lockoutSeconds / 60)}m {lockoutSeconds % 60}s or reset.
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    resetLoginAttempts()
+                    setLockoutSeconds(0)
+                    toast.success("Lockout reset. You may now enter your credentials.")
+                  }}
+                  className="px-2.5 py-1 text-[11px] font-bold bg-red-800 hover:bg-red-700 text-white rounded-lg shrink-0 cursor-pointer"
+                >
+                  Unlock
+                </button>
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={loading || (authMode === "OTP" && (!otpSent || otpCode.length < 6))}
-              className="w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+              disabled={loading || lockoutSeconds > 0 || (authMode === "OTP" && (!otpSent || otpCode.length < 6))}
+              className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation"
             >
               {loading ? (
                 <>
                   <RefreshCw size={14} className="animate-spin" /> Verifying...
+                </>
+              ) : lockoutSeconds > 0 ? (
+                <>
+                  <Lock size={14} /> Locked ({Math.floor(lockoutSeconds / 60)}m {lockoutSeconds % 60}s)
                 </>
               ) : authMode === "OTP" ? (
                 <>

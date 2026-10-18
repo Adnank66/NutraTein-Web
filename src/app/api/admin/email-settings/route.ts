@@ -15,7 +15,7 @@ function getSettings() {
     }
   } catch {}
   return {
-    primaryEmail: "adnankazi275@gmail.com",
+    primaryEmail: "nutratein@gmail.com",
     secondaryEmail: "admin@proteinx.in",
     lowStockThreshold: 20,
     notifyNewOrders: true,
@@ -35,22 +35,25 @@ function saveSettings(data: any) {
   }
 }
 
+import { requireAdmin } from "@/lib/security"
+
 export async function GET() {
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
+
   return NextResponse.json({ success: true, settings: getSettings() })
 }
 
 export async function POST(req: Request) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const body = await req.json()
 
     // Test Email Action
     if (body.action === "send_test") {
-      const target = body.targetEmail || "adnankazi275@gmail.com"
+      const target = body.targetEmail || "nutratein@gmail.com"
       const res = await sendMail(
         target,
         "🔔 [PROTEINX Live Test] Email Notification Delivery Verified",
@@ -78,7 +81,11 @@ export async function POST(req: Request) {
     }
 
     // Save Settings
-    const updated = { ...getSettings(), ...body }
+    const current = getSettings()
+    if (typeof body.lowStockThreshold !== "undefined") {
+      body.lowStockThreshold = Math.max(1, Math.min(1000, Number(body.lowStockThreshold) || 25))
+    }
+    const updated = { ...current, ...body }
     saveSettings(updated)
 
     return NextResponse.json({ success: true, settings: updated })

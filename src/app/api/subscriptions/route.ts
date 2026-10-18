@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+import { getFeatureFlags } from "@/lib/feature-flags"
+
 export const dynamic = "force-dynamic"
 
 const FREQUENCY_DAYS: Record<string, number> = {
@@ -12,6 +14,11 @@ const FREQUENCY_DAYS: Record<string, number> = {
 }
 
 export async function GET() {
+  const flags = getFeatureFlags()
+  if (!flags.enableSubscriptions) {
+    return NextResponse.json({ success: true, enabled: false, subscriptions: [] })
+  }
+
   const session = await auth()
   if (!session?.user?.email) return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
 
@@ -44,6 +51,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const flags = getFeatureFlags()
+  if (!flags.enableSubscriptions) {
+    return NextResponse.json({ error: "Subscriptions are currently paused" }, { status: 403 })
+  }
+
   const session = await auth()
   if (!session?.user?.email) return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
 

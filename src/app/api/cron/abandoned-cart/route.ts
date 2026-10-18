@@ -1,6 +1,7 @@
+import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { sendMail } from "@/lib/sendEmail"
-import { NextResponse } from "next/server"
+import { requireCronSecret } from "@/lib/security"
 
 export async function GET(req: Request) {
   return handleAbandonedCartRecovery(req)
@@ -11,6 +12,8 @@ export async function POST(req: Request) {
 }
 
 async function handleAbandonedCartRecovery(req: Request) {
+  const cronCheck = requireCronSecret(req)
+  if (!cronCheck.authorized) return cronCheck.errorResponse!
   try {
     const url = new URL(req.url)
     const hoursParam = url.searchParams.get("hours") || "2"
@@ -131,7 +134,7 @@ async function handleAbandonedCartRecovery(req: Request) {
                       </div>
 
                       <p style="margin:0; color:#a1a1aa; font-size:11px; text-align:center;">
-                        Need assistance? Reply directly to this email or contact us at adnankazi275@gmail.com / +91 9321598094.
+                        Need assistance? Reply directly to this email or contact us at nutratein@gmail.com / +91 7030407080.
                       </p>
                     </td>
                   </tr>

@@ -20,12 +20,16 @@ const STATUS_COLORS: Record<string, string> = {
 export default function SubscriptionsPage() {
   const [subs, setSubs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [enabled, setEnabled] = useState(true)
 
   const fetchSubs = () => {
     setLoading(true)
     fetch("/api/subscriptions")
       .then(r => r.json())
-      .then(d => setSubs(d.subscriptions || []))
+      .then(d => {
+        if (d.enabled === false) setEnabled(false)
+        setSubs(d.subscriptions || [])
+      })
       .finally(() => setLoading(false))
   }
 
@@ -43,6 +47,23 @@ export default function SubscriptionsPage() {
     } else {
       toast.error("Action failed")
     }
+  }
+
+  if (!loading && !enabled) {
+    return (
+      <div className="max-w-4xl mx-auto py-16 px-4 text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto">
+          <RefreshCw size={28} />
+        </div>
+        <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Subscriptions Currently Unavailable</h1>
+        <p className="text-xs text-zinc-500 max-w-md mx-auto">
+          Our recurring subscription delivery service is currently inactive. You can continue purchasing all authentic NutraTein supplements directly through our shop.
+        </p>
+        <Link href="/shop" className="inline-block text-xs bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-xl">
+          Browse Products
+        </Link>
+      </div>
+    )
   }
 
   return (

@@ -1,0 +1,9 @@
+{
+  "primaryEmail": "nutratein@gmail.com",
+  "secondaryEmail": "adnankazi275@gmail.com",
+  "lowStockThreshold": 25,
+  "notifyNewOrders": true,
+  "notifyLowStock": true,
+  "notifyReturns": true,
+  "notifyContactForm": true
+}

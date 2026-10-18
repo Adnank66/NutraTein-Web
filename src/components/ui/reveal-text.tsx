@@ -213,6 +213,7 @@ export const RevealText = ({
         "flex flex-wrap items-center font-semibold tracking-tight",
         className
       )}
+      aria-label={rawText}
       style={{
         display: "flex",
         flexWrap: "wrap",
@@ -227,18 +228,19 @@ export const RevealText = ({
           wordColors?.[i] || (i === 0 && firstWordColor ? firstWordColor : undefined);
 
         return (
-          <motion.span
-            key={`${word}-${i}`}
-            variants={childVariants}
-            style={{
-              display: "inline-block",
-              marginRight: "0.26em",
-              willChange: "transform, opacity, filter",
-              ...(customColor ? { color: customColor } : {}),
-            }}
-          >
-            {word}
-          </motion.span>
+          <span key={`${word}-${i}`} className="inline-flex">
+            <motion.span
+              variants={childVariants}
+              style={{
+                display: "inline-block",
+                willChange: "transform, opacity, filter",
+                ...(customColor ? { color: customColor } : {}),
+              }}
+            >
+              {word}
+            </motion.span>
+            {i < words.length - 1 && <span className="inline-block w-[0.28em]">&nbsp;</span>}
+          </span>
         );
       })}
     </MotionComponent>

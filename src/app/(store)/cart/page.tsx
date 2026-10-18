@@ -92,8 +92,9 @@ export default function CartPage() {
           <h1 className="text-2xl font-bold text-dark-900">Your Cart is Empty</h1>
           <p className="text-xs text-dark-500">Add supplements to get started.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2">
-            <Link href="/shop" className="btn-primary inline-flex text-xs">
-              Start Shopping <ArrowRight size={14} />
+            <Link href="/shop" className="btn-primary inline-flex text-xs items-center gap-1.5">
+              <ShoppingBag size={14} />
+              <span>Shop More</span>
             </Link>
             {(lastClearedItems?.length > 0 || lastRemovedItem) && (
               <button
@@ -110,7 +111,7 @@ export default function CartPage() {
                 className="btn-secondary inline-flex text-xs items-center gap-1.5 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60"
               >
                 <RotateCcw size={13} />
-                <span>Recover Cleared Cart ({lastClearedItems?.length || 1})</span>
+                <span>Recover</span>
               </button>
             )}
           </div>
@@ -212,8 +213,9 @@ export default function CartPage() {
             })}
 
             <div className="flex items-center justify-between pt-2 flex-wrap gap-2">
-              <Link href="/shop" className="btn-secondary text-xs">
-                Continue Shopping
+              <Link href="/shop" className="btn-secondary text-xs flex items-center gap-1.5">
+                <ShoppingBag size={13} />
+                Shop More
               </Link>
               <div className="flex items-center gap-2">
                 {selectedItemIds.length > 0 ? (
@@ -221,37 +223,26 @@ export default function CartPage() {
                     type="button"
                     onClick={handleClearSelectedItems}
                     className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition-colors flex items-center gap-1.5"
-                    title="Clear selected individual items"
                   >
                     <Trash2 size={13} />
-                    <span>Clear Selected ({selectedItemIds.length})</span>
+                    <span>Clear All</span>
                   </button>
                 ) : (
                   <button
                     type="button"
-                    onClick={handleClearOneItem}
-                    className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 px-3 py-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5"
-                    title="Clear one individual item from cart"
+                    onClick={() => {
+                      if (confirm("Clear all items from your cart?")) {
+                        clearCart()
+                        setSelectedItemIds([])
+                        toast.info("Cart cleared. Click 'Recover' to restore.")
+                      }
+                    }}
+                    className="text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
                   >
-                    <Trash2 size={13} className="text-zinc-500" />
-                    <span>Clear One</span>
+                    <Trash2 size={13} />
+                    <span>Clear All</span>
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (confirm("Clear all items from your cart?")) {
-                      clearCart()
-                      setSelectedItemIds([])
-                      toast.info("Cart cleared. Click 'Recover' anytime to restore.")
-                    }
-                  }}
-                  className="text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
-                  title="Clear all items in cart"
-                >
-                  <Trash2 size={13} />
-                  <span>Clear All</span>
-                </button>
 
                 {(lastClearedItems?.length > 0 || lastRemovedItem) && (
                   <button
@@ -259,14 +250,13 @@ export default function CartPage() {
                     onClick={() => {
                       if (lastClearedItems?.length > 0) {
                         recoverCart()
-                        toast.success(`Recovered ${lastClearedItems.length} items to cart!`)
+                        toast.success(`Recovered ${lastClearedItems.length} items!`)
                       } else if (lastRemovedItem) {
                         recoverItem()
-                        toast.success(`Recovered "${lastRemovedItem.name}" to cart!`)
+                        toast.success(`Recovered "${lastRemovedItem.name}"!`)
                       }
                     }}
                     className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
-                    title="Recover cleared items back to your cart"
                   >
                     <RotateCcw size={13} />
                     <span>Recover</span>

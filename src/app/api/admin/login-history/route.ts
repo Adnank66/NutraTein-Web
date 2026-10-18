@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { requireAdmin } from "@/lib/security"
+
+export const dynamic = "force-dynamic"
 
 export async function GET() {
+  const guard = await requireAdmin()
+  if (!guard.authorized) return guard.errorResponse!
+
   try {
-    // Get last 100 user records with login info — admin only endpoint guarded by middleware
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -16,8 +21,8 @@ export async function GET() {
       orderBy: { updatedAt: "desc" },
       take: 100,
     })
-    return NextResponse.json({ users })
-  } catch (e) {
-    return NextResponse.json({ users: [] })
+    return NextResponse.json({ success: true, users })
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message || "Failed to fetch login history" }, { status: 500 })
   }
 }

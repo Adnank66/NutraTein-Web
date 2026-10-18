@@ -3,18 +3,21 @@ import Link from "next/link"
 import { User, Package, Heart, MapPin, Settings, LayoutDashboard, RefreshCw, Gift } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { getFeatureFlags } from "@/lib/feature-flags"
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
   if (!session) {
-    redirect("/auth/login")
+    redirect("/login")
   }
+
+  const { enableSubscriptions, enableLoyalty } = getFeatureFlags()
 
   const navItems = [
     { label: "Dashboard", href: "/account", icon: User },
     { label: "My Orders", href: "/account/orders", icon: Package },
-    { label: "My Subscriptions", href: "/account/subscriptions", icon: RefreshCw },
-    { label: "My Rewards", href: "/account/rewards", icon: Gift },
+    ...(enableSubscriptions ? [{ label: "My Subscriptions", href: "/account/subscriptions", icon: RefreshCw }] : []),
+    ...(enableLoyalty ? [{ label: "My Rewards", href: "/account/rewards", icon: Gift }] : []),
     { label: "Wishlist", href: "/account/wishlist", icon: Heart },
     { label: "Saved Addresses", href: "/account/addresses", icon: MapPin },
     { label: "Settings", href: "/account/settings", icon: Settings },

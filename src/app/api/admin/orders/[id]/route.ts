@@ -1,15 +1,13 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/security"
 import { updateBackupOrderStatus } from "@/lib/orders-store"
 import { sendMail } from "@/lib/sendEmail"
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { id } = await params
     const isHex = /^[a-f\d]{24}$/i.test(id)
@@ -27,10 +25,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const guard = await requireAdmin()
+    if (!guard.authorized) return guard.errorResponse!
 
     const { id } = await params
     const body = await req.json()
@@ -180,8 +176,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           }
         }
 
-        // Restock inventory if marked as REFUNDED or restock requested
-        if ((status === "REFUNDED" || deliveryStatus === "RETURNED" || restock) && updated?.items) {
+        // Restock inventory if marked as REFUNDED, CANCELLED, RETURNED, or restock requested
+        if ((status === "REFUNDED" || status === "CANCELLED" || deliveryStatus === "CANCELLED" || deliveryStatus === "RETURNED" || restock) && updated?.items) {
           for (const item of updated.items) {
             if (item.variantId) {
               try {
@@ -194,6 +190,28 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
                 console.warn(`Failed to restock variant ${item.variantId}:`, err)
               }
             }
+          }
+        }
+
+        // Trigger Cancellation Email to customer when order is cancelled
+        if ((dataToUpdate.status === "CANCELLED" || dataToUpdate.deliveryStatus === "CANCELLED") && (updated?.customerEmail || updated?.user?.email)) {
+          const customerEmail = updated.customerEmail || updated.user?.email
+          if (customerEmail) {
+            const cancelHtml = `
+              <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #fee2e2; border-radius: 8px; overflow: hidden; background-color: #ffffff;">
+                <div style="background-color: #dc2626; padding: 22px 24px; color: #ffffff;">
+                  <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: #ffffff;">ORDER CANCELLED</h1>
+                  <p style="margin: 6px 0 0 0; font-size: 13px; color: #fecaca;">Order #${updated.orderNumber} has been cancelled</p>
+                </div>
+                <div style="padding: 24px; color: #1e293b;">
+                  <p>Dear ${updated.address?.name || updated.user?.name || "Customer"},</p>
+                  <p>Your order <strong>#${updated.orderNumber}</strong> has been cancelled${note ? ` with note: <em>${note}</em>` : ""}.</p>
+                  ${updated.paymentStatus === "PAID" ? "<p>If you have already completed payment, our team will process your refund to your original payment method within 5–7 business days.</p>" : "<p>Since this order was not paid or was Cash on Delivery, no amount was charged.</p>"}
+                  <p style="font-size: 12px; color: #64748b; margin-top: 24px;">NUTRA TEIN Customer Support | Email: nutratein@gmail.com | Phone: +91 7030407080</p>
+                </div>
+              </div>
+            `
+            sendMail(customerEmail, `Order #${updated.orderNumber} Cancelled — NUTRA TEIN`, cancelHtml).catch(() => {})
           }
         }
       }

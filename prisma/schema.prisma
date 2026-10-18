@@ -80,6 +80,8 @@ model Category {
   sortOrder          Int       @default(0)
   createdAt          DateTime  @default(now())
   products           Product[]
+
+  @@index([sortOrder])
 }
 
 model Product {
@@ -117,6 +119,11 @@ model Product {
   wishlistItems WishlistItem[]
   orderItems    OrderItem[]
   reviews       Review[]
+
+  @@index([isActive, isBestSeller])
+  @@index([categoryId, isActive])
+  @@index([isActive, rating])
+  @@index([createdAt])
 }
 
 model ProductImage {
@@ -128,6 +135,8 @@ model ProductImage {
   sortOrder Int     @default(0)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, isPrimary])
 }
 
 model ProductVariant {
@@ -143,6 +152,8 @@ model ProductVariant {
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   cartItems  CartItem[]
   orderItems OrderItem[]
+
+  @@index([productId, isActive])
 }
 
 model Cart {
@@ -203,6 +214,8 @@ model Address {
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders Order[]
+
+  @@index([userId, isDefault])
 }
 
 model Order {
@@ -239,6 +252,10 @@ model Order {
   address Address?    @relation(fields: [addressId], references: [id])
   items   OrderItem[]
   payment Payment?
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -255,6 +272,9 @@ model OrderItem {
   order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product         @relation(fields: [productId], references: [id])
   variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model Review {
@@ -270,6 +290,9 @@ model Review {
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id])
+
+  @@index([productId, status, createdAt])
+  @@index([userId])
 }
 
 model FAQ {
@@ -312,6 +335,9 @@ model Payment {
   createdAt       DateTime @default(now())
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 model PaymentMethod {

@@ -12,7 +12,8 @@
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "init-db": "node scripts/init-db.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

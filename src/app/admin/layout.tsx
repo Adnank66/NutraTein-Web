@@ -10,8 +10,9 @@ export const dynamic = "force-dynamic"
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
 
-  // Guard admin routes: Render Direct Admin Authentication form directly on /admin
-  if (!session || (session.user as any)?.role !== "ADMIN") {
+  // Guard admin routes: Allow ADMIN and SUPER_ADMIN roles
+  const userRole = (session?.user as any)?.role?.toUpperCase()
+  if (!session || (userRole !== "ADMIN" && userRole !== "SUPER_ADMIN")) {
     return <AdminDirectLogin />
   }
 
@@ -37,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="font-mono text-zinc-700 dark:text-zinc-300 font-semibold">{adminEmail}</span>
             <span>•</span>
-            <span className="font-bold text-purple-600 dark:text-purple-400">Super Administrator</span>
+            <span className="font-bold text-red-600 dark:text-red-400">Super Administrator</span>
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />

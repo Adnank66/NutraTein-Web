@@ -240,14 +240,10 @@ export async function POST(req: Request) {
       }
     }
 
-    let userId = session?.user?.id
-    if (!userId) {
-      const demoUser = await prisma.user.findFirst({ where: { role: "USER" } })
-      userId = demoUser?.id
-    }
+    const userId = session?.user?.id
 
     if (!userId) {
-      // Fallback: save to site reviews if no DB user exists
+      // For unauthenticated customers, save as pending site review without linking to another user's DB record
       const siteReviews = getSiteReviews()
       const newReview = {
         id: Date.now().toString(),
