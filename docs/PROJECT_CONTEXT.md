@@ -80,7 +80,7 @@ The application reads the following environment variable names (values are maske
 5. **Category Manager Redirection**:
    - Linked category cards in `/admin/categories` directly to live storefront shop filters (`/shop?category=${slug}`).
 6. **Navbar Contact Information**:
-   - Added interactive direct support popover on desktop nav and support card in mobile drawer showing `nutratein@gmail.com` and `+91 7030407080`.
+   - Added interactive direct support popover on desktop nav and support card in mobile drawer showing `nutratein@gmail.com` and `+91 877 906 0033`.
    - Global cleanup: zero occurrences of `adnankazi275@gmail.com` remain in any code or configs.
 
 ---

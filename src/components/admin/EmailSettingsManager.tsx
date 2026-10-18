@@ -16,7 +16,7 @@ import { toast } from "sonner"
 
 export default function EmailSettingsManager() {
   const [primaryEmail, setPrimaryEmail] = useState("nutratein@gmail.com")
-  const [secondaryEmail, setSecondaryEmail] = useState("admin@proteinx.in")
+  const [secondaryEmail, setSecondaryEmail] = useState("adnankazi275@gmail.com")
   const [lowStockThreshold, setLowStockThreshold] = useState(25)
   const [notifyNewOrders, setNotifyNewOrders] = useState(true)
   const [notifyLowStock, setNotifyLowStock] = useState(true)

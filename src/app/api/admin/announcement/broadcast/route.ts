@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     // Send via WhatsApp if selected
     if (channel === "WHATSAPP" || channel === "BOTH") {
       try {
-        const phone = recipientPhone || "+91 9321598094"
+        const phone = recipientPhone || "+91 877 906 0033"
         await (prisma as any).notificationLog?.create({
           data: {
             channel: "WHATSAPP",

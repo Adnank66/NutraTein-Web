@@ -1495,7 +1495,7 @@ const stockAlertSubscribers = [
 
 // ── Store Settings ──────────────────────────────────────────────────
 const storeSettings = {
-  whatsappNumber: '919321598094',
+  whatsappNumber: '918779060033',
   whatsappPreMessage: 'Hello, I need help with my order/product.',
   processingDays: 1,
   minDeliveryDays: 3,
@@ -1504,8 +1504,8 @@ const storeSettings = {
   cancellationPolicy: 'Orders can be cancelled before they are shipped.',
   returnPolicy: 'Returns accepted within 7 days of delivery for unopened products.',
   storeName: 'NUTRATEIN Sports Nutrition',
-  storeEmail: 'kaziadnan275@gmail.com',
-  storePhone: '+91 93215 98094',
+  storeEmail: 'nutratein@gmail.com',
+  storePhone: '+91 877 906 0033',
   storeAddress: 'NUTRATEIN Sports Nutrition Ltd., MG Road, Mumbai, Maharashtra - 400001',
   storeGSTIN: '27AABCP1234F1Z5',
   lowStockGlobalThreshold: 10,

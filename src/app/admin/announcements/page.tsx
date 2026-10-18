@@ -821,7 +821,7 @@ export default function AdminAnnouncementsPage() {
                 type="text"
                 value={broadcastPhone}
                 onChange={(e) => setBroadcastPhone(e.target.value)}
-                placeholder="+91 9321598094"
+                placeholder="+91 877 906 0033"
                 className="w-full text-xs pl-8 pr-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-mono"
               />
             </div>

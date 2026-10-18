@@ -97,7 +97,7 @@ export async function POST(req: Request) {
         </div>
         <p>Our dispatch manager will review your request shortly. You will receive an email once the request is approved or updated.</p>
         <p style="color: #71717a; font-size: 12px; margin-top: 30px;">
-          NUTRA TEIN Customer Support | Email: adnankazi275@gmail.com | Phone: +91 9321598094
+          NUTRA TEIN Customer Support | Email: nutratein@gmail.com | Phone: +91 877 906 0033
         </p>
       </div>
       `

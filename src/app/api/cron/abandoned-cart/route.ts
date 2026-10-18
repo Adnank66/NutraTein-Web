@@ -134,7 +134,7 @@ async function handleAbandonedCartRecovery(req: Request) {
                       </div>
 
                       <p style="margin:0; color:#a1a1aa; font-size:11px; text-align:center;">
-                        Need assistance? Reply directly to this email or contact us at nutratein@gmail.com / +91 7030407080.
+                        Need assistance? Reply directly to this email or contact us at nutratein@gmail.com / +91 877 906 0033.
                       </p>
                     </td>
                   </tr>

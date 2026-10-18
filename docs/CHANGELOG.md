@@ -49,7 +49,7 @@
 - **Tests Performed**: Clicked category cards and confirmed redirection to storefront shop category view in a new tab.
 
 ### 5. SMTP Configuration & Verification for `nutratein@gmail.com`
-- **Summary**: Replaced all previous email references with `nutratein@gmail.com` and phone `+91 7030407080`. Synchronized Google App Password in `.env`. Added support popover to desktop nav and support card in mobile drawer. Verified live dispatch.
+- **Summary**: Replaced all previous email references with `nutratein@gmail.com` and phone `+91 877 906 0033`. Synchronized Google App Password in `.env`. Added support popover to desktop nav and support card in mobile drawer. Verified live dispatch.
 - **Affected Files**:
   - `.env`
   - `src/lib/sendEmail.ts`

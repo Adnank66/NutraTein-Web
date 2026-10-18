@@ -207,7 +207,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
                   <p>Dear ${updated.address?.name || updated.user?.name || "Customer"},</p>
                   <p>Your order <strong>#${updated.orderNumber}</strong> has been cancelled${note ? ` with note: <em>${note}</em>` : ""}.</p>
                   ${updated.paymentStatus === "PAID" ? "<p>If you have already completed payment, our team will process your refund to your original payment method within 5–7 business days.</p>" : "<p>Since this order was not paid or was Cash on Delivery, no amount was charged.</p>"}
-                  <p style="font-size: 12px; color: #64748b; margin-top: 24px;">NUTRA TEIN Customer Support | Email: nutratein@gmail.com | Phone: +91 7030407080</p>
+                  <p style="font-size: 12px; color: #64748b; margin-top: 24px;">NUTRA TEIN Customer Support | Email: nutratein@gmail.com | Phone: +91 877 906 0033</p>
                 </div>
               </div>
             `

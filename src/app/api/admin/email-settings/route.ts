@@ -16,7 +16,7 @@ function getSettings() {
   } catch {}
   return {
     primaryEmail: "nutratein@gmail.com",
-    secondaryEmail: "admin@proteinx.in",
+    secondaryEmail: "adnankazi275@gmail.com",
     lowStockThreshold: 20,
     notifyNewOrders: true,
     notifyLowStock: true,

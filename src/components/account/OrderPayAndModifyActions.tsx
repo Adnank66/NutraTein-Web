@@ -411,7 +411,7 @@ export default function OrderPayAndModifyActions({
 
               <div className="flex gap-2 pt-2">
                 <a
-                  href={`https://wa.me/919321598094?text=${encodeURIComponent(`Hi NutraTein support, I want to change/modify Order #${orderNumber}. Total: ₹${totalAmount}`)}`}
+                  href={`https://wa.me/918779060033?text=${encodeURIComponent(`Hi NutraTein support, I want to change/modify Order #${orderNumber}. Total: ₹${totalAmount}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-secondary text-xs flex-1 justify-center py-2 border-emerald-500/50 text-emerald-700 dark:text-emerald-400"

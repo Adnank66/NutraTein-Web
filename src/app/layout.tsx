@@ -76,7 +76,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans antialiased text-dark-900 bg-white selection:bg-brand-500 selection:text-white transition-colors duration-150">
+      <body suppressHydrationWarning className="font-sans antialiased text-dark-900 bg-white selection:bg-brand-500 selection:text-white transition-colors duration-150">
         <GoogleAnalytics />
         <NutraTeinLoader />
         <CookieConsentBanner />

@@ -206,7 +206,7 @@ export default function OrderTrackingPage() {
                     </div>
 
                     <a
-                      href={`https://wa.me/919321598094?text=Hi,%20I%20would%20like%20an%20update%20on%20my%20order%20${order.orderNumber || order.id}`}
+                      href={`https://wa.me/918779060033?text=Hi,%20I%20would%20like%20an%20update%20on%20my%20order%20${order.orderNumber || order.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 shrink-0"

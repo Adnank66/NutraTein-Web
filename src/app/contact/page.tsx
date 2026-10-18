@@ -82,10 +82,28 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-xs text-zinc-900">Phone Support</h3>
-                  <a href="tel:+917030407080" className="text-xs text-zinc-600 hover:text-brand-600 font-mono mt-0.5 block">
-                    +91 7030407080
+                  <a href="tel:+918779060033" className="text-xs text-zinc-600 hover:text-brand-600 font-mono mt-0.5 block">
+                    +91 877 906 0033
                   </a>
                   <p className="text-[10px] text-zinc-400 mt-1">Mon-Sat: 9:00 AM – 6:00 PM</p>
+                </div>
+              </div>
+
+              <div className="card p-5 bg-white border border-emerald-200/80 flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0 font-black text-sm">
+                  W
+                </div>
+                <div>
+                  <h3 className="font-bold text-xs text-zinc-900">WhatsApp Chat</h3>
+                  <a
+                    href="https://wa.me/918779060033?text=Hello%20Nutratein,%20I%20have%20an%20inquiry."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-emerald-600 hover:text-emerald-700 font-mono mt-0.5 block font-bold"
+                  >
+                    +91 877 906 0033 ↗
+                  </a>
+                  <p className="text-[10px] text-zinc-400 mt-1">Instant supplement advice &amp; order tracking</p>
                 </div>
               </div>
 

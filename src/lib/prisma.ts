@@ -11,7 +11,11 @@ if (!rawDbUrl) {
   )
 }
 
-const dbUrl = rawDbUrl.trim().replace(/^["']|["']$/g, "")
+let dbUrl = rawDbUrl.trim().replace(/^["']|["']$/g, "")
+if (!dbUrl.includes("tlsAllowInvalidCertificates")) {
+  const separator = dbUrl.includes("?") ? "&" : "?"
+  dbUrl = `${dbUrl}${separator}tlsAllowInvalidCertificates=true`
+}
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined

@@ -737,7 +737,7 @@ function injectWhatsAppButton() {
     }
     let num = (rawNum || '').replace(/[^0-9]/g, '');
     if (num.length === 10) num = '91' + num;
-    if (!num) num = '919321598094';
+    if (!num) num = '918779060033';
 
     const message = getWhatsAppContextMessage();
     const btn = document.createElement('a');

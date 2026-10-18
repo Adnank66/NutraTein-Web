@@ -55,7 +55,7 @@ function getSettings() {
         announcement: DEFAULT_RIBBONS[0],
         announcementPrimary: DEFAULT_RIBBONS[0],
         announcementSecondary: DEFAULT_RIBBONS[1],
-        supportPhone: "+91 7030407080",
+        supportPhone: "+91 877 906 0033",
         supportEmail: "nutratein@gmail.com",
         freeShippingThreshold: 999,
         socialLinks: {

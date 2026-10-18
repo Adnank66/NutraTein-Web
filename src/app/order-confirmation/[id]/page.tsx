@@ -87,7 +87,7 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
   const whatsappMessage = encodeURIComponent(
     `Hi NUTRA TEIN! My order *#${order.orderNumber}* for *₹${order.totalAmount}* was placed successfully.\nItems: ${itemsSummary}\nPlease share dispatch updates!`
   )
-  const whatsappUrl = `https://wa.me/919321598094?text=${whatsappMessage}`
+  const whatsappUrl = `https://wa.me/918779060033?text=${whatsappMessage}`
 
   return (
     <div className="py-16 bg-zinc-50/50 dark:bg-zinc-950/50 min-h-[75vh]">
@@ -154,7 +154,7 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all duration-200 active:scale-[0.99]"
             >
-              <MessageCircle size={18} /> Confirm & Track on WhatsApp (+91 9321598094)
+              <MessageCircle size={18} /> Confirm & Track on WhatsApp (+91 877 906 0033)
             </a>
           </div>
 

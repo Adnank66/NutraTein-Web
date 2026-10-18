@@ -28,8 +28,8 @@ interface ChatMessage {
   suggestions?: string[]
 }
 
-const WHATSAPP_NUMBER = "919321598094"
-const WHATSAPP_DISPLAY = "+91 93215 98094"
+const WHATSAPP_NUMBER = "918779060033"
+const WHATSAPP_DISPLAY = "+91 877 906 0033"
 
 const GREETINGS = {
   en: "Hi! I am your **Nutratein AI Supplement Advisor**. Ask me anything about choosing the right protein, creatine dosage, mass gainers, or supplements tailored to your budget!",
@@ -78,31 +78,37 @@ export default function AiWhatsAppChatWidget() {
   
   const [messages, setMessages] = useState<ChatMessage[]>([])
 
-  // Update welcome message when language changes
+  // Load persisted chat history on mount
   useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
-        {
-          id: "msg-welcome",
-          sender: "ai",
-          text: GREETINGS[language],
-          suggestions: DEFAULT_SUGGESTIONS[language],
-        },
-      ])
-    } else {
-      // Just update the last welcome message if they haven't chatted yet
-      if (messages.length === 1 && messages[0].id === "msg-welcome") {
-        setMessages([
-          {
-            id: "msg-welcome",
-            sender: "ai",
-            text: GREETINGS[language],
-            suggestions: DEFAULT_SUGGESTIONS[language],
-          },
-        ])
+    try {
+      const saved = localStorage.getItem("nutratein_ai_chat_history")
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed)
+          return
+        }
       }
-    }
+    } catch {}
+
+    setMessages([
+      {
+        id: "msg-welcome",
+        sender: "ai",
+        text: GREETINGS[language],
+        suggestions: DEFAULT_SUGGESTIONS[language],
+      },
+    ])
   }, [language])
+
+  // Persist messages when updated (if user has chatted)
+  useEffect(() => {
+    if (messages.length > 1) {
+      try {
+        localStorage.setItem("nutratein_ai_chat_history", JSON.stringify(messages))
+      } catch {}
+    }
+  }, [messages])
 
   const chatBodyRef = useRef<HTMLDivElement>(null)
   const { addItem } = useCartStore()
@@ -113,7 +119,6 @@ export default function AiWhatsAppChatWidget() {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight
     }
   }, [messages, loading])
-
 
   const openWhatsApp = (customMsg?: string) => {
     const text = customMsg || "Hello Nutratein, I need assistance with product recommendations."
@@ -133,7 +138,7 @@ export default function AiWhatsAppChatWidget() {
     try {
       localStorage.removeItem("nutratein_ai_chat_history")
     } catch {}
-    toast.success("Chat history deleted")
+    toast.success("Chat history cleared successfully!")
   }
 
   const handleSendMessage = async (textToSend?: string) => {
@@ -368,16 +373,16 @@ export default function AiWhatsAppChatWidget() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={handleClearChat}
-                className="p-1.5 text-zinc-400 hover:text-red-400 rounded-lg hover:bg-zinc-900 transition-colors flex items-center gap-1 group"
+                className="px-2 py-1 text-zinc-300 hover:text-red-400 bg-zinc-900 hover:bg-zinc-800 rounded-lg border border-zinc-800 transition-colors flex items-center gap-1.5 group text-xs font-semibold"
                 title="Delete chat history"
                 aria-label="Delete chat history"
               >
-                <Trash2 size={15} className="group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-bold text-zinc-400 group-hover:text-red-400 hidden sm:inline">Delete</span>
+                <Trash2 size={13} className="text-zinc-400 group-hover:text-red-400 transition-colors" />
+                <span className="text-[11px] font-bold">Delete Chat</span>
               </button>
               <button
                 type="button"

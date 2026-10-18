@@ -72,7 +72,7 @@
 #### [TASK-009] Global Email Replacement to `nutratein@gmail.com`
 - **Priority**: P0 (Critical) | **Status**: **Done** | **Completed Date**: Oct 18, 2026
 - **Files**: `src/components/layout/Header.tsx`, `src/app/contact/page.tsx`, `src/data/store-settings.json`, `AUDIT_REPORT.md`
-- **Description**: Replaced all occurrences of `adnankazi275@gmail.com` across the codebase with `nutratein@gmail.com` and phone `+91 7030407080`. Added support popover on desktop nav and support card in mobile drawer.
+- **Description**: Replaced all occurrences of `adnankazi275@gmail.com` across the codebase with `nutratein@gmail.com` and phone `+91 877 906 0033`. Added support popover on desktop nav and support card in mobile drawer.
 - **Verification**: Executed `git grep -i "adnankazi275"`; confirmed 0 occurrences remain in any active code, configs, or templates.
 
 #### [TASK-010] SMTP Configuration & Live Verification for `nutratein@gmail.com`

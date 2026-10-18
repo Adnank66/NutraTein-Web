@@ -1,0 +1,22 @@
+[
+  {
+    "id": "log-init-01",
+    "email": "nutratein@gmail.com",
+    "name": "Nutratein Super Admin",
+    "role": "SUPER_ADMIN",
+    "ipAddress": "127.0.0.1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0.0.0",
+    "status": "SUCCESS",
+    "timestamp": "2026-10-18T16:30:00.000Z"
+  },
+  {
+    "id": "log-init-02",
+    "email": "adnankazi275@gmail.com",
+    "name": "Adnan Kazi",
+    "role": "ADMIN",
+    "ipAddress": "127.0.0.1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0.0.0",
+    "status": "SUCCESS",
+    "timestamp": "2026-10-18T15:45:00.000Z"
+  }
+]

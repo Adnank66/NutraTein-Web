@@ -104,7 +104,7 @@ async function initDB() {
           name: 'Nutratein Admin',
           password: adminPasswordHash,
           role: 'ADMIN',
-          phone: '7030407080',
+          phone: '8779060033',
           isActive: true,
           emailVerified: new Date(),
         },

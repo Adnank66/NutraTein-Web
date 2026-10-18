@@ -379,16 +379,46 @@ export default function PersonalizedSection({ initialProducts }: PersonalizedSec
               {t("home.recommendedDesc")}
             </p>
           </div>
-
-
         </div>
 
-        {/* Category Filter Tabs */}
+        {/* Toggle Mode: Shop by Goal vs Shop by Category */}
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            type="button"
+            onClick={() => {
+              setViewMode("GOAL")
+              setActiveTab("all")
+            }}
+            className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
+              viewMode === "GOAL"
+                ? "bg-zinc-950 text-white border-zinc-950 shadow-sm dark:bg-white dark:text-zinc-950"
+                : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300"
+            }`}
+          >
+            🎯 Shop by Goal
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setViewMode("PRODUCT")
+              setActiveTab("all")
+            }}
+            className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
+              viewMode === "PRODUCT"
+                ? "bg-zinc-950 text-white border-zinc-950 shadow-sm dark:bg-white dark:text-zinc-950"
+                : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300"
+            }`}
+          >
+            🏷️ Shop by Category
+          </button>
+        </div>
+
+        {/* Category & Goal Filter Tabs */}
         <nav
           className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pb-2 mb-8 sm:mb-10"
           aria-label="Supplement categories"
         >
-          {goalTabs.map((tab) => {
+          {(viewMode === "GOAL" ? goalTabs : productTabs).map((tab) => {
             const isActive = activeTab === tab.id
             return (
               <button
@@ -463,20 +493,22 @@ function GoalProductCard({
       href={`/shop/${product.slug}`}
       className="relative flex flex-col flex-none w-[265px] sm:w-[295px] min-h-[460px] sm:min-h-[480px] bg-white border border-[#e3e3e8] rounded-[19px] shadow-[0_5px_12px_rgba(27,27,31,0.02)] transition-all duration-[720ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:border-[#d1d1d8] hover:shadow-[0_24px_48px_rgba(34,34,38,0.14)] hover:-translate-y-[10px] group overflow-hidden"
     >
-      {/* Visual Header */}
-      <div className="relative h-[290px] sm:h-[320px] overflow-hidden bg-[#090909]">
+      {/* Visual Header — Centered & properly fitted product container */}
+      <div className="relative h-[270px] sm:h-[290px] overflow-hidden bg-gradient-to-b from-zinc-900 via-zinc-900/95 to-zinc-950 flex items-center justify-center p-3.5">
         {/* Subtle lighting gradient overlay */}
-        <div className="absolute inset-0 z-10 bg-[linear-gradient(145deg,rgba(255,255,255,0.08),transparent_42%,rgba(0,0,0,0.16))] pointer-events-none" />
+        <div className="absolute inset-0 z-10 bg-[linear-gradient(145deg,rgba(255,255,255,0.06),transparent_42%,rgba(0,0,0,0.2))] pointer-events-none" />
         
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover object-center origin-center w-full h-full transition-all duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04] group-hover:saturate-[1.08] group-hover:contrast-[1.03] z-[1]"
-          sizes="(max-width: 640px) 265px, 295px"
-          priority
-          unoptimized
-        />
+        <div className="relative w-full h-full flex items-center justify-center">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-contain object-center transition-all duration-500 ease-out group-hover:scale-105 z-[1]"
+            sizes="(max-width: 640px) 265px, 295px"
+            priority
+            unoptimized
+          />
+        </div>
       </div>
 
       {/* Top Badges & Action Tools */}

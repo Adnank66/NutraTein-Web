@@ -337,11 +337,20 @@ export default function Header() {
                         <span className="truncate">nutratein@gmail.com</span>
                       </a>
                       <a
-                        href="tel:+917030407080"
+                        href="tel:+918779060033"
                         className="flex items-center gap-2 p-2 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
                       >
-                        <Phone size={14} className="text-emerald-500 shrink-0" />
-                        <span>+91 7030407080</span>
+                        <Phone size={14} className="text-brand-500 shrink-0" />
+                        <span>+91 877 906 0033</span>
+                      </a>
+                      <a
+                        href="https://wa.me/918779060033"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 p-2 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
+                      >
+                        <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] font-black shrink-0">W</span>
+                        <span>WhatsApp: 877 906 0033</span>
                       </a>
                       <Link
                         href="/contact"
@@ -641,11 +650,20 @@ export default function Header() {
                   <span className="truncate">nutratein@gmail.com</span>
                 </a>
                 <a
-                  href="tel:+917030407080"
+                  href="tel:+918779060033"
+                  className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300 hover:text-brand-600 text-xs font-medium py-0.5"
+                >
+                  <Phone size={13} className="text-brand-500 shrink-0" />
+                  <span>+91 877 906 0033</span>
+                </a>
+                <a
+                  href="https://wa.me/918779060033"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 text-xs font-medium py-0.5"
                 >
-                  <Phone size={13} className="text-emerald-500 shrink-0" />
-                  <span>+91 7030407080</span>
+                  <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] font-black shrink-0">W</span>
+                  <span>WhatsApp: 877 906 0033</span>
                 </a>
               </div>
 

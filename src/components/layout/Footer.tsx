@@ -122,7 +122,11 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Phone size={13} className="text-red-500" />
-                <a href="tel:+917030407080" className="hover:text-white transition-colors">+91 7030407080 (Mon-Sat, 9AM-6PM)</a>
+                <a href="tel:+918779060033" suppressHydrationWarning className="hover:text-white transition-colors">+91 877 906 0033 (Mon-Sat, 9AM-6PM)</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] font-black shrink-0">W</span>
+                <a href="https://wa.me/918779060033" suppressHydrationWarning target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">WhatsApp: +91 877 906 0033</a>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin size={13} className="text-red-500 shrink-0" />

@@ -137,5 +137,5 @@ For full engineering rules, refer to **[`docs/CODING_RULES.md`](file:///d:/Git%2
 ## 📞 Support & Contacts
 
 - **Email Support**: `nutratein@gmail.com`
-- **Phone Support**: `+91 7030407080`
+- **Phone Support**: `+91 877 906 0033`
 - **Headquarters**: Kon Gaon, Kalyan West, Mumbai, Maharashtra 421311, India
