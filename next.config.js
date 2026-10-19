@@ -20,6 +20,7 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   images: {
+    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
@@ -35,6 +36,8 @@ const nextConfig = {
     localPatterns: [
       { pathname: '/uploads/**' },
       { pathname: '/assets/**' },
+      { pathname: '/images/**' },
+      { pathname: '/**' },
     ],
   },
   serverExternalPackages: ['@prisma/client', 'bcryptjs'],
