@@ -9,12 +9,29 @@ export default function CookieConsentBanner() {
 
   useEffect(() => {
     try {
-      const consent = localStorage.getItem("nutratein_cookie_consent")
-      if (!consent) {
+      const localConsent = localStorage.getItem("nutratein_cookie_consent")
+      const cookieMatch = document.cookie.match(/(?:^|; )nutratein_cookie_consent=([^;]*)/)
+      if (!localConsent && !cookieMatch) {
         setTimeout(() => setShow(true), 1500)
+      } else if (cookieMatch && !localConsent) {
+        try {
+          localStorage.setItem("nutratein_cookie_consent", decodeURIComponent(cookieMatch[1]))
+        } catch {}
       }
     } catch {}
   }, [])
+
+  const saveConsent = (consentObj: any) => {
+    try {
+      const serialized = JSON.stringify(consentObj)
+      localStorage.setItem("nutratein_cookie_consent", serialized)
+      document.cookie = `nutratein_cookie_consent=${encodeURIComponent(serialized)}; path=/; max-age=31536000; SameSite=Lax`
+      window.dispatchEvent(new CustomEvent("nutratein_consent_changed", { detail: consentObj }))
+    } catch (e) {
+      console.error("[CookieConsent] Save error:", e)
+    }
+    setShow(false)
+  }
 
   const accept = (all: boolean) => {
     const consent = {
@@ -23,20 +40,17 @@ export default function CookieConsentBanner() {
       marketing: all ? true : prefs.marketing,
       timestamp: new Date().toISOString(),
     }
-    try {
-      localStorage.setItem("nutratein_cookie_consent", JSON.stringify(consent))
-      window.dispatchEvent(new CustomEvent("nutratein_consent_changed", { detail: consent }))
-    } catch {}
-    setShow(false)
+    saveConsent(consent)
   }
 
   const decline = () => {
-    const consent = { essential: true, analytics: false, marketing: false, timestamp: new Date().toISOString() }
-    try {
-      localStorage.setItem("nutratein_cookie_consent", JSON.stringify(consent))
-      window.dispatchEvent(new CustomEvent("nutratein_consent_changed", { detail: consent }))
-    } catch {}
-    setShow(false)
+    const consent = {
+      essential: true,
+      analytics: false,
+      marketing: false,
+      timestamp: new Date().toISOString(),
+    }
+    saveConsent(consent)
   }
 
   if (!show) return null

@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import "./globals.css"
 import SessionProvider from "@/components/providers/SessionProvider"
 import { Toaster } from "sonner"
@@ -7,6 +7,14 @@ import CookieConsentBanner from "@/components/CookieConsentBanner"
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics"
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nutratein.in"
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#ffffff",
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -54,16 +62,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Proper mobile viewport — critical for phone responsiveness */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
-        <meta name="theme-color" content="#ffffff" />
-
-        {/* Priority hints: Preconnect & DNS-Prefetch for connection reuse */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-
+      </head>
+      <body suppressHydrationWarning className="font-sans antialiased text-dark-900 bg-white selection:bg-brand-500 selection:text-white transition-colors duration-150">
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{document.documentElement.classList.remove('dark');localStorage.setItem('theme', 'light')}catch(e){}})()`,
@@ -75,8 +79,6 @@ export default function RootLayout({
             __html: `(function(){document.addEventListener('contextmenu',function(e){e.preventDefault();});document.addEventListener('keydown',function(e){if(e.key==='F12'){e.preventDefault();return false;}if(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key.toUpperCase())){e.preventDefault();return false;}if(e.ctrlKey&&e.key.toUpperCase()==='U'){e.preventDefault();return false;}if(e.metaKey&&e.altKey&&e.key.toUpperCase()==='I'){e.preventDefault();return false;}});})();`,
           }}
         />
-      </head>
-      <body suppressHydrationWarning className="font-sans antialiased text-dark-900 bg-white selection:bg-brand-500 selection:text-white transition-colors duration-150">
         <GoogleAnalytics />
         <NutraTeinLoader />
         <CookieConsentBanner />

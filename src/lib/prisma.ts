@@ -3,13 +3,8 @@ import { PrismaClient } from "@prisma/client"
 const rawDbUrl =
   process.env.DATABASE_URL ||
   process.env.MONGO_URI ||
-  process.env.MONGODB_URI
-
-if (!rawDbUrl) {
-  throw new Error(
-    "Missing MongoDB database connection string. Ensure DATABASE_URL or MONGODB_URI is configured in your environment."
-  )
-}
+  process.env.MONGODB_URI ||
+  "mongodb://localhost:27017/nutratein_build"
 
 let dbUrl = rawDbUrl.trim().replace(/^["']|["']$/g, "")
 if (!dbUrl.includes("tlsAllowInvalidCertificates")) {

@@ -28,7 +28,11 @@ export default function GoogleAnalytics() {
   useEffect(() => {
     const checkConsent = () => {
       try {
-        const raw = localStorage.getItem("nutratein_cookie_consent")
+        let raw = localStorage.getItem("nutratein_cookie_consent")
+        if (!raw) {
+          const m = document.cookie.match(/(?:^|; )nutratein_cookie_consent=([^;]*)/)
+          if (m) raw = decodeURIComponent(m[1])
+        }
         const consent = raw ? JSON.parse(raw) : null
         const isStrictRegion = isEuOrUkOrChTimezone()
 
